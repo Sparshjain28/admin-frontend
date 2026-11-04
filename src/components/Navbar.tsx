@@ -154,12 +154,6 @@ function getBreadcrumbs(pathname: string, userRole?: string): BreadcrumbItem[] {
       { label: "Link Loan Finder", path: "/link-loan-finder" }
     ];
   }
-  if (path === "/account-aggregator") {
-    return [
-      { label: "Operations", path: "/calling" },
-      { label: "Account Aggregator", path: "/account-aggregator" }
-    ];
-  }
 
   // Find My Lender / Car Value
   if (path === "/find-lender") {

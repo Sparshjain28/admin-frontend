@@ -70,7 +70,6 @@ const DocsToShare = lazy(() => import("@/pages/DocsToShare"));
 const EMICalculator = lazy(() => import("@/pages/EMICalculator"));
 const CallingManagement = lazy(() => import("@/pages/CallingManagement"));
 const StandaloneCreditReports = lazy(() => import("@/pages/StandaloneCreditReports"));
-const AccountAggregator = lazy(() => import("@/pages/AccountAggregator"));
 const ApiUsage = lazy(() => import("@/pages/ApiUsage"));
 const AdminApiUsage = lazy(() => import("@/pages/AdminApiUsage"));
 const ApiIntegrations = lazy(() => import("@/pages/ApiIntegrations"));
@@ -372,12 +371,7 @@ function AppRoutes() {
             <StandaloneCreditReports />
           </RoleProtectedRoute>
         } />
-        <Route path="/account-aggregator" element={
-          <RoleProtectedRoute allowedRoles={['admin', 'sales_manager', 'manager', 'operation_team']}>
-            <AccountAggregator />
-          </RoleProtectedRoute>
-        } />
-        <Route path="/admin/api-usage" element={
+                <Route path="/admin/api-usage" element={
           <RoleProtectedRoute allowedRoles={['admin']}>
             <ApiUsage />
           </RoleProtectedRoute>

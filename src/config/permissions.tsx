@@ -41,7 +41,6 @@ export interface NavItem {
 //       { label: 'Expenses', path: '/expenses', icon: <CreditCard size={16} />, roles: ['admin', 'manager', 'sales_manager', 'branch_manager', 'dsa'] },
 //       { label: 'Insurance', path: '/insurance', icon: <ShieldCheck size={16} />, roles: ['admin', 'manager', 'sales_manager', 'branch_manager'] },
 //       { label: 'Link Loan Finder', path: '/link-loan-finder', icon: <Shield size={16} />, roles: ['admin', 'sales_manager', 'branch_manager'] },
-//       { label: 'Account Aggregator', path: '/account-aggregator', icon: <Database size={16} />, roles: ['admin', 'sales_manager', 'manager', 'branch_manager', 'dsa', 'team_leader', 'executive', 'ops_team', 'operation_team'] },
 //     ]
 //   },
 //   { label: 'Find My Lender', path: '/find-lender', icon: <MapPin size={18} />, roles: ['admin', 'manager', 'sales_manager', 'branch_manager', 'dsa', 'team_leader', 'executive'] },
@@ -182,12 +181,6 @@ export const NAV_ITEMS: NavItem[] = [
         path: "/link-loan-finder",
         icon: <Shield size={16} />,
         permission: "link_loan_finder.view",
-      },
-      {
-        label: "Account Aggregator",
-        path: "/account-aggregator",
-        icon: <Database size={16} />,
-        permission: "account_aggregator.view",
       },
     ],
   },

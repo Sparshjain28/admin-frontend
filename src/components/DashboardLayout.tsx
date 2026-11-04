@@ -69,7 +69,6 @@ export const NAV_ITEMS: NavItem[] = [
       { label: 'Credit Report', path: '/credit-reports', icon: <FileText size={16} />, roles: ['admin', 'sales_manager', 'manager', 'branch_manager', 'team_leader', 'executive', 'dsa'] },
       { label: 'Expenses', path: '/expenses', icon: <CreditCard size={16} />, roles: ['admin', 'manager', 'sales_manager', 'branch_manager', 'dsa'] },
       { label: 'Link Loan Finder', path: '/link-loan-finder', icon: <Shield size={16} />, roles: ['admin', 'sales_manager', 'branch_manager'] },
-      { label: 'Account Aggregator', path: '/account-aggregator', icon: <Database size={16} />, roles: ['admin', 'sales_manager', 'manager', 'branch_manager', 'dsa', 'team_leader', 'executive', 'ops_team', 'operation_team'] },
     ]
   },
   { label: 'PDD Management', path: '/pdd-management', icon: <FileText size={18} />, roles: ['admin', 'branch_manager', 'sales_manager', 'dsa', 'operation_team', 'loan_operations'] },
