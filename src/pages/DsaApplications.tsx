@@ -5,7 +5,7 @@ import { ArrowLeft, AlertTriangle, ExternalLink, Loader2 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { LANE_CORRECTABLE, LANE_EDITABLE, LANE_SECTIONS, STATUS_META, STEP_FIELDS, STEP_LABELS, laneOf, proofRuleOf, regComplete, regDocsOf, summaryRows, type Field } from '@/pages/dsa/dsaConfig';
+import { LANE_CORRECTABLE, LANE_EDITABLE, LANE_SECTIONS, STATUS_META, STEP_FIELDS, STEP_LABELS, laneOf, proofRuleOf, regComplete, regDocsOf, officePhotoNote, summaryRows, type Field } from '@/pages/dsa/dsaConfig';
 import { openDsaFile, uploadDsaFile } from '@/pages/dsa/dsaFiles';
 import { recordRows } from '@/pages/dsa/dsaRecord';
 
@@ -60,7 +60,7 @@ function List() {
   useEffect(() => { const t = setTimeout(load, 250); return () => clearTimeout(t); }, [load]);
 
   return (
-    <div className="mx-auto max-w-5xl p-4 sm:p-6">
+    <div className="copyable mx-auto max-w-5xl p-4 sm:p-6">
       <div className="mb-4">
         <h1 className="text-xl font-bold text-foreground">DSA Applications</h1>
         <p className="text-xs text-muted-foreground">
@@ -266,7 +266,7 @@ function Detail({ id }: { id: string }) {
   const files: any[] = res.files || [];
 
   return (
-    <div className="mx-auto max-w-4xl p-4 sm:p-6">
+    <div className="copyable mx-auto max-w-4xl p-4 sm:p-6">
       <button type="button" onClick={() => navigate('/dsa-applications')} className="mb-3 flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"><ArrowLeft size={14} />All applications</button>
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <div>
@@ -346,12 +346,23 @@ function Detail({ id }: { id: string }) {
                       </button>
                     </div>
                   )}
+                  {s === 'kyc' && app.data.kyc?.source === 'upload' && (
+                    <div className="flex flex-wrap gap-3 pt-1">
+                      {([['aadhaar_front', 'Aadhaar front'], ['aadhaar_back', 'Aadhaar back'], ['pan_front', 'PAN front'], ['pan_back', 'PAN back']] as [string, string][])
+                        .filter(([k]) => app.data.kyc.files?.[k]).map(([k, label]) => (
+                          <button key={k} type="button" className="inline-flex items-center gap-1 text-xs text-primary"
+                            onClick={() => openDsaFile(app.data.kyc.files[k]).catch((e) => toast.error(e.message))}>
+                            <ExternalLink size={12} />View {label.toLowerCase()}
+                          </button>
+                        ))}
+                    </div>
+                  )}
                   {s === 'work_setup' && (app.data.work_setup?.office_photos || []).length > 0 && (
                     <div className="flex flex-wrap gap-3 pt-1">
                       {(app.data.work_setup.office_photos as any[]).map((ph, i) => (
                         <button key={ph.id} type="button" className="inline-flex items-center gap-1 text-xs text-primary"
                           onClick={() => openDsaFile(ph.id).catch((e) => toast.error(e.message))}>
-                          <ExternalLink size={12} />View office photo {i + 1}
+                          <ExternalLink size={12} />View office photo {i + 1} ({officePhotoNote(ph, app.data.location)})
                         </button>
                       ))}
                     </div>
@@ -367,7 +378,7 @@ function Detail({ id }: { id: string }) {
                   {s === 'business_proof' && (
                     <div className="flex flex-wrap gap-3 pt-1">
                       {[...regDocsOf(app.data.business_proof).map((r) => [r.type, r.file_id]), ['Authority proof', app.data.business_proof.authority_doc_file_id],
-                        ...((app.data.business_proof.office_photos || []) as any[]).map((ph, i) => [`Office photo ${i + 1}`, ph.id])].map(([label, fid]) => (
+                        ...((app.data.business_proof.office_photos || []) as any[]).map((ph, i) => [`Office photo ${i + 1} (${officePhotoNote(ph, app.data.firm_address)})`, ph.id])].map(([label, fid]) => (
                         fid ? (
                           <button key={`${label}-${fid}`} type="button" className="inline-flex items-center gap-1 text-xs text-primary"
                             onClick={() => openDsaFile(fid as number).catch((e) => toast.error(e.message))}>

@@ -49,7 +49,6 @@ export const regDocsOf = (d: any): { type: string; file_id: number; file_name?: 
     : d?.reg_doc_file_id ? [{ type: d.reg_doc_type, file_id: d.reg_doc_file_id, file_name: d.reg_doc_file_name, file_size: d.reg_doc_file_size }] : [];
 
 export const STEP_LABELS: Record<string, string> = {
-  otp: 'Mobile verification',
   consent: 'Consent',
   type: 'Applicant type',
   // Individual DSA steps
@@ -122,10 +121,10 @@ export const STEP_FIELDS: Record<string, Field[]> = {
   ],
   work_setup: [
     { key: 'work_type', label: 'Work setup', type: 'select', options: ['office', 'freelancer'] },
-    { key: 'address_line', label: 'Working address' },
+    { key: 'pincode', label: 'PIN code' },
     { key: 'city', label: 'City' },
     { key: 'state', label: 'State' },
-    { key: 'pincode', label: 'PIN code' },
+    { key: 'address_line', label: 'Working address' },
   ],
   location: [
     { key: 'mode', label: 'Location type', type: 'select', options: ['gps', 'verified_address'] },
@@ -176,7 +175,12 @@ export function summaryRows(step: string, d: any): [string, string][] {
       rows.push([d.name_locked ? 'Name (from PAN, locked)' : 'Name (as per Aadhaar)', d.full_name], ['Date of birth', d.dob], ['Gender', d.gender],
         [d.address_locked ? 'Address (from DigiLocker, locked)' : 'Address', d.address], ['District', d.district], ['State', d.state],
         ['PIN code', d.pincode], ['Aadhaar', d.aadhaar_last4 ? `XXXX XXXX ${d.aadhaar_last4}` : ''], ['Verified', verifiedText(d)],
-        ['PAN–Aadhaar link', d.pan_link === 'linked_match' ? 'Linked and last 4 digits match' : d.pan_link === 'unlinked' ? 'PAN not linked to Aadhaar (reviewer to check)' : '']);
+        ['PAN–Aadhaar link', d.pan_link === 'linked_match' ? 'Linked and last 4 digits match' : d.pan_link === 'linked_mismatch' ? 'PAN is linked to a different Aadhaar (last 4 digits do not match)' : d.pan_link === 'unlinked' ? 'PAN not linked to Aadhaar (reviewer to check)' : ''],
+        ...(d.source === 'upload' ? [
+          ['Source', 'Read from the uploaded Aadhaar and PAN photos'],
+          ['Confirmed by the applicant', d.confirmed ? 'Yes' : 'Not yet'],
+          ['Corrected after reading', Array.isArray(d.edited) && d.edited.length ? d.edited.join(', ') : 'Nothing'],
+        ] as [string, any][] : []));
       break;
     case 'work_setup':
       rows.push(['Work setup', d.work_type], ...(d.work_type === 'office' ? [['Office photos', `${(d.office_photo_file_ids || []).length} uploaded`] as [string, any]] : []), ['Address', d.address_line], ['City', d.city], ['State', d.state], ['PIN code', d.pincode]);
@@ -221,7 +225,8 @@ export function summaryRows(step: string, d: any): [string, string][] {
         ['House / shop / building / floor', d.building], [d.address_locked ? 'Address (from business PAN, locked)' : 'Street / area', d.reg_address], ['City', d.city], ['State', d.state], ['PIN code', d.pincode]);
       break;
     case 'bank':
-      rows.push(['Account', d.account_last4 ? `XXXXXX${d.account_last4}` : ''], ['IFSC', d.ifsc], ['Holder', d.holder_name],
+      // The full number only comes in the reviewer's response; the applicant's own view only has the last 4.
+      rows.push(['Account', d.account_number || (d.account_last4 ? `XXXXXX${d.account_last4}` : '')], ['IFSC', d.ifsc], ['Holder', d.holder_name],
         ['Bank', [d.bank_name, d.branch].filter(Boolean).join(' · ')], ['Verified', verifiedText(d)]);
       break;
     default: break;
@@ -233,6 +238,7 @@ function verifiedText(d: any): string {
   if (!d) return 'No';
   if (d.verified_by === 'format_only') return 'Format and PAN match checked only. Reviewer: check it on the GST portal';
   if (d.verified_by === 'not_checked') return 'Not checked. Reviewer: check the Udyam registration';
+  if (d.source === 'upload' && !d.verified) return 'Not verified: read from uploaded photos (reviewer to check the photos)';
   if (!d.verified) return 'No';
   if (d.verified_by === 'existing') return 'Yes (already verified on your profile)';
   if (d.source === 'aadhaar_otp' && d.verified_by !== 'mock') return 'Yes (Aadhaar OTP, tied to the PAN)';
@@ -241,3 +247,16 @@ function verifiedText(d: any): string {
   if (d.verified_by === 'digilocker') return 'Yes (verified through DigiLocker)';
   return 'Yes';
 }
+
+// How far (metres) two places are from each other.
+export const metresBetween = (aLat: number, aLng: number, bLat: number, bLng: number) => {
+  const rad = (d: number) => (d * Math.PI) / 180;
+  const h = Math.sin(rad(bLat - aLat) / 2) ** 2 + Math.cos(rad(aLat)) * Math.cos(rad(bLat)) * Math.sin(rad(bLng - aLng) / 2) ** 2;
+  return Math.round(2 * 6371000 * Math.asin(Math.sqrt(h)));
+};
+// For the reviewer: where an office photo was taken, against the location shared in the next step (a firm's Address step, an individual's Location step).
+export const officePhotoNote = (photo: any, firmAddress: any) => {
+  if (photo?.lat == null) return 'place not recorded';
+  if ((firmAddress?.location_mode ?? firmAddress?.mode) !== 'gps' || firmAddress.lat == null) return 'location not shared';
+  return `${metresBetween(photo.lat, photo.lng, firmAddress.lat, firmAddress.lng)} m from the office location`;
+};
