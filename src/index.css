@@ -1,0 +1,544 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Ocean Blue System */
+    --primary: 203 60% 39%;
+    /* #2872A1 */
+    --primary-foreground: 0 0% 100%;
+
+    --surface: 204 40% 85%;
+    /* #CBDDE9 */
+    --background: 202 52% 95%;
+    /* #EDF4F8 */
+    --foreground: 205 41% 17%;
+    /* #1A2F3E */
+
+    --card: 0 0% 100%;
+    --card-foreground: 205 41% 17%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 205 41% 17%;
+
+    --secondary: 204 40% 85%;
+    --secondary-foreground: 205 41% 17%;
+
+    --muted: 204 40% 90%;
+    --muted-foreground: 202 23% 47%;
+    /* #5C7F94 */
+
+    --accent: 204 40% 85%;
+    --accent-foreground: 203 60% 39%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 204 40% 85%;
+    /* Cloudy Sky HSL */
+    --input: 204 40% 85%;
+    --ring: 203 60% 39%;
+    /* Ocean Blue */
+
+    --radius: 0.5rem;
+
+    /* Theme-specific tokens */
+    /* Sidebar palette matches Finonest_FE: slate #1e293b, panel #243045,
+       muted text #696F74, theme cyan #00bed8 */
+    --sidebar-background: 217.24 32.58% 17.45%; /* #1e293b */
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 187.22 100% 42.35%; /* #00bed8 */
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 218.18 31.43% 20.59%; /* #243045 */
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 219.23 19.7% 25.88%; /* white @10% over #1e293b */
+    --sidebar-ring: 187.22 100% 42.35%;
+    --sidebar-muted: 207.27 4.98% 43.33%; /* #696F74 */
+  }
+
+  .dark {
+    /* Ignoring dark mode for now as per instructions to avoid dark mode defaults */
+    --background: 202 52% 95%;
+    --foreground: 205 41% 17%;
+    --card: 0 0% 100%;
+    --card-foreground: 205 41% 17%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 205 41% 17%;
+    --primary: 203 60% 39%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 204 40% 85%;
+    --secondary-foreground: 205 41% 17%;
+    --muted: 204 40% 90%;
+    --muted-foreground: 202 23% 47%;
+    --accent: 204 40% 85%;
+    --accent-foreground: 203 60% 39%;
+    --border: 204 40% 85%;
+    --input: 204 40% 85%;
+    --ring: 203 60% 39%;
+
+    /* Sidebar Dark Mode */
+    --sidebar-background: 222.22 47.37% 11.18%; /* #0f172a */
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 187.22 100% 42.35%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 217.24 32.58% 17.45%; /* #1e293b */
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 217 20% 22%;
+    --sidebar-ring: 187.22 100% 42.35%;
+    --sidebar-muted: 207.27 4.98% 43.33%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    box-sizing: border-box;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    /* fluid font: 13px on 320px screen → 15px on 1280px screen */
+    font-size: clamp(0.8125rem, 0.75rem + 0.3125vw, 0.9375rem);
+    min-height: 100dvh;
+    margin: 0;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    /* safe area insets for notched phones (iPhone 17, etc.) */
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  .font-heading {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+@layer utilities {
+  .glass-card {
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    background-color: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+    border-radius: 12px;
+  }
+
+  .glass-panel {
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    background-color: rgba(255, 255, 255, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 14px;
+    box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.05);
+  }
+
+  .theme-border {
+    border-color: rgba(40, 114, 161, 0.15);
+  }
+
+  .card-shadow {
+    box-shadow: 0 4px 20px -2px rgba(203, 221, 233, 0.4), 0 0 2px rgba(203, 221, 233, 0.6);
+  }
+
+  .card-hover {
+    @apply transition-transform duration-200;
+    box-shadow: 0 4px 20px -2px rgba(203, 221, 233, 0.4), 0 0 2px rgba(203, 221, 233, 0.6);
+  }
+
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px -4px rgba(203, 221, 233, 0.6), 0 0 4px rgba(203, 221, 233, 0.8);
+  }
+
+  .transition-sidebar {
+    transition: width 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Custom Sidebar Scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 3px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 210, 255, 0.15);
+    border-radius: 10px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 210, 255, 0.4);
+  }
+
+  /* ── RWD: fluid container ─────────────────────────────────────────────── */
+  .page-container {
+    width: 100%;
+    max-width: 100%;
+    padding-inline: clamp(0.75rem, 3vw, 1.5rem);
+  }
+
+  /* Remove side white-space borders on mobile & tablet (below lg) */
+  @media (max-width: 1023px) {
+    .page-container {
+      padding-inline: 0;
+    }
+  }
+
+  /* ── RWD: stat card ───────────────────────────────────────────────────── */
+  .stat-card {
+    @apply bg-card border border-border rounded-xl shadow-sm transition-all duration-200;
+    padding: clamp(0.625rem, 2vw, 1rem);
+  }
+
+  .stat-card:hover {
+    @apply shadow-md;
+  }
+
+  /* ── RWD: fluid typography ────────────────────────────────────────────── */
+  .text-fluid-xs {
+    font-size: clamp(0.65rem, 1.5vw, 0.75rem);
+  }
+
+  .text-fluid-sm {
+    font-size: clamp(0.75rem, 2vw, 0.875rem);
+  }
+
+  .text-fluid-base {
+    font-size: clamp(0.875rem, 2.5vw, 1rem);
+  }
+
+  .text-fluid-lg {
+    font-size: clamp(1rem, 3vw, 1.25rem);
+  }
+
+  .text-fluid-xl {
+    font-size: clamp(1.125rem, 3.5vw, 1.5rem);
+  }
+
+  .text-fluid-2xl {
+    font-size: clamp(1.25rem, 4vw, 1.875rem);
+  }
+
+  /* ── RWD: touch-friendly tap targets ─────────────────────────────────── */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* ── RWD: fluid grid helpers ──────────────────────────────────────────── */
+  .grid-auto-fill-sm {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 10rem), 1fr));
+  }
+
+  .grid-auto-fill-md {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
+  }
+
+  .grid-auto-fill-lg {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+  }
+
+  /* ── RWD: prevent iOS input zoom (≥16px) ─────────────────────────────── */
+  input,
+  select,
+  textarea {
+    font-size: max(16px, 1em);
+  }
+
+  /* Prevent card headers from ever overlapping content */
+  .card-header-safe {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid hsl(var(--border) / 0.5);
+    background: rgba(249, 250, 251, 0.3);
+    flex-shrink: 0;
+  }
+
+  /* ── Sidebar Active Item Cutout Effect ────────────────────────────────── */
+  .sidebar-active-cutout {
+    position: relative;
+    background-color: #ffffff;
+    border-radius: 40px 0 0 40px !important;
+  }
+
+  .sidebar-active-cutout::before,
+  .sidebar-active-cutout::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    width: 30px;
+    height: 30px;
+    background-color: #ffffff;
+    pointer-events: none;
+    z-index: 20;
+  }
+
+  .sidebar-active-cutout::before {
+    top: -30px;
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M100,0 A100,100 0 0,1 0,100 L100,100 Z' fill='black'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M100,0 A100,100 0 0,1 0,100 L100,100 Z' fill='black'/%3E%3C/svg%3E");
+    -webkit-mask-size: cover;
+    mask-size: cover;
+  }
+
+  .sidebar-active-cutout::after {
+    bottom: -30px;
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,0 A100,100 0 0,1 100,100 L100,0 Z' fill='black'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,0 A100,100 0 0,1 100,100 L100,0 Z' fill='black'/%3E%3C/svg%3E");
+    -webkit-mask-size: cover;
+    mask-size: cover;
+  }
+
+  .card-header-safe h3,
+  .card-header-safe .card-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+
+  .card-header-safe select {
+    width: 100%;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    border: 1px solid hsl(var(--border) / 0.5);
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+
+  /* Smooth animations for mobile */
+  .mobile-expand {
+    transition: max-height 0.3s ease-in-out, opacity 0.2s ease-in-out;
+  }
+
+  /* Better mobile scrolling */
+  .mobile-scroll {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
+  /* Disable swipe gestures globally */
+  .no-swipe {
+    touch-action: pan-y pinch-zoom;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* Enable text selection only for accountant role */
+  [data-role="accountant"] body,
+  [data-role="accountant"] p,
+  [data-role="accountant"] span,
+  [data-role="accountant"] div,
+  [data-role="accountant"] td,
+  [data-role="accountant"] th,
+  [data-role="accountant"] h1,
+  [data-role="accountant"] h2,
+  [data-role="accountant"] h3,
+  [data-role="accountant"] h4,
+  [data-role="accountant"] h5,
+  [data-role="accountant"] h6 {
+    -webkit-user-select: text !important;
+    user-select: text !important;
+  }
+
+  /* Apply no-swipe to body to prevent page-level swipe navigation */
+  body {
+    touch-action: pan-y pinch-zoom;
+  }
+
+  /* Hide number input arrows */
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+  }
+
+  input[type=number] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+}
+
+[data-sidebar="sidebar"] {
+  background: hsl(var(--sidebar-background)) !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  height: 100vh !important;
+  z-index: 999 !important;
+  width: var(--sidebar-width) !important;
+  transition: width 0.3s ease !important;
+}
+
+[data-sidebar="sidebar"][data-state="expanded"],
+[data-sidebar="sidebar"][data-state="expanded"]~* {
+  --sidebar-width: 55vw;
+}
+
+@media (min-width: 480px) {
+  [data-sidebar="sidebar"][data-state="expanded"],
+  [data-sidebar="sidebar"][data-state="expanded"]~* {
+    --sidebar-width: 12rem;
+  }
+}
+
+@media (min-width: 640px) {
+  [data-sidebar="sidebar"][data-state="expanded"],
+  [data-sidebar="sidebar"][data-state="expanded"]~* {
+    --sidebar-width: 10rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  [data-sidebar="sidebar"][data-state="expanded"],
+  [data-sidebar="sidebar"][data-state="expanded"]~* {
+    --sidebar-width: 13rem;
+  }
+}
+
+[data-sidebar="sidebar"][data-state="collapsed"],
+[data-sidebar="sidebar"][data-state="collapsed"]~* {
+  --sidebar-width: 3.5rem;
+}
+
+@media (min-width: 1024px) {
+  [data-sidebar]~* {
+    margin-left: var(--sidebar-width) !important;
+    width: calc(100% - var(--sidebar-width)) !important;
+    transition: margin-left 0.3s ease, width 0.3s ease !important;
+  }
+}
+
+/* Disable user text selection, touch callouts globally and hide scrollbars */
+* {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+body {
+  -webkit-touch-callout: none;
+}
+
+/* Global Scrollbar Hiding */
+*::-webkit-scrollbar {
+  display: none !important;
+}
+/* Flutter-style filter sheet: ScaleTransition(0.85 -> 1, topRight) + FadeTransition, 220ms easeOutCubic */
+@keyframes flutter-pop-in { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
+@keyframes flutter-pop-out { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.85); } }
+@keyframes flutter-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes flutter-fade-out { from { opacity: 1; } to { opacity: 0; } }
+.flutter-pop-in { animation: flutter-pop-in 220ms cubic-bezier(0.215, 0.61, 0.355, 1) both; }
+.flutter-pop-out { animation: flutter-pop-out 180ms cubic-bezier(0.55, 0.055, 0.675, 0.19) both; }
+.flutter-fade-in { animation: flutter-fade-in 220ms ease-out both; }
+.flutter-fade-out { animation: flutter-fade-out 180ms ease-in both; }
+.flutter-select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 2.5rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+}
+
+
+/* Become-a-DSA onboarding: roomier inputs and buttons, rounded to match the cards. Scoped to .dsa-ui only. */
+.dsa-ui input:not([type='checkbox']):not([type='radio']):not([type='file']),
+.dsa-ui select,
+.dsa-ui textarea {
+  border-radius: 0.75rem;
+}
+.dsa-ui input:not([type='checkbox']):not([type='radio']):not([type='file']),
+.dsa-ui select {
+  height: 2.75rem;
+}
+.dsa-ui button.w-full.inline-flex:not([class*='text-xs']) {
+  height: 2.75rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+}
+
+/* Motion: each step eases in, its blocks follow one after another; buttons and option cards respond to touch. */
+@keyframes dsa-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+.dsa-step > * > * {
+  animation: dsa-rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.dsa-step > * > *:nth-child(2) { animation-delay: 0.06s; }
+.dsa-step > * > *:nth-child(3) { animation-delay: 0.12s; }
+.dsa-step > * > *:nth-child(4) { animation-delay: 0.18s; }
+.dsa-step > * > *:nth-child(5) { animation-delay: 0.24s; }
+.dsa-step > * > *:nth-child(n + 6) { animation-delay: 0.3s; }
+
+.dsa-option {
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+.dsa-option:hover:not(:disabled) {
+  transform: translateY(-3px);
+  border-color: hsl(var(--primary));
+  background-color: hsl(var(--accent) / 0.35);
+  box-shadow: 0 14px 32px -14px hsl(var(--primary) / 0.45);
+}
+.dsa-option:active:not(:disabled) { transform: translateY(-1px) scale(0.99); }
+
+.dsa-ui button.inline-flex { transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease; }
+.dsa-ui button.inline-flex:active:not(:disabled) { transform: scale(0.98); }
+.dsa-ui input:focus-visible { box-shadow: 0 0 0 4px hsl(var(--primary) / 0.12); }
+
+@media (prefers-reduced-motion: reduce) {
+  .dsa-step > * > *, .dsa-option, .dsa-ui button.inline-flex { animation: none !important; transition: none !important; }
+}
+
+/* Finonest mark, blurred, behind the onboarding card's content. It lives INSIDE the card, so it scales with the card
+   (a small card gets a small mark) and always sits in the centre of it. The card is frosted glass so it shows through.
+   The PNG is a white shape on a transparent background, so it is used as a mask and filled with the theme colour. */
+.dsa-card { position: relative; }
+.dsa-card::before {
+  content: '';
+  position: absolute;
+  inset: 8%;
+  background-color: hsl(var(--primary));
+  -webkit-mask: url('/fn-mark-watermark.png') center / contain no-repeat;
+  mask: url('/fn-mark-watermark.png') center / contain no-repeat;
+  filter: blur(6px);
+  opacity: 0.2;
+  pointer-events: none;
+  z-index: 0;
+}
+.dsa-card > * { position: relative; z-index: 1; }

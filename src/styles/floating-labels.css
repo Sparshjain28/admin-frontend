@@ -1,0 +1,61 @@
+/* Floating Label Styles */
+.floating-input-wrapper {
+  position: relative;
+}
+
+.floating-input-wrapper input,
+.floating-input-wrapper textarea,
+.floating-input-wrapper select {
+  padding-top: 1.25rem !important;
+  padding-bottom: 0.25rem !important;
+  padding-left: 0.75rem !important;
+  padding-right: 0.75rem !important;
+  height: 2.5rem !important;
+  font-size: 0.813rem !important;
+}
+
+.floating-input-wrapper textarea {
+  height: auto !important;
+  min-height: 3.5rem !important;
+}
+
+.floating-input-wrapper label {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.813rem;
+  color: rgb(107 114 128);
+  transition: all 0.2s ease;
+  pointer-events: none;
+  background: transparent;
+  padding: 0 0.25rem;
+}
+
+.floating-input-wrapper textarea + label {
+  top: 1.25rem;
+  transform: none;
+}
+
+.floating-input-wrapper input:focus + label,
+.floating-input-wrapper input:not(:placeholder-shown) + label,
+.floating-input-wrapper textarea:focus + label,
+.floating-input-wrapper textarea:not(:placeholder-shown) + label,
+.floating-input-wrapper select:focus + label,
+.floating-input-wrapper select:not([value=""]) + label,
+.floating-input-wrapper.has-value label {
+  top: 0.25rem;
+  transform: none;
+  font-size: 0.625rem;
+  font-weight: 600;
+}
+
+.floating-input-wrapper input::placeholder,
+.floating-input-wrapper textarea::placeholder {
+  opacity: 0;
+}
+
+.floating-input-wrapper input:focus::placeholder,
+.floating-input-wrapper textarea:focus::placeholder {
+  opacity: 0.5;
+}

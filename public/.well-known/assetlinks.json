@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.finonest.app",
+    "sha256_cert_fingerprints": [
+      "81:13:76:51:2B:CC:2B:7D:79:7D:7D:2B:06:F9:8A:F8:FC:9F:D5:E3:E8:8E:3C:0E:C6:BD:7C:40:AE:FD:E3:C6"
+    ]
+  }
+}]

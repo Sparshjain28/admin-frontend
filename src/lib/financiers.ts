@@ -1,0 +1,22 @@
+export const FINANCIERS = [
+  "HDFC Bank", "ICICI Bank", "State Bank of India", "Axis Bank", "Kotak Mahindra Bank",
+  "IndusInd Bank", "Yes Bank", "IDFC Urban", "IDFC Rural", "RBL Bank", "Federal Bank",
+  "South Indian Bank", "Karur Vysya Bank", "City Union Bank", "DCB Bank", "Dhanlaxmi Bank",
+  "Tamilnad Mercantile Bank", "Jammu & Kashmir Bank", "Karnataka Bank", "Lakshmi Vilas Bank",
+  "Punjab National Bank", "Bank of Baroda", "Canara Bank", "Union Bank of India", "Bank of India",
+  "Central Bank of India", "Indian Bank", "Punjab & Sind Bank", "UCO Bank", "Bank of Maharashtra",
+  "Indian Overseas Bank", "IDBI Bank", "Bajaj Finance", "Mahindra Finance", "Tata Capital",
+  "Cholamandalam Finance", "Shriram Finance", "L&T Finance", "Muthoot Finance", "Manappuram Finance",
+  "IIFL Finance", "Fullerton India", "HDB Financial Services", "Aditya Birla Finance", "Hero FinCorp",
+  "TVS Credit", "Sundaram Finance", "LIC Housing Finance", "HDFC Ltd", "Indiabulls Housing Finance",
+  "PNB Housing Finance", "Can Fin Homes", "Repco Home Finance", "Dewan Housing Finance",
+  "Reliance Home Finance", "Piramal Capital", "Kotak Mahindra Prime", "ICICI Home Finance",
+  "Axis Finance", "Bajaj Housing Finance", "Godrej Housing Finance", "Tata Housing Finance",
+  "AU Small Finance Bank", "Ujjivan Small Finance Bank", "Equitas Small Finance Bank",
+  "Suryoday Small Finance Bank", "Utkarsh Small Finance Bank", "ESAF Small Finance Bank",
+  "Jana Small Finance Bank", "North East Small Finance Bank", "Capital Small Finance Bank",
+  "Fincare Small Finance Bank", "Shivalik Small Finance Bank", "Unity Small Finance Bank",
+  "Bandhan Bank", "CSB Bank", "Nainital Bank", "Saraswat Bank", "Shamrao Vithal Bank",
+  "Bharat Co-operative Bank", "HSBC Bank", "Standard Chartered Bank", "Citibank", "Deutsche Bank",
+  "Barclays Bank", "DBS Bank", "Bank of America", "Royal Bank of Scotland", "Others"
+];
