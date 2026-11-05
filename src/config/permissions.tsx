@@ -399,7 +399,6 @@ export const MODULES = {
   // expenses: { label: "Expenses", icon: "💳" },
   // insurance: { label: "Insurance", icon: "🛡️" },
   // link_loan_finder: { label: "Link Loan Finder", icon: "🔗" },
-  // account_aggregator: { label: "Account Aggregator", icon: "🗂️" },
   // find_lender: { label: "Find My Lender", icon: "🏦" },
   // find_car_value: { label: "Find My Car Value", icon: "🚘" },
   // payouts: { label: "Payouts", icon: "💸" },
