@@ -8,8 +8,17 @@ RUN npm ci --legacy-peer-deps
 
 COPY . .
 
-# Set production API URL for build (uses nginx proxy, no CORS needed)
-ENV VITE_API_URL=/api
+# Accept build-time environment variables from Coolify/Docker
+ARG VITE_API_URL
+ARG VITE_API_BASE_URL
+ARG VITE_APP_NAME
+ARG VITE_APP_VERSION
+
+# Use provided build argument if given, otherwise fallback to default /api
+ENV VITE_API_URL=${VITE_API_URL:-/api}
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+ENV VITE_APP_NAME=$VITE_APP_NAME
+ENV VITE_APP_VERSION=$VITE_APP_VERSION
 
 RUN npm run build
 
