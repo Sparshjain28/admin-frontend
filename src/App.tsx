@@ -308,7 +308,9 @@ function AppRoutes() {
             <PayoutManagement />
           </RoleProtectedRoute>
         } />
+        {/* Temporarily disabled - uncomment to re-enable in future
         <Route path="/expenses" element={<ProtectedRoute><ExpenseManagement /></ProtectedRoute>} />
+        */}
         <Route path="/rc-limits" element={<ProtectedRoute><RCLimitBills /></ProtectedRoute>} />
         <Route path="/rc-limits/bills" element={<ProtectedRoute><RCLimitBills /></ProtectedRoute>} />
         <Route path="/rc-limits/payment" element={<ProtectedRoute><RCLimitPayments /></ProtectedRoute>} />
@@ -361,11 +363,13 @@ function AppRoutes() {
             <DsaApplications />
           </RoleProtectedRoute>
         } />
+        {/* Temporarily disabled - uncomment to re-enable in future
         <Route path="/calling" element={
           <RoleProtectedRoute allowedRoles={['admin', 'manager', 'sales_manager']}>
             <CallingManagement />
           </RoleProtectedRoute>
         } />
+        */}
         <Route path="/credit-reports" element={
           <RoleProtectedRoute allowedRoles={['admin', 'sales_manager', 'manager', 'operation_team', 'loan_operations']}>
             <StandaloneCreditReports />
@@ -413,26 +417,16 @@ function AppRoutes() {
             <FolioLedger />
           </RoleProtectedRoute>
         } />
-        <Route path="/accountant/bank-accounts" element={
-          <RoleProtectedRoute allowedRoles={['admin', 'accountant']}>
-            <BankAccounts />
-          </RoleProtectedRoute>
-        } />
-        <Route path="/accountant/disbursement-ledger" element={
-          <RoleProtectedRoute allowedRoles={['admin', 'accountant']}>
-            <DisbursementLedger />
-          </RoleProtectedRoute>
-        } />
-        <Route path="/accountant/db-view" element={
-          <RoleProtectedRoute allowedRoles={['admin', 'accountant']}>
-            <DBView />
-          </RoleProtectedRoute>
-        } />
+        {/* Temporarily disabled - uncomment to re-enable in future
+        <Route path="/accountant/bank-accounts" element={<RoleProtectedRoute allowedRoles={['admin', 'accountant']}><BankAccounts /></RoleProtectedRoute>} />
+        <Route path="/accountant/disbursement-ledger" element={<RoleProtectedRoute allowedRoles={['admin', 'accountant']}><DisbursementLedger /></RoleProtectedRoute>} />
+        <Route path="/accountant/db-view" element={<RoleProtectedRoute allowedRoles={['admin', 'accountant']}><DBView /></RoleProtectedRoute>} />
+        */}
 
         {/* Account Deletion (Public - Google Play requirement) */}
         <Route path="/account-deletion" element={<AccountDeletion />} />
 
-        <Route path="/bank-accounts" element={<BankAccounts />} />
+        {/* <Route path="/bank-accounts" element={<BankAccounts />} /> */}
         <Route path="/" element={<RootRedirect />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

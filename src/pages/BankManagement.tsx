@@ -81,7 +81,7 @@ function BranchesListDialog({ bankId, onClose, banks }: { bankId: number; onClos
         const cStr = String(c).trim();
         if (cStr) {
           if (cStr.toLowerCase() === 'loan') catsSet.add('Loan');
-          else if (cStr.toLowerCase().includes('credit')) catsSet.add('Credit Card');
+          
           else catsSet.add(cStr);
         }
       });
@@ -89,9 +89,7 @@ function BranchesListDialog({ bankId, onClose, banks }: { bankId: number; onClos
 
     branches.forEach((b: any) => {
       const prod = (b.product || '').toLowerCase();
-      if (prod.includes('credit card') || prod.includes('cc')) {
-        catsSet.add('Credit Card');
-      }
+      
       if (
         b.new_car_purchase || b.used_car_purchase || b.used_car_refinance_up || b.used_car_bt_top_up ||
         prod.includes('car') || prod.includes('loan') || prod.includes('ucl')
@@ -102,7 +100,7 @@ function BranchesListDialog({ bankId, onClose, banks }: { bankId: number; onClos
 
     if (catsSet.size === 0) {
       catsSet.add('Loan');
-      catsSet.add('Credit Card');
+      
     }
     return Array.from(catsSet);
   }, [currentBank, branches]);
@@ -147,8 +145,6 @@ function BranchesListDialog({ bankId, onClose, banks }: { bankId: number; onClos
         const prodLower = (b.product || '').toLowerCase();
         if (catLower === 'loan') {
           if (prodLower === 'credit card' || prodLower === 'cc') return false;
-        } else if (catLower === 'credit card' || catLower === 'credit_card') {
-          if (!prodLower.includes('credit card') && !prodLower.includes('credit_card') && !prodLower.includes('cc')) return false;
         } else {
           if (!prodLower.includes(catLower)) return false;
         }

@@ -219,11 +219,10 @@ export default function PayoutManagement() {
         'Personal Loan',
         'Business Loan'
     ];
-    const earningCategoryOptions = ['Loan', 'Credit Card', 'Insurance'];
+    const earningCategoryOptions = ['Loan'];
     const earningSubcategoryMap: Record<string, string[]> = {
         Loan: loanSubcategoryOptions,
-        'Credit Card': [],
-        'Insurance': [],
+        
     };
     const earningSubcategoryList = earningSubcategoryMap[earningCategory] || [];
     const hasEarningSubcategories = earningSubcategoryList.length > 0;
@@ -276,13 +275,7 @@ export default function PayoutManagement() {
         const cat = params.get('category');
         if (cat) {
             const lowerCat = cat.toLowerCase();
-            if (lowerCat.includes('credit')) {
-                setEarningCategory('Credit Card');
-                setEarningSubcategory('');
-            } else if (lowerCat.includes('insurance')) {
-                setEarningCategory('Insurance');
-                setEarningSubcategory('');
-            } else if (lowerCat.includes('loan')) {
+            if (lowerCat.includes('loan')) {
                 setEarningCategory('Loan');
             }
         } else if (tab === 'earning' || !tab) {
@@ -403,7 +396,7 @@ export default function PayoutManagement() {
     // States for Reward form input
     const [rewardTitle, setRewardTitle] = useState('');
     const [rewardDate, setRewardDate] = useState('');
-    const [rewardCategory, setRewardCategory] = useState('Credit card');
+    const [rewardCategory, setRewardCategory] = useState('Used Car Loan');
     const [rewardSubCategory, setRewardSubCategory] = useState('Used Car - Purchase');
     const [rewardLenderName, setRewardLenderName] = useState('');
     const [rewardTargetRole, setRewardTargetRole] = useState<'DSA' | 'Advisor' | 'All'>('DSA');
@@ -2795,8 +2788,7 @@ toast.error("Failed to export data to Excel.");
                                                 >
                                                     <option value="">Select Category</option>
                                                     <option value="loan">Loan</option>
-                                                    <option value="insurance">Insurance</option>
-                                                    <option value="credit_card">Credit Card</option>
+                                                    
                                                 </select>
                                             </div>
 
@@ -3001,8 +2993,7 @@ toast.error("Failed to export data to Excel.");
                                                 >
                                                     <option value="">Select Category</option>
                                                     <option value="loan">Loan</option>
-                                                    <option value="credit_card">Credit Card</option>
-                                                    <option value="insurance">Insurance</option>
+                                                    
                                                 </select>
                                             </div>
 
@@ -4132,8 +4123,7 @@ toast.error("Failed to export data to Excel.");
                                         >
                                             <option value="">Select Category</option>
                                             <option value="loan">Loan</option>
-                                            <option value="insurance">Insurance</option>
-                                            <option value="credit_card">Credit Card</option>
+                                            
                                         </select>
                                     </div>
 
@@ -4894,7 +4884,7 @@ toast.error("Failed to export data to Excel.");
                             <div className="py-20 text-center text-gray-500 dark:text-gray-400 bg-gray-50/20 dark:bg-slate-900/10 border border-dashed border-gray-200 dark:border-slate-800 rounded-2xl flex flex-col items-center justify-center gap-2">
                                 <Info className="w-8 h-8 text-blue-500/70 dark:text-blue-400/70" />
                                 <p className="font-semibold text-sm text-gray-700 dark:text-gray-300">Please select a category to view earnings</p>
-                                <p className="text-xs text-gray-400">Choose Loan, Credit Card, or Insurance from the filter above</p>
+                                <p className="text-xs text-gray-400">Choose Loan from the filter above</p>
                             </div>
                         ) : earningsLoadFailed ? (
                             <div className="py-20 text-center text-gray-500 dark:text-gray-400 bg-gray-50/20 dark:bg-slate-900/10">
@@ -5859,8 +5849,7 @@ toast.error("Failed to export data to Excel.");
                                         >
                                             <option value="">Select Category</option>
                                             <option value="loan">Loan</option>
-                                            <option value="credit_card">Credit Card</option>
-                                            <option value="insurance">Insurance</option>
+                                            
                                         </select>
                                     </div>
 
@@ -5969,8 +5958,7 @@ toast.error("Failed to export data to Excel.");
                                         >
                                             <option value="">All Categories</option>
                                             <option value="Loan">Loan</option>
-                                            <option value="Credit Card">Credit Card</option>
-                                            <option value="Insurance">Insurance</option>
+                                            
                                         </select>
                                     </div>
 
@@ -6309,8 +6297,7 @@ toast.error("Failed to export data to Excel.");
                                         className="px-3 py-2 rounded-xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 text-xs font-bold w-36 shadow-sm"
                                     >
                                         <option value="loan">Loan</option>
-                                        <option value="credit_card">Credit Card</option>
-                                        <option value="insurance">Insurance</option>
+                                        
                                     </select>
                                 </div>
 
@@ -6710,8 +6697,7 @@ toast.error("Failed to export data to Excel.");
                                             onChange={(e) => setRewardCategory(e.target.value)}
                                             className="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-gray-800 dark:text-gray-200 text-xs focus:outline-none focus:ring-1 focus:ring-primary"
                                         >
-                                            <option value="Credit card">Credit card</option>
-                                            <option value="Insurance">Insurance</option>
+                                            
                                             <option value="Used Car Loan">Used Car Loan</option>
                                         </select>
                                     </div>

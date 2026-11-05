@@ -261,7 +261,7 @@ export default function Login() {
               <h2 className="text-3xl font-extrabold text-slate-800 tracking-tight font-heading">Sign In</h2>
               <p className="text-[11px] text-slate-500 font-semibold leading-relaxed mt-2.5 px-1 max-w-[280px] mx-auto">
                 {loginStep === 'phone'
-                  ? 'Earn more with Finonest by selling Credit Card, Personal Loans, Home Loans and Insurance'
+                  ? 'Earn more with Finonest by offering Personal Loans, Used Car Loans and Home Loans'
                   : 'Enter your 4-digit MPIN to log in and keep your account safe and secure.'}
               </p>
             </div>

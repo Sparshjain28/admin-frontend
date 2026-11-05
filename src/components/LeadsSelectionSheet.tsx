@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { FileText, CreditCard, Wallet, Archive, X } from 'lucide-react';
+import { FileText, Wallet, Archive, X } from 'lucide-react';
 import { useEffect } from 'react';
 
 interface LeadsSelectionSheetProps {
@@ -16,14 +16,7 @@ const leadsOptions = [
     bg: 'bg-white',
     glow: 'shadow-blue-300',
   },
-  {
-    id: 'credit-card',
-    title: 'Credit Cards',
-    icon: CreditCard,
-    path: '/credit-card-leads',
-    bg: 'bg-white',
-    glow: 'shadow-violet-300',
-  },
+  
   {
     id: 'personal-loan',
     title: 'Loans',

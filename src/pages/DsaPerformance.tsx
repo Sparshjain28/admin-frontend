@@ -267,7 +267,7 @@ export default function DsaPerformance() {
   };
   const breakdown = data?.breakdown || [];
   const filterOptions = data?.filterOptions || {
-    categories: ['Loan', 'Credit Card'],
+    categories: ['Loan'],
     subcategories: {},
     products: {},
   };

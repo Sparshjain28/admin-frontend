@@ -94,42 +94,13 @@ const AppSidebar = () => {
     const token = localStorage.getItem('auth_token');
     if (!token) return;
 
-    fetch(`${BASE}/api/cardsModule/auth/user`, { headers: { Authorization: `Bearer ${token}` } })
-      .then(async r => {
-        if (!r.ok) {
-          if (r.status === 401) {
-            localStorage.removeItem('auth_token');
-            localStorage.removeItem('user');
-            localStorage.removeItem('hasSeenOnboarding');
-            await storageManager.fullCleanup();
-            window.location.href = '/login';
-          }
-          return null;
-        }
-        return r.text();
-      })
-      .then(t => {
-        if (!t) return;
-        const data = JSON.parse(t);
-        if (!data.success) return;
-        const user = data.user;
-
-        // Strip large image strings before storing in localStorage
-        const userToStore = { ...user };
-        if (userToStore.aadhaarPhoto) delete userToStore.aadhaarPhoto;
-        localStorage.setItem('user', JSON.stringify(userToStore));
-
-        if (user.referredBy) {
-          setReferredBy({ name: user.referredBy.name, role: user.referredBy.role });
-        }
-
-        fetch(`${BASE}/api/users/my-team/tree`, { headers: { Authorization: `Bearer ${token}` } })
-          .then(r => { if (!r.ok) return null; return r.text(); })
-          .then(t2 => {
-            if (!t2) return;
-            const d = JSON.parse(t2);
-            setReferralCount((d.tree || []).length);
-          }).catch(() => { });
+    fetch(`${BASE}/api/users/my-team/tree`, { headers: { Authorization: `Bearer ${token}` } })
+        .then(r => { if (!r.ok) return null; return r.text(); })
+        .then(t2 => {
+          if (!t2) return;
+          const d = JSON.parse(t2);
+          setReferralCount((d.tree || []).length);
+        }).catch(() => { });
       }).catch(() => { });
   const isExecOrAdvisor = role === 'executive' || role === 'advisor';
   const hasSuperior = Boolean(authUser?.reporting_to || (authUser as any)?.dsa_id);
@@ -137,22 +108,8 @@ const AppSidebar = () => {
 
   const navItems = [
     { path: '/', label: 'Dashboard', icon: LayoutDashboard },
-    { path: '/apply-card', label: 'Apply Card (Main DB)', icon: CreditCard },
-    ...(moduleAccess.creditCards ? [
-      { path: '/credit-cards', label: 'Credit Cards (Legacy)', icon: CreditCard },
-      { path: '/cards-eligibility', label: 'Cards Eligibility', icon: Shield },
-      { path: '/personal-loans', label: 'Personal Loans', icon: Wallet },
-      {
-        key: 'leads',
-        label: 'Leads',
-        icon: Target,
-        submenu: [
-          { path: '/credit-card-leads', label: 'Credit Card Leads' },
-          { path: '/main-cc-leads', label: 'CC Leads (Main DB)' },
-          { path: '/personal-loan-leads', label: 'Personal Loan Leads' },
-        ]
-      },
-    ] : []),
+    
+    
     ...(canAccessPayouts ? [{ path: '/payouts', label: 'Payouts', icon: Wallet }] : []),
     ...(role !== 'employee' ? [{ path: '/team', label: 'My Team', icon: Users2 }] : []),
     ...(role === 'super_admin' ? [
@@ -163,7 +120,7 @@ const AppSidebar = () => {
       { path: '/permissions', label: 'Permissions', icon: Shield },
       { path: '/admin/api-management', label: 'API Management (Loans)', icon: Terminal },
     ] : []),
-    { path: '/api-integration', label: 'Developer API (Cards)', icon: Terminal },
+    
   ];
 
   const { menuRef, scales, handleMouseMove, handleMouseLeave } = useDockEffect(navItems.length);

@@ -140,7 +140,9 @@ export function BankFormModal({ open, onClose, onSuccess, bank }: BankFormModalP
       if (bank.logo_url) setLogoPreview(`${API}${bank.logo_url.startsWith('/') ? '' : '/'}${bank.logo_url}`);
       else setLogoPreview('');
       // Seed category and subcategory from existing bank data
-      setCategory(Array.isArray(bank.category) ? bank.category : (bank.category ? [bank.category] : []));
+      const rawCats = Array.isArray(bank.category) ? bank.category : (bank.category ? [bank.category] : []);
+      const cleanCats = rawCats.filter((c: any) => String(c).toLowerCase() !== 'credit card' && String(c).toLowerCase() !== 'credit_card');
+      setCategory(cleanCats.length > 0 ? cleanCats : ['Loan']);
       setSubcategory(Array.isArray(bank.subcategory) ? bank.subcategory : []);
       
       // Fetch branches
@@ -513,7 +515,7 @@ toast.error(error.message || 'Failed to save bank');
               <div>
                 <label className={labelClass}>Category</label>
                 <div className="flex flex-wrap gap-x-5 gap-y-2 mt-1.5">
-                  {['Loan', 'Credit Card'].map(cat => (
+                  {['Loan'].map(cat => (
                     <label key={cat} className="flex items-center gap-2 cursor-pointer select-none text-sm text-foreground">
                       <input
                         type="checkbox"

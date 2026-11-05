@@ -57,17 +57,12 @@ export const NAV_ITEMS: NavItem[] = [
       { label: 'Payment', path: '/rc-limits/payment', icon: <CreditCard size={16} />, roles: ['admin', 'manager', 'sales_manager', 'branch_manager', 'dsa', 'team_leader', 'executive', 'operation_team', 'loan_operations', 'accountant'] }
     ]
   },
-  { label: 'Disbursement Ledger', path: '/accountant/disbursement-ledger', icon: <FileText size={18} />, roles: ['accountant'] },
   { label: 'Folio Accounts', path: '/accountant/folio', icon: <CreditCard size={18} />, roles: ['accountant'] },
-  { label: 'Bank Accounts', path: '/accountant/bank-accounts', icon: <Building2 size={18} />, roles: ['accountant'] },
   { label: 'Payouts', path: '/payouts', icon: <Receipt size={18} />, roles: ['accountant'] },
-  { label: 'DB View', path: '/accountant/db-view', icon: <Database size={18} />, roles: ['accountant'] },
   {
     label: 'Operations', icon: <ShieldCheck size={18} />, roles: ['admin', 'manager', 'sales_manager', 'branch_manager', 'dsa', 'executive', 'team_leader', 'ops_team', 'operation_team'],
     children: [
-      { label: 'Calling', path: '/calling', icon: <Phone size={18} />, roles: ['admin', 'sales_manager', 'branch_manager', 'manager', 'team_leader', 'executive'] },
       { label: 'Credit Report', path: '/credit-reports', icon: <FileText size={16} />, roles: ['admin', 'sales_manager', 'manager', 'branch_manager', 'team_leader', 'executive', 'dsa'] },
-      { label: 'Expenses', path: '/expenses', icon: <CreditCard size={16} />, roles: ['admin', 'manager', 'sales_manager', 'branch_manager', 'dsa'] },
       { label: 'Link Loan Finder', path: '/link-loan-finder', icon: <Shield size={16} />, roles: ['admin', 'sales_manager', 'branch_manager'] },
     ]
   },
@@ -91,7 +86,6 @@ export const NAV_ITEMS: NavItem[] = [
       { label: 'Audit Logs', path: '/audit-logs', icon: <FileText size={16} />, roles: ['admin'] },
       { label: 'System Config', path: '/settings', icon: <Sliders size={16} />, roles: ['admin'] },
       { label: 'Loan Compare Charges', path: '/settings/loan-comparison-charges', icon: <Percent size={16} />, roles: ['admin'] },
-      { label: 'Policy Maker', path: '/policy-maker', icon: <FileText size={16} />, roles: ['admin'] },
       { label: 'API Usage', path: '/admin/api-usage', icon: <Database size={16} />, roles: ['admin'] },
       { label: 'API Call Logs', path: '/admin/api-usage-logs', icon: <Database size={16} />, roles: ['admin'] },
       { label: 'API Integrations', path: '/admin/api-integrations', icon: <Globe size={16} />, roles: ['admin'] },
@@ -104,9 +98,6 @@ export const NAV_ITEMS: NavItem[] = [
     label: 'Accountant Portal', icon: <Wallet size={18} />, roles: ['admin'],
     children: [
       { label: 'Folio Accounts', path: '/accountant/folio', icon: <CreditCard size={16} />, roles: ['admin'] },
-      { label: 'Disbursement Ledger', path: '/accountant/disbursement-ledger', icon: <FileText size={16} />, roles: ['admin'] },
-      { label: 'Bank Accounts', path: '/accountant/bank-accounts', icon: <Building2 size={16} />, roles: ['admin'] },
-      { label: 'DB View', path: '/accountant/db-view', icon: <Database size={16} />, roles: ['admin'] },
     ]
   }
 ];
@@ -448,8 +439,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       path.startsWith("/payouts") ||
       path === "/tools/emi-calculator" ||
       path.startsWith("/loans/") ||
-      path.startsWith("/leads/") ||
-      path.startsWith("/policy-maker")
+      path.startsWith("/leads/") 
     );
   }, [location.pathname]);
 
@@ -780,7 +770,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       <MobilePremiumDrawer
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
-        filteredNav={filteredNav.map(item => item.children ? { ...item, children: item.children.filter(c => c.path !== '/insurance-leads') } : item).filter(item => !item.children || item.children.length > 0)}
+        filteredNav={filteredNav}
         user={user}
         initials={initials}
         handleLogout={handleLogout}

@@ -442,7 +442,6 @@ const LeadsFilter = ({ onFilterChange, initialFilters = {}, children }: LeadsFil
             </SelectTrigger>
             <SelectContent className="z-[60]">
               <SelectItem value="all">All Categories</SelectItem>
-              <SelectItem value="credit_card">Credit Card</SelectItem>
               <SelectItem value="personal_loan">Personal Loan</SelectItem>
             </SelectContent>
           </Select>

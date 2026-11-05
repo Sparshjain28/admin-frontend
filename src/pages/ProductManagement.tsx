@@ -31,7 +31,7 @@ interface LoanBanker {
 }
 
 interface AddProductForm {
-  category: 'Loan' | 'Credit Card' | '';
+  category: 'Loan' | '';
   subcategory: string;
   bankId: string;
   branchId: string;
@@ -76,8 +76,7 @@ interface AddProductForm {
 }
 
 const emptyForm = (): AddProductForm => ({
-  category: '',
-  subcategory: '',
+  category: 'Loan', subcategory: '',
   bankId: '',
   branchId: '',
   cardVariantImage: null,
@@ -624,9 +623,8 @@ function AddProductModal({ onClose, onSuccess, initialBankId, productToEdit, ban
   const availableCategories = useMemo(() => {
     if (!selectedBank) return [];
     const cats = getBankCats(selectedBank);
-    const result: ('Loan' | 'Credit Card')[] = [];
-    if (cats.some(c => c === 'loan')) result.push('Loan');
-    if (cats.some(c => c === 'credit card' || c === 'credit_card')) result.push('Credit Card');
+    const result: ('Loan')[] = [];
+    if (cats.some(c => c === 'loan') || cats.length === 0) result.push('Loan');
     return result;
   }, [selectedBank]);
 
@@ -683,8 +681,7 @@ function AddProductModal({ onClose, onSuccess, initialBankId, productToEdit, ban
       return {
         ...prev,
         bankId: val,
-        category: '',
-        subcategory: '',
+        category: 'Loan', subcategory: '',
       };
     });
   };
@@ -913,7 +910,7 @@ function AddProductModal({ onClose, onSuccess, initialBankId, productToEdit, ban
                 <CustomDropdown
                   value={form.category}
                   onChange={val => handleCategoryChange(val as 'Loan' | 'Credit Card' | '')}
-                  options={availableCategories.map(cat => ({ value: cat, label: cat === 'Credit Card' ? 'Credit Cards' : cat }))}
+                  options={availableCategories.map(cat => ({ value: cat, label: cat }))}
                   placeholder="Select Category"
                   searchable={false}
                 />
@@ -2054,7 +2051,6 @@ export default function ProductManagement() {
               className="w-full sm:w-auto h-9 appearance-none bg-background border border-cyan-500 text-foreground text-xs sm:text-sm font-medium px-2 sm:px-3 pr-6 sm:pr-8 rounded-lg shadow-xs focus:outline-none focus:ring-1 focus:ring-cyan-500 cursor-pointer truncate"
             >
               <option value="all">All Types</option>
-              <option value="credit_card">Credit Card</option>
               <option value="loan">Loan</option>
               <option value="personal_loan">Personal Loan</option>
               <option value="business_loan">Business Loan</option>

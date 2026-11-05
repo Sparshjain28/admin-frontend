@@ -107,16 +107,7 @@ const DockNav = ({ items, location }: any) => {
                   >
                     <span>All Leads</span>
                   </NavLink>
-                  <NavLink
-                    to="/credit-card-leads"
-                    onClick={(e) => e.stopPropagation()}
-                    className={`flex items-center gap-3 px-4 py-1.5 text-sm transition-colors rounded-md mx-1 block ${location.pathname === '/credit-card-leads'
-                      ? 'bg-sidebar-accent text-sidebar-accent-foreground font-semibold'
-                      : 'text-sidebar-foreground hover:bg-sidebar-accent/50'
-                      }`}
-                  >
-                    <span>Credit Card</span>
-                  </NavLink>
+                  
                   <NavLink
                     to="/personal-loan-leads"
                     onClick={(e) => e.stopPropagation()}
@@ -183,12 +174,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
 
   const navItems = [
     { path: '/', label: 'Dashboard', icon: LayoutDashboard },
-    ...(moduleAccess.creditCards ? [
-      { path: '/credit-cards', label: 'Credit Cards', icon: CreditCard },
-      { path: '/cards-eligibility', label: 'Cards Eligibility', icon: Shield },
-      { path: '/personal-loans', label: 'Personal Loans', icon: Wallet },
-      { path: '/leads', label: 'Leads', icon: Target },
-    ] : []),
+    { path: '/leads', label: 'Leads', icon: Target },
     ...(canAccessPayouts ? [{ path: '/payouts', label: 'Payouts', icon: Wallet }] : []),
     ...(role !== 'employee' ? [{ path: '/team', label: 'My Team', icon: Users2 }] : []),
     ...((role === 'super_admin' || role === 'admin') ? [
@@ -230,50 +216,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
       } catch { }
     }
 
-    const fetchProfile = async () => {
-      try {
-        const token = localStorage.getItem('auth_token');
-        if (!token) return;
-        const BASE = (import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000').replace(/\/$/, '');
-        const response = await fetch(`${BASE}/api/cardsModule/auth/user`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!response.ok) {
-          if (response.status === 401) {
-            localStorage.removeItem('auth_token');
-            localStorage.removeItem('user');
-            localStorage.removeItem('hasSeenOnboarding');
-            sessionStorage.clear();
-            setIsLoggedIn(false);
-
-            storageManager.fullCleanup().finally(() => {
-              navigate('/login');
-            }).catch(() => {
-              navigate('/login');
-            });
-
-            setTimeout(() => {
-              navigate('/login');
-            }, 300);
-          }
-          return;
-        }
-        const text = await response.text();
-        if (!text) return;
-        const data = JSON.parse(text);
-        if (data.success && data.user) {
-          if (data.user.aadhaarPhoto) {
-            setProfilePhoto(`data:image/jpeg;base64,${data.user.aadhaarPhoto}`);
-          }
-
-          // Strip large image strings before storing in localStorage
-          const userToStore = { ...data.user };
-          if (userToStore.aadhaarPhoto) delete userToStore.aadhaarPhoto;
-          localStorage.setItem('user', JSON.stringify(userToStore));
-        }
-      } catch { }
-    };
-    fetchProfile();
+    
   }, []);
   const isDashboard = location.pathname === '/' || location.pathname === '/dashboard';
 

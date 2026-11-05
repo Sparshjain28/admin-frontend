@@ -467,7 +467,7 @@ export default function Signup() {
           <div className="flex-1 flex flex-col items-center mt-6">
             <h2 className="text-[22px] font-bold text-slate-900 mb-1">Login</h2>
             <p className="text-[11px] text-slate-500 text-center mb-8 px-4 leading-relaxed">
-              Earn more with Finonest by selling Credit Card, Personal Loans, Home Loans and Insurance
+              Earn more with Finonest by offering Personal Loans, Used Car Loans and Home Loans
             </p>
 
             <div className="w-full relative mb-8">

@@ -242,7 +242,7 @@ export function BranchFormTable({ branch, banks, onClose, onSuccess, selectedSub
         const cStr = String(c).trim();
         if (cStr) {
           if (cStr.toLowerCase() === 'loan') catsSet.add('Loan');
-          else if (cStr.toLowerCase().includes('credit')) catsSet.add('Credit Card');
+          // credit card removed
           else catsSet.add(cStr);
         }
       });
@@ -250,9 +250,7 @@ export function BranchFormTable({ branch, banks, onClose, onSuccess, selectedSub
 
     existingBranches.forEach((b: any) => {
       const prod = (b.product || '').toLowerCase();
-      if (prod.includes('credit card') || prod.includes('cc')) {
-        catsSet.add('Credit Card');
-      }
+      // credit card removed
       if (
         b.new_car_purchase || b.used_car_purchase || b.used_car_refinance_up || b.used_car_bt_top_up ||
         prod.includes('car') || prod.includes('loan') || prod.includes('ucl')
@@ -263,7 +261,7 @@ export function BranchFormTable({ branch, banks, onClose, onSuccess, selectedSub
 
     if (catsSet.size === 0) {
       catsSet.add('Loan');
-      catsSet.add('Credit Card');
+      // credit card removed
     }
 
     return Array.from(catsSet);
@@ -348,10 +346,6 @@ export function BranchFormTable({ branch, banks, onClose, onSuccess, selectedSub
 
         if (catLower === 'loan') {
           if (prodLower === 'credit card' || prodLower === 'cc') return false;
-        } else if (catLower === 'credit card' || catLower === 'credit_card') {
-          if (!prodLower.includes('credit card') && !prodLower.includes('credit_card') && !prodLower.includes('cc')) {
-            return false;
-          }
         } else {
           if (!prodLower.includes(catLower)) return false;
         }

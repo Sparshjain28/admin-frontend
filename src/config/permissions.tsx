@@ -57,7 +57,6 @@ export interface NavItem {
 //       { label: 'Permissions', path: '/permissions', icon: <Settings size={16} />, roles: ['admin'] },
 //       { label: 'Audit Logs', path: '/audit-logs', icon: <FileText size={16} />, roles: ['admin'] },
 //       { label: 'System Config', path: '/settings', icon: <Sliders size={16} />, roles: ['admin'] },
-//       { label: 'Policy Maker', path: '/policy-maker', icon: <FileText size={16} />, roles: ['admin'] },
 //       { label: 'API Usage', path: '/admin/api-usage', icon: <Database size={16} />, roles: ['admin'] },
 //       { label: 'API Call Logs', path: '/admin/api-usage-logs', icon: <Database size={16} />, roles: ['admin'] },
 //       { label: 'API Integrations', path: '/admin/api-integrations', icon: <Globe size={16} />, roles: ['admin'] },
@@ -153,28 +152,10 @@ export const NAV_ITEMS: NavItem[] = [
     icon: <ShieldCheck size={18} />,
     children: [
       {
-        label: "Calling",
-        path: "/calling",
-        icon: <Phone size={16} />,
-        permission: "calling.view",
-      },
-      {
         label: "Credit Report",
         path: "/credit-reports",
         icon: <FileText size={16} />,
         permission: "credit_reports.view",
-      },
-      {
-        label: "Expenses",
-        path: "/expenses",
-        icon: <CreditCard size={16} />,
-        permission: "expenses.view",
-      },
-      {
-        label: "Insurance",
-        path: "/insurance",
-        icon: <ShieldCheck size={16} />,
-        permission: "insurance.view",
       },
       {
         label: "Link Loan Finder",
@@ -277,12 +258,6 @@ export const NAV_ITEMS: NavItem[] = [
         permission: "settings.view",
       },
       {
-        label: "Policy Maker",
-        path: "/policy-maker",
-        icon: <FileText size={16} />,
-        permission: "policy_maker.view",
-      },
-      {
         label: "Lender Analysis",
         path: "/admin/lender-analysis",
         icon: <BarChart3 size={16} />,
@@ -339,18 +314,6 @@ export const NAV_ITEMS: NavItem[] = [
         permission: "accountant.folio.view",
       },
       {
-        label: "Disbursement Ledger",
-        path: "/accountant/disbursement-ledger",
-        icon: <FileText size={16} />,
-        permission: "accountant.disbursement.view",
-      },
-      {
-        label: "Bank Accounts",
-        path: "/accountant/bank-accounts",
-        icon: <Building2 size={16} />,
-        permission: "accountant.bank_accounts.view",
-      },
-      {
         label: "Payouts",
         path: "/payouts",
         icon: <Receipt size={16} />,
@@ -397,8 +360,7 @@ export const MODULES = {
   // credit_reports: { label: "Credit Reports", icon: "📄" },
   // rc_limits: { label: "RC Limits", icon: "🚗" },
   // expenses: { label: "Expenses", icon: "💳" },
-  // insurance: { label: "Insurance", icon: "🛡️" },
-  // link_loan_finder: { label: "Link Loan Finder", icon: "🔗" },
+    // link_loan_finder: { label: "Link Loan Finder", icon: "🔗" },
   // find_lender: { label: "Find My Lender", icon: "🏦" },
   // find_car_value: { label: "Find My Car Value", icon: "🚘" },
   // payouts: { label: "Payouts", icon: "💸" },
@@ -406,7 +368,6 @@ export const MODULES = {
   // brokers: { label: "Brokers", icon: "🤝" },
   // branches: { label: "Branches", icon: "🏢" },
   audit_logs: { label: "Audit Logs", icon: "📜" },
-  // policy_maker: { label: "Policy Maker", icon: "📋" },
   // api_usage: { label: "API Usage", icon: "📊" },
   // api_usage_logs: { label: "API Usage Logs", icon: "📝" },
   // api_integrations: { label: "API Integrations", icon: "🌐" },
@@ -434,19 +395,6 @@ export const PAGES = [
       { key: 'leads_list', label: 'Leads', path: '/leads-list', defaultRoles: ['sales_manager', 'branch_manager', 'team_leader', 'executive', 'dsa', 'manager'] },
       { key: 'loans', label: 'Loan Applications', path: '/loans', defaultRoles: ['sales_manager', 'branch_manager', 'team_leader', 'executive', 'dsa', 'manager', 'loan_operations'] },
       { key: 'offline_disbursement', label: 'Offline Disbursement', path: '/offline-disbursement', defaultRoles: ['admin', 'sales_manager', 'dsa', 'loan_operations'] },
-      { key: 'insurance_leads', label: 'Insurance Leads', path: '/insurance-leads', defaultRoles: ['sales_manager', 'branch_manager', 'team_leader', 'executive', 'dsa', 'manager'] },
-    ]
-  },
-  {
-    group: 'Cards Module',
-    icon: <CreditCard size={15} />,
-    items: [
-      { key: 'credit_cards', label: 'Credit Cards', path: '/credit-cards', defaultRoles: ['sales_manager', 'branch_manager', 'team_leader', 'executive', 'dsa', 'manager'] },
-      { key: 'cards_eligibility', label: 'Cards Eligibility', path: '/cards-eligibility', defaultRoles: ['sales_manager', 'branch_manager', 'team_leader', 'executive', 'dsa', 'manager'] },
-      { key: 'credit_card_leads', label: 'Credit Card Leads', path: '/credit-card-leads', defaultRoles: ['sales_manager', 'branch_manager', 'team_leader', 'executive', 'dsa', 'manager'] },
-      { key: 'cards_payouts', label: 'Cards Payouts', path: '/cards-payouts', defaultRoles: ['sales_manager', 'branch_manager', 'dsa', 'manager'] },
-      { key: 'manage_products', label: 'Manage Products', path: '/manage-products', defaultRoles: [] },
-      { key: 'api_integration', label: 'API Integration', path: '/api-integration', defaultRoles: [] },
     ]
   },
   {
@@ -461,10 +409,7 @@ export const PAGES = [
     group: 'Operations',
     icon: <ShieldCheck size={15} />,
     items: [
-      { key: 'calling', label: 'Calling', path: '/calling', defaultRoles: ['sales_manager', 'branch_manager', 'team_leader', 'executive', 'dsa', 'manager'] },
       { key: 'credit_reports', label: 'Credit Reports', path: '/credit-reports', defaultRoles: ['sales_manager', 'branch_manager', 'manager', 'dsa'] },
-      { key: 'expenses', label: 'Expenses', path: '/expenses', defaultRoles: ['sales_manager', 'branch_manager', 'dsa', 'manager'] },
-      { key: 'insurance', label: 'Insurance', path: '/insurance', defaultRoles: ['sales_manager', 'branch_manager', 'manager'] },
       { key: 'link_loan_finder', path: '/link-loan-finder', defaultRoles: ['sales_manager', 'branch_manager'] },
     ]
   },
