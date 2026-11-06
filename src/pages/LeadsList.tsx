@@ -9,86 +9,14 @@ import ApplicationStageModal from '@/components/ApplicationStageModal';
 import { ApplicationStage, ApplicationStageData, STAGE_LABELS, STAGE_COLORS } from '@/types/applicationStages';
 import MobileLeadsWorkflow from '@/components/MobileLeadsWorkflow';
 
-// Timer Component
-const LeadTimer = ({ createdAt, timerEnabled = true }: { createdAt: string; timerEnabled?: boolean }) => {
-  const [timeLeft, setTimeLeft] = useState('');
-  const [isExpired, setIsExpired] = useState(false);
-  const [isLastThreeHours, setIsLastThreeHours] = useState(false);
-
-  // Don't show timer if disabled by admin
-  if (!timerEnabled) return null;
-
-  useEffect(() => {
-    const calculateTime = () => {
-      if (!createdAt) {
-        setIsExpired(true);
-        setTimeLeft('NO TIME');
-        return;
-      }
-
-      const created = new Date(createdAt).getTime();
-      const now = Date.now();
-      
-      // Check if date is valid
-      if (isNaN(created)) {
-        setIsExpired(true);
-        setTimeLeft('INVALID');
-        return;
-      }
-
-      const elapsed = now - created;
-      const twentyFourHours = 24 * 60 * 60 * 1000;
-      const remaining = twentyFourHours - elapsed;
-
-      if (remaining <= 0) {
-        setIsExpired(true);
-        setTimeLeft('TIME UP');
-        return;
-      }
-
-      const hours = Math.floor(remaining / (60 * 60 * 1000));
-      const minutes = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000));
-      const seconds = Math.floor((remaining % (60 * 1000)) / 1000);
-
-      setIsLastThreeHours(hours < 3);
-      setTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
-    };
-
-    calculateTime();
-    const interval = setInterval(calculateTime, 1000);
-    return () => clearInterval(interval);
-  }, [createdAt]);
-
-  if (isExpired) {
-    return (
-      <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-red-500 text-white text-xs font-bold animate-pulse">
-        <Clock size={12} />
-        <span>{timeLeft}</span>
-      </div>
-    );
-  }
-
-  return (
-    <div className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-semibold ${
-      isLastThreeHours 
-        ? 'bg-red-100 text-red-700 border border-red-300 animate-pulse' 
-        : 'bg-blue-100 text-blue-700 border border-blue-200'
-    }`}>
-      <Clock size={12} />
-      <span>{timeLeft}</span>
-    </div>
-  );
+// Timer Component (Disabled permanently - TIME UP removed)
+const LeadTimer = (_props: { createdAt?: string; timerEnabled?: boolean }) => {
+  return null;
 };
 
-// Helper function to check if timer is expired
-const isTimerExpired = (createdAt: string): boolean => {
-  if (!createdAt) return true;
-  const created = new Date(createdAt).getTime();
-  const now = Date.now();
-  if (isNaN(created)) return true;
-  const elapsed = now - created;
-  const twentyFourHours = 24 * 60 * 60 * 1000;
-  return elapsed >= twentyFourHours;
+// Helper function to check if timer is expired (Disabled - never expire)
+const isTimerExpired = (_createdAt?: string): boolean => {
+  return false;
 };
 
 // Lead stage colors and labels (simplified)

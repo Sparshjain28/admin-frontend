@@ -46,141 +46,14 @@ const MaskedMobile = ({ mobile }: { mobile: string }) => {
   );
 };
 
-// Loan Timer Component for SUBMITTED and LOGIN stages only
-const LoanStageTimer = ({ createdAt, applicationStage, stageChangedAt, timerEnabled = true }: { createdAt: string; applicationStage: string; stageChangedAt?: string; timerEnabled?: boolean }) => {
-  const [timeLeft, setTimeLeft] = useState('');
-  const [isExpired, setIsExpired] = useState(false);
-  const [isLastThreeHours, setIsLastThreeHours] = useState(false);
-  const [shouldShow, setShouldShow] = useState(false);
-
-  // Check if timer should be shown - ONLY for SUBMITTED and LOGIN stages
-  const showTimer = timerEnabled && ['SUBMITTED', 'LOGIN'].includes(applicationStage);
-
-  useEffect(() => {
-    setShouldShow(showTimer);
-    
-    if (!showTimer) {
-      return;
-    }
-
-    const calculateTime = () => {
-      let startTime: string;
-      
-      // Timer logic for different stages
-      if (applicationStage === 'SUBMITTED') {
-        // SUBMITTED: 24hrs from creation to auto-move to LOGIN
-        // Always use created_at for SUBMITTED stage
-        startTime = createdAt;
-      } else if (applicationStage === 'LOGIN') {
-        // LOGIN: 24hrs from when moved to LOGIN to move to IN_PROCESS
-        // Use stage_changed_at if available, otherwise created_at
-        startTime = stageChangedAt || createdAt;
-      } else {
-        return; // No timer for other stages
-      }
-      
-      if (!startTime) {
-        setIsExpired(true);
-        setTimeLeft('NO TIME');
-        return;
-      }
-
-      // Parse the timestamp - ensure we're using the right format
-      // If timestamp has no timezone info, it's stored as IST — append +05:30
-      let normalizedStart = startTime;
-      if (normalizedStart && !normalizedStart.endsWith('Z') && !normalizedStart.includes('+') && !normalizedStart.match(/[+-]\d{2}:\d{2}$/)) {
-        normalizedStart = normalizedStart.replace(' ', 'T') + '+05:30';
-      }
-      const startTimeUTC = new Date(normalizedStart).getTime();
-      const nowUTC = Date.now();
-      
-      if (isNaN(startTimeUTC)) {
-        setIsExpired(true);
-        setTimeLeft('INVALID');
-        return;
-      }
-
-      // Calculate elapsed time
-      const elapsed = nowUTC - startTimeUTC;
-      const twentyFourHours = 24 * 60 * 60 * 1000;
-      const remaining = twentyFourHours - elapsed;
-
-      if (remaining <= 0) {
-        setIsExpired(true);
-        setTimeLeft('TIME UP');
-        return;
-      }
-
-      const hours = Math.floor(remaining / (60 * 60 * 1000));
-      const minutes = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000));
-      const seconds = Math.floor((remaining % (60 * 1000)) / 1000);
-
-      setIsExpired(false);
-      setIsLastThreeHours(hours < 3);
-      setTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
-    };
-
-    calculateTime();
-    const interval = setInterval(calculateTime, 1000);
-    return () => clearInterval(interval);
-  }, [createdAt, stageChangedAt, timerEnabled, applicationStage, showTimer]);
-
-  // Don't render if conditions not met
-  if (!shouldShow) return null;
-
-  if (isExpired) {
-    return (
-      <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-red-500 text-white text-[10px] font-bold animate-pulse">
-        <Clock size={10} />
-        <span>{timeLeft}</span>
-      </div>
-    );
-  }
-
-  return (
-    <div className={`flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold ${
-      isLastThreeHours 
-        ? 'bg-red-100 text-red-700 border border-red-300 animate-pulse' 
-        : 'bg-blue-100 text-blue-700 border border-blue-200'
-    }`}>
-      <Clock size={10} />
-      <span>{timeLeft}</span>
-    </div>
-  );
+// Loan Timer Component for SUBMITTED and LOGIN stages only (Disabled permanently - TIME UP removed)
+const LoanStageTimer = (_props: { createdAt?: string; applicationStage?: string; stageChangedAt?: string; timerEnabled?: boolean }) => {
+  return null;
 };
 
-// Helper function to check if timer is expired for SUBMITTED and LOGIN stages only
-const isLoanTimerExpired = (createdAt: string, applicationStage: string, stageChangedAt?: string): boolean => {
-  // Timer only for SUBMITTED and LOGIN stages
-  if (!['SUBMITTED', 'LOGIN'].includes(applicationStage)) return false;
-  
-  let startTime: string;
-  
-  // Different timer logic for different stages
-  if (applicationStage === 'SUBMITTED') {
-    // SUBMITTED: 24hrs from creation
-    startTime = createdAt;
-  } else if (applicationStage === 'LOGIN') {
-    // LOGIN: 24hrs from when moved to LOGIN
-    startTime = stageChangedAt || createdAt;
-  } else {
-    return false;
-  }
-  
-  if (!startTime) return true;
-  
-  // If timestamp has no timezone info, treat it as IST (UTC+5:30)
-  let normalizedStart = startTime;
-  if (normalizedStart && !normalizedStart.endsWith('Z') && !normalizedStart.includes('+') && !normalizedStart.match(/[+-]\d{2}:\d{2}$/)) {
-    normalizedStart = normalizedStart.replace(' ', 'T') + '+05:30';
-  }
-  const startTimeUTC = new Date(normalizedStart).getTime();
-  const nowUTC = Date.now();
-  if (isNaN(startTimeUTC)) return true;
-  
-  const elapsed = nowUTC - startTimeUTC;
-  const twentyFourHours = 24 * 60 * 60 * 1000;
-  return elapsed >= twentyFourHours;
+// Helper function to check if timer is expired (Disabled permanently - never expire/disable)
+const isLoanTimerExpired = (_createdAt?: string, _applicationStage?: string, _stageChangedAt?: string): boolean => {
+  return false;
 };
 
 type ApplicationStageFilter = ApplicationStage | 'all';

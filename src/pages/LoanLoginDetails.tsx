@@ -71,7 +71,7 @@ export default function LoanLoginDetails() {
     const now = Date.now();
     const remaining = disableUntil - now;
     
-    if (remaining <= 0) return 'Time Up - Admin can re-enable now';
+    if (remaining <= 0) return null;
     
     const hours = Math.floor(remaining / (60 * 60 * 1000));
     const minutes = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000));
