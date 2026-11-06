@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || '/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://staging-api.finonest.org/api';
 
 // Safe localStorage access
 function getStoredToken(): string | null {
