@@ -16,7 +16,7 @@
 
 # Finonest India Pvt Ltd — Loan Management System (Frontend)
 
-A comprehensive, enterprise-grade loan management platform built for **Finonest India Pvt Ltd** by **acelion55** and **sparshjain28**. This frontend serves as the complete UI for managing loans, leads, users, payments, reports, and operations — all in one unified dashboard.
+A comprehensive, enterprise-grade loan management platform built for **Finonest India Pvt Ltd**  **sparshjain28**. This frontend serves as the complete UI for managing loans, leads, users, payments, reports, and operations — all in one unified dashboard.
 
 ---
 
@@ -222,7 +222,6 @@ src/
 
 ## 👨‍💻 Built By
 
-- **acelion55**
 - **sparshjain28**
 
 ---
