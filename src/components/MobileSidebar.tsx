@@ -55,7 +55,6 @@ export default function MobileSidebar() {
     if (item.label === 'API Integrations') return hasPermission('api_integrations.view');
     if (item.label === 'Operations') return hasPermission('operations.view') || roleHasAccess;
     if (item.label === 'Expenses') return hasPermission('expenses.view') || roleHasAccess;
-    if (item.label === 'Insurance') return hasPermission('insurance.view') || roleHasAccess;
     if (item.label === 'Leads') return hasPermission('leads.view') || roleHasAccess;
     if (item.label === 'Loan Apps') return hasPermission('loans.view') || roleHasAccess;
     if (item.label === 'Offline Disbursement') return roleHasAccess;

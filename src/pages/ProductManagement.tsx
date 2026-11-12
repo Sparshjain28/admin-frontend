@@ -5,8 +5,8 @@ import * as XLSX from 'xlsx';
 import { toast } from 'sonner';
 import { BranchFormTable } from '@/components/BranchFormTable';
 
-const API = import.meta.env.VITE_API_URL;
-const API_BASE = API.replace('/api', '');
+const API = (import.meta.env.VITE_API_URL || 'https://staging-api.finonest.org/api').replace(/\/$/, '');
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || API.replace('/api', '')).replace(/\/$/, '');
 const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem('auth_token')}` });
 
 const inputClass =

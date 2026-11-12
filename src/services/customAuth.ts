@@ -38,7 +38,7 @@ async function checkAuth(): Promise<{ authenticated: boolean; user?: any; status
   if (!token) return { authenticated: false };
 
   try {
-    const response = await fetch(`${API_BASE_URL}/api/cardsModule/auth/user`, {
+    const response = await fetch(`${API_BASE_URL}/api/auth/profile`, {
       headers: { 'Authorization': `Bearer ${token}` },
       credentials: 'include'
     });
@@ -152,7 +152,7 @@ export const customAuth = {
     if (!token) return null;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/cardsModule/auth/user`, {
+      const response = await fetch(`${API_BASE_URL}/api/auth/profile`, {
         headers: { 'Authorization': `Bearer ${token}` },
         credentials: 'include'
       });

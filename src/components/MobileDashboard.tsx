@@ -15,9 +15,7 @@ import {
 import balanceIllustration from "@/assets/balance_illustration.png";
 import earningsIllustration from "@/assets/earnings_illustration.png";
 import discountIllustration from "@/assets/discount.png";
-import creditCardsIllustration from "@/assets/credit_cards_illustration.png";
 import loansIllustration from "@/assets/loans_illustration.png";
-import insuranceIllustration from "@/assets/insurance_illustration.png";
 import visitingCardIcon from "@/assets/visiting_card_icon.png";
 
 // Google Material Icons, the same glyphs Flutter's My Tools tiles use

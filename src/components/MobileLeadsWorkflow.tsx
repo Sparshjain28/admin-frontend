@@ -11,7 +11,6 @@ import {
   FileText,
   User,
   CreditCard,
-  Shield,
   HandCoins,
   Eye,
   ArrowRight,
@@ -25,9 +24,7 @@ import { api } from "@/lib/api";
 export default function MobileLeadsWorkflow() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<
-    "cards" | "loans" | "insurance" | "drafts"
-  >("loans"); // Default to loans tab
+  const [activeTab, setActiveTab] = useState<"loans" | "drafts">("loans"); // Default to loans tab
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedCardId, setExpandedCardId] = useState<string | number | null>(
     null,
@@ -101,60 +98,6 @@ export default function MobileLeadsWorkflow() {
     },
     enabled: !!user && activeTab === "drafts",
   });
-
-  // Fetch ePartner insurance leads
-  const { data: epartnerLeads = [], isLoading: epartnerLoading } = useQuery<any[]>({
-    queryKey: ["epartnerLeads"],
-    queryFn: async () => {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/insurance/epartner/leads`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
-      });
-      return response.ok ? await response.json() : [];
-    },
-    enabled: !!user && activeTab === "insurance",
-  });
-
-  // Fetch Cards Module leads
-  const { data: cardsLeads = [], isLoading: cardsLoading } = useQuery<any[]>({
-    queryKey: ["cardsLeads"],
-    queryFn: async () => {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/cardsModule/leads`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
-      });
-      const data = response.ok ? await response.json() : { records: [] };
-      return data.records || [];
-    },
-    enabled: !!user && activeTab === "cards",
-  });
-
-  // Filter leads based on active tab matching LeadsList.tsx rules
-  const filteredLeads = React.useMemo(() => {
-    // Filter pending leads (not converted)
-    const pendingLeads = leads.filter((l: any) => {
-      if (l.converted_to_loan) return false;
-      if (user?.role === "executive" && l.created_by !== user?.id) return false;
-      return true;
-    });
-
-    let items = [];
-    if (activeTab === "cards") {
-      items = pendingLeads.filter((lead) => lead.product_type === "cards");
-    } else if (activeTab === "insurance") {
-      items = pendingLeads.filter((lead) => lead.product_type === "insurance");
-    }
-
-    if (searchQuery.trim() !== "") {
-      const q = searchQuery.toLowerCase();
-      items = items.filter(
-        (lead) =>
-          lead.customer_name?.toLowerCase().includes(q) ||
-          lead.customer_id?.toLowerCase().includes(q) ||
-          lead.phone?.includes(q),
-      );
-    }
-
-    return items;
-  }, [leads, activeTab, user, searchQuery]);
 
   // Search is now applied server-side (sent as a `search` param on the
   // paginated /loans call above), so loansData already reflects it — no
@@ -406,8 +349,6 @@ export default function MobileLeadsWorkflow() {
       <div className="px-4 space-y-3">
         {/* Loading Spinner */}
         {((activeTab === "loans" && loansLoading) ||
-          (activeTab === "insurance" && epartnerLoading) ||
-          (activeTab === "cards" && cardsLoading) ||
           (activeTab === "drafts" && (leadsLoading || draftsLoading))) && (
             <div className="py-20 flex flex-col items-center justify-center space-y-3">
               <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
@@ -416,229 +357,6 @@ export default function MobileLeadsWorkflow() {
               </p>
             </div>
           )}
-
-        {/* --- INSURANCE LEADS (ePartner) --- */}
-        {activeTab === "insurance" && !epartnerLoading && (
-          epartnerLeads.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
-              <Shield size={48} className="text-slate-200 mb-4" />
-              <h3 className="text-xl font-bold text-slate-800 mb-2">No Insurance Leads</h3>
-              <p className="text-sm text-slate-500 max-w-[280px] mb-6 leading-relaxed">
-                Purchase a policy to see your insurance leads here.
-              </p>
-              <button
-                onClick={() => navigate("/loans")}
-                className="px-6 py-3 border-2 border-green-600 text-green-600 rounded-xl font-bold text-sm bg-white hover:bg-green-50 active:scale-95 transition-all flex items-center gap-2"
-              >
-                <Plus size={16} strokeWidth={2.5} /> Buy Policy
-              </button>
-            </div>
-          ) : (
-            <>
-              {/* Buy Policy Button */}
-              <div className="mb-3">
-                <button
-                  onClick={() => navigate("/loans")}
-                  className="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-500 text-white rounded-xl font-bold text-sm shadow-md shadow-green-500/20 active:scale-[0.98] transition-transform flex items-center justify-center gap-2"
-                >
-                  <Plus size={16} strokeWidth={2.5} /> Buy New Policy
-                </button>
-              </div>
-              {epartnerLeads.map((lead: any) => {
-                const initials = (lead.name || lead.customer_name || 'IN')
-                  .split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase();
-                const isSuccess = lead.status === 'Success';
-                return (
-                  <div key={lead.id} className="bg-white rounded-2xl shadow-sm border border-slate-100/80 overflow-hidden">
-                    <div className="flex gap-3 items-center pt-3 pr-3 pl-3">
-                      <div className="w-12 h-12 rounded-full bg-emerald-100 border-2 border-white flex items-center justify-center text-emerald-700 font-bold text-sm shrink-0 shadow-sm">
-                        {initials}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-1 mb-0.5">
-                          <h3 className="text-sm font-bold text-slate-800 leading-tight uppercase truncate">
-                            {lead.name || lead.customer_name}
-                          </h3>
-                          <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md border shrink-0 ${isSuccess ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : 'bg-blue-50 border-blue-100 text-blue-600'}`}>
-                            {lead.status || 'Lead'}
-                          </span>
-                        </div>
-                        <p className="text-[10px] font-medium text-slate-400 tracking-tight truncate">
-                          {lead.phone} • {lead.vehicle_number || 'N/A'}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 px-3 pt-3 pb-3 mt-2 border-t border-slate-50 text-[11px] leading-tight">
-                      <div>
-                        <p className="text-slate-400 font-medium mb-0.5">Product</p>
-                        <p className="font-bold text-slate-800 uppercase">{lead.product_name || '-'}</p>
-                      </div>
-                      <div>
-                        <p className="text-slate-400 font-medium mb-0.5">Provider</p>
-                        <p className="font-bold text-slate-800 uppercase">{lead.product_provider_name || 'Pending'}</p>
-                      </div>
-                      {lead.amount && (
-                        <div>
-                          <p className="text-slate-400 font-medium mb-0.5">Amount</p>
-                          <p className="font-bold text-slate-800">₹{lead.amount}</p>
-                        </div>
-                      )}
-                      {lead.vle_margin && (
-                        <div>
-                          <p className="text-slate-400 font-medium mb-0.5">Margin</p>
-                          <p className="font-bold text-emerald-600">₹{lead.vle_margin}</p>
-                        </div>
-                      )}
-                    </div>
-                    {isSuccess && lead.si_id && (
-                      <div className="px-3 pb-3">
-                        <button
-                          onClick={async () => {
-                            try {
-                              const toastId = toast.loading('Downloading...');
-                              const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/insurance/epartner/download-pdf`, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
-                                body: JSON.stringify({ quotation_id: lead.si_id })
-                              });
-                              if (!response.ok) throw new Error('Failed');
-                              const blob = await response.blob();
-                              const url = window.URL.createObjectURL(blob);
-                              const a = document.createElement('a');
-                              a.href = url; a.download = `Policy_${lead.si_id}.pdf`;
-                              document.body.appendChild(a); a.click();
-                              window.URL.revokeObjectURL(url); document.body.removeChild(a);
-                              toast.success('Downloaded!', { id: toastId });
-                            } catch { toast.error('Download failed'); }
-                          }}
-                          className="w-full py-2.5 bg-indigo-50 text-indigo-700 rounded-xl text-xs font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
-                        >
-                          <Download size={14} /> Download Policy
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </>
-          )
-        )}
-
-        {/* --- CARDS LEADS CARDS --- */}
-        {activeTab === "cards" &&
-          !cardsLoading &&
-          (cardsLeads.length === 0
-            ? renderEmptyState()
-            : cardsLeads.filter(l => !searchQuery || l.applicant_name?.toLowerCase().includes(searchQuery.toLowerCase()) || l.lead_id?.toLowerCase().includes(searchQuery.toLowerCase())).map((lead) => {
-              const isExpanded = expandedCardId === lead.id;
-              const status = getStatusStyle(lead.status || "pending");
-              // Vector avatar based on dynamic character initials
-              const initials =
-                lead.applicant_name
-                  ?.split(" ")
-                  .map((n: string) => n[0])
-                  .join("")
-                  .slice(0, 2)
-                  .toUpperCase() || "SP";
-              const avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${lead.applicant_name || "Finonest"}`;
-
-              return (
-                <div
-                  key={lead.id}
-                  onClick={() =>
-                    setExpandedCardId(isExpanded ? null : lead.id)
-                  }
-                  className="bg-white rounded-2xl shadow-sm border border-slate-100/80 overflow-hidden cursor-pointer hover:shadow-md transition-shadow duration-200"
-                >
-                  {/* TOP ROW: Avatar + Name + Status */}
-                  <div className="flex gap-3 items-center pt-3 pr-3 pl-3">
-                    <div className="w-12 h-12 rounded-full bg-[#FFCA28] border-2 border-white flex items-center justify-center text-white shrink-0 overflow-hidden shadow-sm">
-                      <img
-                        src={avatarUrl}
-                        alt={initials}
-                        className="w-11 h-11 object-cover"
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-1 mb-0.5">
-                        <h3 className="text-sm font-bold text-slate-800 leading-tight uppercase truncate">
-                          {lead.applicant_name}
-                        </h3>
-                        <span
-                          className={`text-[9px] font-bold px-2 py-0.5 rounded-md border shrink-0 ${status.bg}`}
-                        >
-                          {(lead.status || "pending").replace(/_/g, " ")}
-                        </span>
-                      </div>
-                      <p className="text-[10px] font-medium text-slate-400 tracking-tight truncate">
-                        Lead ID: {lead.lead_id || "-"}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* FULL WIDTH: Product/Date grid */}
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 px-3 pt-3 pb-3 mt-2 border-t border-slate-50 text-[11px] leading-tight">
-                    <div>
-                      <p className="text-slate-400 font-medium mb-0.5">
-                        Product
-                      </p>
-                      <p className="font-bold text-slate-800 uppercase">
-                        {lead.card_name || "CREDIT CARD"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-slate-400 font-medium mb-0.5">
-                        Date & Time
-                      </p>
-                      <p className="font-bold text-slate-800">
-                        {lead.created_at ? lead.created_at.split(' ')[0] : '-'}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* FULL WIDTH: Expandable section */}
-                  {isExpanded && (
-                    <div className="px-3 pt-3 pb-3 border-t border-slate-100 text-[11px] space-y-3">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-slate-400 font-medium mb-0.5">
-                            Bank
-                          </p>
-                          <p className="font-bold text-slate-800 uppercase">
-                            {lead.bank_name || "NOT ASSIGNED"}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-slate-400 font-medium mb-0.5">
-                            Remarks / Comments
-                          </p>
-                          <p className="font-bold text-slate-800 truncate">
-                            {lead.remark || "No remarks recorded"}
-                          </p>
-                        </div>
-                      </div>
-                      <div
-                        className="flex items-center justify-between pt-1"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <a
-                          href={`tel:${lead.applicant_phone}`}
-                          className="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors"
-                        >
-                          Connect with Customer
-                        </a>
-                        <button
-                          onClick={() => navigate("/loans")}
-                          className="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full text-[10px] font-bold shadow-sm"
-                        >
-                          View Detail
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            }))}
 
         {/* --- REAL LOAN APPLICATIONS CARDS --- */}
         {activeTab === "loans" &&

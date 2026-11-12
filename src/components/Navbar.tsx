@@ -136,18 +136,6 @@ function getBreadcrumbs(pathname: string, userRole?: string): BreadcrumbItem[] {
       { label: "Expenses", path: "/expenses" }
     ];
   }
-  if (path === "/insurance") {
-    return [
-      { label: "Operations", path: "/calling" },
-      { label: "Insurance", path: "/insurance" }
-    ];
-  }
-  if (path === "/insurance-leads") {
-    return [
-      { label: "Leads & Loans", path: "/leads-list" },
-      { label: "Insurance Leads", path: "/insurance-leads" }
-    ];
-  }
   if (path === "/link-loan-finder") {
     return [
       { label: "Operations", path: "/calling" },
