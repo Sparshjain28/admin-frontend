@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   LayoutDashboard, FileText, Users, Building2, UserCheck, BarChart3,
   LogOut, Menu, X, Car, Bell, CreditCard, Shield, ChevronLeft, ChevronRight, MapPin, UserPlus, Settings,
-  Wallet, Receipt, ShieldCheck, Sliders, ChevronDown, ChevronUp, Folder, Copy, Share2, UserCircle, Download, Eye, Calendar, Phone, Database, Zap, Globe, Calculator, Percent
+  Wallet, Receipt, ShieldCheck, Sliders, ChevronDown, ChevronUp, Folder, Copy, Share2, UserCircle, Download, Eye, Calendar, Phone, Database, Zap, Globe, Calculator, Percent, Search
 } from 'lucide-react';
 import MobileBottomNav from './MobileBottomNav';
 import MobilePremiumDrawer from './MobilePremiumDrawer';
@@ -67,9 +67,14 @@ export const NAV_ITEMS: NavItem[] = [
     ]
   },
   { label: 'PDD Management', path: '/pdd-management', icon: <FileText size={18} />, roles: ['admin', 'branch_manager', 'sales_manager', 'dsa', 'operation_team', 'loan_operations'] },
-  { label: 'Find My Lender', path: '/find-lender', icon: <MapPin size={18} />, roles: ['admin', 'manager', 'sales_manager', 'branch_manager', 'dsa', 'team_leader', 'executive'] },
-  { label: 'Find My Eligibility', path: '/find-eligibility', icon: <Calculator size={18} />, roles: ['admin'] },
-  { label: 'Find My Car Value', path: '/find-car-value', icon: <Car size={18} />, roles: ['admin', 'manager', 'sales_manager', 'branch_manager', 'dsa', 'team_leader', 'executive'] },
+  {
+    label: 'Find My Tool', icon: <Search size={18} />, roles: ['admin', 'manager', 'sales_manager', 'branch_manager', 'dsa', 'team_leader', 'executive'],
+    children: [
+      { label: 'Find My Lender', path: '/find-lender', icon: <MapPin size={16} />, roles: ['admin', 'manager', 'sales_manager', 'branch_manager', 'dsa', 'team_leader', 'executive'] },
+      { label: 'Find My Eligibility', path: '/find-eligibility', icon: <Calculator size={16} />, roles: ['admin'] },
+      { label: 'Find My Car Value', path: '/find-car-value', icon: <Car size={16} />, roles: ['admin', 'manager', 'sales_manager', 'branch_manager', 'dsa', 'team_leader', 'executive'] },
+    ]
+  },
   { label: 'Payouts', path: '/payouts', icon: <Receipt size={18} />, roles: ['dsa', 'executive'] },
   {
     label: 'Administration', icon: <Settings size={18} />, roles: ['admin', 'manager', 'sales_manager', 'branch_manager'],
@@ -84,12 +89,16 @@ export const NAV_ITEMS: NavItem[] = [
       { label: 'Product Management', path: '/product-management', icon: <Settings size={16} />, roles: ['admin'] },
       { label: 'Permissions', path: '/permissions', icon: <Settings size={16} />, roles: ['admin'] },
       { label: 'Audit Logs', path: '/audit-logs', icon: <FileText size={16} />, roles: ['admin'] },
-      { label: 'System Config', path: '/settings', icon: <Sliders size={16} />, roles: ['admin'] },
       { label: 'Loan Compare Charges', path: '/settings/loan-comparison-charges', icon: <Percent size={16} />, roles: ['admin'] },
+    ]
+  },
+  {
+    label: 'API Management', icon: <Database size={18} />, roles: ['admin'],
+    children: [
       { label: 'API Usage', path: '/admin/api-usage', icon: <Database size={16} />, roles: ['admin'] },
       { label: 'API Call Logs', path: '/admin/api-usage-logs', icon: <Database size={16} />, roles: ['admin'] },
       { label: 'API Integrations', path: '/admin/api-integrations', icon: <Globe size={16} />, roles: ['admin'] },
-      { label: 'API Management (Loans)', path: '/admin/api-management', icon: <Database size={16} />, roles: ['admin'] },
+      { label: 'API Management', path: '/admin/api-management', icon: <Database size={16} />, roles: ['admin'] },
     ]
   },
 

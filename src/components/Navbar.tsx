@@ -143,15 +143,24 @@ function getBreadcrumbs(pathname: string, userRole?: string): BreadcrumbItem[] {
     ];
   }
 
-  // Find My Lender / Car Value
+  // Find My Tool
   if (path === "/find-lender") {
-    return [{ label: "Find My Lender", path: "/find-lender" }];
+    return [
+      { label: "Find My Tool", path: "/find-lender" },
+      { label: "Find My Lender", path: "/find-lender" }
+    ];
   }
   if (path === "/find-eligibility") {
-    return [{ label: "Find My Eligibility", path: "/find-eligibility" }];
+    return [
+      { label: "Find My Tool", path: "/find-lender" },
+      { label: "Find My Eligibility", path: "/find-eligibility" }
+    ];
   }
   if (path === "/find-car-value") {
-    return [{ label: "Find My Car Value", path: "/find-car-value" }];
+    return [
+      { label: "Find My Tool", path: "/find-lender" },
+      { label: "Find My Car Value", path: "/find-car-value" }
+    ];
   }
 
   // Administration
@@ -197,12 +206,6 @@ function getBreadcrumbs(pathname: string, userRole?: string): BreadcrumbItem[] {
       { label: "Audit Logs", path: "/audit-logs" }
     ];
   }
-  if (path === "/settings") {
-    return [
-      { label: "Administration", path: "/reports" },
-      { label: "System Config", path: "/settings" }
-    ];
-  }
   if (path === "/settings/loan-comparison-charges" || path === "/admin/loan-comparison-charges") {
     return [
       { label: "Administration", path: "/reports" },
@@ -211,20 +214,26 @@ function getBreadcrumbs(pathname: string, userRole?: string): BreadcrumbItem[] {
   }
   if (path === "/admin/api-usage") {
     return [
-      { label: "Administration", path: "/reports" },
+      { label: "API Management", path: "/admin/api-management" },
       { label: "API Usage", path: "/admin/api-usage" }
     ];
   }
   if (path === "/admin/api-usage-logs") {
     return [
-      { label: "Administration", path: "/reports" },
+      { label: "API Management", path: "/admin/api-management" },
       { label: "API Call Logs", path: "/admin/api-usage-logs" }
     ];
   }
   if (path === "/admin/api-integrations") {
     return [
-      { label: "Administration", path: "/reports" },
+      { label: "API Management", path: "/admin/api-management" },
       { label: "API Integrations", path: "/admin/api-integrations" }
+    ];
+  }
+  if (path === "/admin/api-management") {
+    return [
+      { label: "API Management", path: "/admin/api-management" },
+      { label: "API Management", path: "/admin/api-management" }
     ];
   }
 

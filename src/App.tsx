@@ -41,7 +41,6 @@ const ExpenseManagement = lazy(() => import("@/pages/ExpenseManagement"));
 const RCLimitModule = lazy(() => import("@/pages/RCLimitModule"));
 const RCLimitBills = lazy(() => import("@/pages/RCLimitBills"));
 const RCLimitPayments = lazy(() => import("@/pages/RCLimitPayments"));
-const SystemConfig = lazy(() => import("@/pages/SystemConfig"));
 const LoanComparisonChargesPage = lazy(() => import("@/pages/LoanComparisonChargesPage"));
 
 const AuditLogPage = lazy(() => import("@/pages/AuditLogPage"));
@@ -326,7 +325,6 @@ function AppRoutes() {
         } />
         <Route path="/admin/nearby-branches" element={<ProtectedRoute><AdminNearbyBranches /></ProtectedRoute>} />
         <Route path="/admin/lender-analysis" element={<ProtectedRoute><LenderAnalysis /></ProtectedRoute>} />
-        <Route path="/settings" element={<ProtectedRoute><SystemConfig /></ProtectedRoute>} />
         <Route path="/settings/loan-comparison-charges" element={<ProtectedRoute><LoanComparisonChargesPage /></ProtectedRoute>} />
         <Route path="/admin/loan-comparison-charges" element={<ProtectedRoute><LoanComparisonChargesPage /></ProtectedRoute>} />
 
