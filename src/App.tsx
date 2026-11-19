@@ -18,7 +18,6 @@ const Loans = lazy(() => import("@/pages/Loans"));
 const CreateLoan = lazy(() => import("@/pages/CreateLoan"));
 const LoanLoginDetails = lazy(() => import("@/pages/LoanLoginDetails"));
 const LoanDetail = lazy(() => import("@/pages/LoanDetail"));
-const EditLead = lazy(() => import("@/pages/EditLead"));
 const EditLoan = lazy(() => import("@/pages/EditLoan"));
 const LoanPaymentRequest = lazy(() => import("@/pages/LoanPaymentRequest"));
 const OfflineDisbursement = lazy(() => import("@/pages/OfflineDisbursement"));
@@ -38,7 +37,6 @@ const FieldPermissions = lazy(() => import("@/pages/FieldPermissions"));
 const DashboardPermissions = lazy(() => import("@/pages/DashboardPermissions"));
 const PayoutManagement = lazy(() => import("@/pages/PayoutManagement"));
 const ExpenseManagement = lazy(() => import("@/pages/ExpenseManagement"));
-const RCLimitModule = lazy(() => import("@/pages/RCLimitModule"));
 const RCLimitBills = lazy(() => import("@/pages/RCLimitBills"));
 const RCLimitPayments = lazy(() => import("@/pages/RCLimitPayments"));
 const LoanComparisonChargesPage = lazy(() => import("@/pages/LoanComparisonChargesPage"));
@@ -58,7 +56,6 @@ const AccountPayments = lazy(() => import("@/pages/AccountPayments"));
 const DBView = lazy(() => import("@/pages/DBView"));
 const BankAccounts = lazy(() => import("@/pages/BankAccounts"));
 const DisbursementLedger = lazy(() => import("@/pages/DisbursementLedger"));
-const ApplicationStageManagement = lazy(() => import("@/pages/ApplicationStageManagement"));
 const RCTemplatePage = lazy(() => import("@/pages/RCTemplatePage"));
 const RCTemplateViewer = lazy(() => import("@/pages/RCTemplateViewer"));
 const UserProfile = lazy(() => import("@/pages/UserProfile"));
@@ -86,7 +83,6 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const AccountDeletion = lazy(() => import("@/pages/AccountDeletion"));
 const DsaApplications = lazy(() => import("@/pages/DsaApplications"));
 import LoanSelection from "./pages/category/LoanSelection";
-import Dashboard2 from "./pages/Dashboard2";
 
 
 const queryClient = new QueryClient();
@@ -103,7 +99,6 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   );
   if (!user) return <Navigate to="/login" replace />;
   if (user.role === 'operation_team') return <Navigate to="/ops/dashboard" replace />;
-  if (user.role === 'loan_operations') return <Navigate to="/loan-ops/dashboard" replace />;
   if (user.role === 'accountant') return <Navigate to="/accountant/dashboard" replace />;
   return <DashboardLayout>{children}</DashboardLayout>;
 }
@@ -271,13 +266,36 @@ function AppRoutes() {
         <Route path="/join/:token" element={user ? <RoleDashboardRedirect /> : <Signup />} />
         <Route path="/forgot-mpin" element={user ? <RoleDashboardRedirect /> : <ForgotMpin />} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/dashboard2" element={<ProtectedRoute><Dashboard2 /> </ProtectedRoute>} />
-        <Route path="/loans" element={<ProtectedRoute><Loans /></ProtectedRoute>} />
-        <Route path="/loans/new" element={<ProtectedRoute><CreateLoan /></ProtectedRoute>} />
-        <Route path="/loans/login-details" element={<ProtectedRoute><LoanLoginDetails /></ProtectedRoute>} />
-        <Route path="/loans/edit/:id" element={<ProtectedRoute><EditLoan /></ProtectedRoute>} />
-        <Route path="/loans/:id" element={<ProtectedRoute><LoanDetail /></ProtectedRoute>} />
-        <Route path="/loans/:id/payments" element={<ProtectedRoute><LoanPaymentRequest /></ProtectedRoute>} />
+        <Route path="/loans" element={
+          <RoleProtectedRoute allowedRoles={['admin', 'manager', 'sales_manager', 'loan_operations']}>
+            <Loans />
+          </RoleProtectedRoute>
+        } />
+        <Route path="/loans/new" element={
+          <RoleProtectedRoute allowedRoles={['admin', 'manager', 'sales_manager', 'loan_operations']}>
+            <CreateLoan />
+          </RoleProtectedRoute>
+        } />
+        <Route path="/loans/login-details" element={
+          <RoleProtectedRoute allowedRoles={['admin', 'manager', 'sales_manager', 'loan_operations']}>
+            <LoanLoginDetails />
+          </RoleProtectedRoute>
+        } />
+        <Route path="/loans/edit/:id" element={
+          <RoleProtectedRoute allowedRoles={['admin', 'manager', 'sales_manager', 'loan_operations']}>
+            <EditLoan />
+          </RoleProtectedRoute>
+        } />
+        <Route path="/loans/:id" element={
+          <RoleProtectedRoute allowedRoles={['admin', 'manager', 'sales_manager', 'loan_operations', 'operation_team', 'accountant']}>
+            <LoanDetail />
+          </RoleProtectedRoute>
+        } />
+        <Route path="/loans/:id/payments" element={
+          <RoleProtectedRoute allowedRoles={['admin', 'manager', 'sales_manager', 'loan_operations', 'accountant', 'operation_team']}>
+            <LoanPaymentRequest />
+          </RoleProtectedRoute>
+        } />
         <Route path="/add-lead" element={<ProtectedRoute><AddLead /></ProtectedRoute>} />
         <Route path="/leads-list" element={
           <RoleProtectedRoute allowedRoles={['admin', 'manager', 'sales_manager']}>
@@ -310,9 +328,21 @@ function AppRoutes() {
         {/* Temporarily disabled - uncomment to re-enable in future
         <Route path="/expenses" element={<ProtectedRoute><ExpenseManagement /></ProtectedRoute>} />
         */}
-        <Route path="/rc-limits" element={<ProtectedRoute><RCLimitBills /></ProtectedRoute>} />
-        <Route path="/rc-limits/bills" element={<ProtectedRoute><RCLimitBills /></ProtectedRoute>} />
-        <Route path="/rc-limits/payment" element={<ProtectedRoute><RCLimitPayments /></ProtectedRoute>} />
+        <Route path="/rc-limits" element={
+          <RoleProtectedRoute allowedRoles={['admin', 'manager', 'sales_manager', 'operation_team', 'loan_operations', 'accountant']}>
+            <RCLimitBills />
+          </RoleProtectedRoute>
+        } />
+        <Route path="/rc-limits/bills" element={
+          <RoleProtectedRoute allowedRoles={['admin', 'manager', 'sales_manager', 'operation_team', 'loan_operations', 'accountant']}>
+            <RCLimitBills />
+          </RoleProtectedRoute>
+        } />
+        <Route path="/rc-limits/payment" element={
+          <RoleProtectedRoute allowedRoles={['admin', 'manager', 'sales_manager', 'operation_team', 'loan_operations', 'accountant']}>
+            <RCLimitPayments />
+          </RoleProtectedRoute>
+        } />
 
         <Route path="/admin/api-management" element={<ProtectedRoute><LoansApiIntegration /></ProtectedRoute>} />
         <Route path="/find-car-value" element={<ProtectedRoute><FindMyCarValue /></ProtectedRoute>} />
@@ -403,6 +433,11 @@ function AppRoutes() {
         <Route path="/accountant/folio" element={
           <RoleProtectedRoute allowedRoles={['admin', 'accountant']}>
             <FolioAccounts />
+          </RoleProtectedRoute>
+        } />
+        <Route path="/accountant/folio-details" element={
+          <RoleProtectedRoute allowedRoles={['admin', 'accountant', 'sales_manager', 'operation_team', 'loan_operations', 'manager']}>
+            <FolioDetails />
           </RoleProtectedRoute>
         } />
         <Route path="/accountant/payments" element={

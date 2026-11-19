@@ -47,12 +47,21 @@ function getBreadcrumbs(pathname: string, userRole?: string): BreadcrumbItem[] {
     ];
   }
   if (path === "/loans") {
+    if (userRole === 'loan_operations') {
+      return [{ label: "Loan Apps", path: "/loans" }];
+    }
     return [
       { label: "Leads & Loans", path: leadsLoansPath },
       { label: "Loan Apps", path: "/loans" }
     ];
   }
   if (path === "/loans/new") {
+    if (userRole === 'loan_operations') {
+      return [
+        { label: "Loan Apps", path: "/loans" },
+        { label: "New Loan", path: "/loans/new" }
+      ];
+    }
     return [
       { label: "Leads & Loans", path: "/leads-list" },
       { label: "Loan Apps", path: "/loans" },
@@ -60,6 +69,12 @@ function getBreadcrumbs(pathname: string, userRole?: string): BreadcrumbItem[] {
     ];
   }
   if (path === "/loans/login-details") {
+    if (userRole === 'loan_operations') {
+      return [
+        { label: "Loan Apps", path: "/loans" },
+        { label: "Login Details", path: "/loans/login-details" }
+      ];
+    }
     return [
       { label: "Leads & Loans", path: "/leads-list" },
       { label: "Loan Apps", path: "/loans" },
@@ -67,6 +82,12 @@ function getBreadcrumbs(pathname: string, userRole?: string): BreadcrumbItem[] {
     ];
   }
   if (path.startsWith("/loans/edit/")) {
+    if (userRole === 'loan_operations') {
+      return [
+        { label: "Loan Apps", path: "/loans" },
+        { label: "Edit Loan" }
+      ];
+    }
     return [
       { label: "Leads & Loans", path: "/leads-list" },
       { label: "Loan Apps", path: "/loans" },
@@ -74,6 +95,12 @@ function getBreadcrumbs(pathname: string, userRole?: string): BreadcrumbItem[] {
     ];
   }
   if (path.startsWith("/loans/") && path.endsWith("/payments")) {
+    if (userRole === 'loan_operations') {
+      return [
+        { label: "Loan Apps", path: "/loans" },
+        { label: "Payment Request" }
+      ];
+    }
     return [
       { label: "Leads & Loans", path: "/leads-list" },
       { label: "Loan Apps", path: "/loans" },
@@ -81,6 +108,12 @@ function getBreadcrumbs(pathname: string, userRole?: string): BreadcrumbItem[] {
     ];
   }
   if (path.startsWith("/loans/")) {
+    if (userRole === 'loan_operations') {
+      return [
+        { label: "Loan Apps", path: "/loans" },
+        { label: "Loan Details" }
+      ];
+    }
     return [
       { label: "Leads & Loans", path: "/leads-list" },
       { label: "Loan Apps", path: "/loans" },
@@ -126,19 +159,17 @@ function getBreadcrumbs(pathname: string, userRole?: string): BreadcrumbItem[] {
   }
   if (path === "/payouts") {
     return [
-      { label: "Operations", path: "/calling" },
       { label: "Payouts", path: "/payouts" }
     ];
   }
   if (path === "/expenses") {
     return [
-      { label: "Operations", path: "/calling" },
       { label: "Expenses", path: "/expenses" }
     ];
   }
   if (path === "/link-loan-finder") {
     return [
-      { label: "Operations", path: "/calling" },
+      { label: "Operations", path: "/credit-reports" },
       { label: "Link Loan Finder", path: "/link-loan-finder" }
     ];
   }
@@ -260,6 +291,13 @@ function getBreadcrumbs(pathname: string, userRole?: string): BreadcrumbItem[] {
     return [
       { label: "Accountant Portal", path: "/accountant/dashboard" },
       { label: "Folio Accounts", path: "/accountant/folio" }
+    ];
+  }
+  if (path === "/accountant/folio-details") {
+    return [
+      { label: "Accountant Portal", path: "/accountant/dashboard" },
+      { label: "Folio Accounts", path: "/accountant/folio" },
+      { label: "Folio Details", path: "/accountant/folio-details" }
     ];
   }
   if (path === "/accountant/bank-accounts") {
@@ -742,11 +780,6 @@ export default function Navbar({
                     <div className="p-4 border-b border-white/10">
                       <p className="text-sm font-bold text-gray-900 dark:text-white truncate">User Account</p>
                       <p className="text-xs font-semibold text-primary dark:text-primary">{user.role ? ROLE_LABELS[user.role as UserRole] : 'No role'}</p>
-                      {user.role === 'executive' && (
-                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                          Team: {user.manager_name || 'No team leader assigned'}
-                        </p>
-                      )}
                     </div>
                     <div className="p-2">
                       {location.pathname !== '/dashboard' && (

@@ -210,9 +210,6 @@ toast.error(error.message || 'Failed to search leads');
     // Stage filter
     if (filterStage !== 'all' && l.application_stage !== filterStage) return false;
 
-    // Executives can only see their own leads
-    if (user?.role === 'executive' && l.created_by !== user?.id) return false;
-
     return !search ||
       l.customer_name?.toLowerCase().includes(search.toLowerCase()) ||
       l.phone?.includes(search) ||

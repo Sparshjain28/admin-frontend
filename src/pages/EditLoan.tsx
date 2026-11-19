@@ -996,9 +996,9 @@ export default function EditLoan() {
     updateLoan.mutate();
   };
 
-  // Check if mandatory documents are uploaded (for executive and team_leader roles)
-  const isExecutive = user?.role === 'executive';
-  const isTeamLeader = user?.role === 'team_leader';
+  // Internal portal has no executive or team_leader users
+  const isExecutive = false;
+  const isTeamLeader = false;
   const mandatoryDocTypes = ['aadharFront', 'aadharBack', 'panCard', 'rcFront', 'rcBack'];
   
   // Helper to check if a doc type has an existing uploaded document

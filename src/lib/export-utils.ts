@@ -18,62 +18,6 @@ export function exportToExcel(data: any[], filename: string) {
   XLSX.writeFile(workbook, filename.endsWith('.xlsx') ? filename : `${filename}.xlsx`);
 }
 
-export function exportToCSV(data: any[], filename: string) {
-  if (!data || data.length === 0) return;
-  const headers = Object.keys(data[0]);
-  const csv = [
-    headers.map(h => `"${h.replace(/"/g, '""')}"`).join(','),
-    ...data.map(row => headers.map(k => {
-      const val = row[k];
-      if (val === null || val === undefined) return '""';
-      return `"${String(val).replace(/"/g, '""').replace(/\r?\n/g, ' ')}"`;
-    }).join(','))
-  ].join('\n');
-  
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename.endsWith('.csv') ? filename : `${filename}.csv`;
-  a.click();
-  window.URL.revokeObjectURL(url);
-}
-
-export function parseCSV(file: File | string): Promise<any[]> {
-  return new Promise((resolve, reject) => {
-    if (typeof file === 'string') {
-      const text = file;
-      const lines = text.split('\n');
-      const headers = lines[0].split(',');
-      const data = lines.slice(1).map(line => {
-        const values = line.split(',');
-        return headers.reduce((obj, header, i) => {
-          obj[header] = values[i];
-          return obj;
-        }, {} as any);
-      });
-      resolve(data);
-    } else {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const text = e.target?.result as string;
-        const lines = text.split('\n');
-        const headers = lines[0].split(',');
-        const data = lines.slice(1).map(line => {
-          const values = line.split(',');
-          return headers.reduce((obj, header, i) => {
-            obj[header] = values[i];
-            return obj;
-          }, {} as any);
-        });
-        resolve(data);
-      };
-      reader.onerror = reject;
-      reader.readAsText(file);
-    }
-  });
-}
-
 export function parseExcel(file: File): Promise<any[]> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();

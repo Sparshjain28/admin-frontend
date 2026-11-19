@@ -438,12 +438,11 @@ if (error?.name === 'AbortError') {
     }
   };
 
-  const isExecutive = user?.role === 'executive';
-  const canEditLoan = ['admin', 'dsa', 'branch_manager', 'ops_team'].includes(user?.role || '');
-  const canEditStatus = !isExecutive;
-  const isTeamLeader = user?.role === 'team_leader';
+  const isExecutive = false;
+  const canEditLoan = ['admin', 'operation_team', 'ops_team'].includes(user?.role || '');
+  const canEditStatus = true;
   const canDelete = user?.role === 'admin';
-  const showUpdateColumn = !isExecutive;
+  const showUpdateColumn = true;
 
   const handleExport = async () => {
     try {

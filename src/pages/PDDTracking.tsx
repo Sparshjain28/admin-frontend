@@ -92,7 +92,6 @@ export default function PDDTracking() {
   const isAdmin = user?.role === 'admin';
   const isLoanOps = user?.role === 'loan_operations';
   const isOps = user?.role === 'operation_team' || user?.role === 'ops_team' || isLoanOps;
-  const isBranchManagerOrDsa = user?.role === 'branch_manager' || user?.role === 'dsa';
   const canUpdatePdd = user?.role === 'admin' || isOps;
   const [updatingId, setUpdatingId] = useState<number | null>(null);
   const [isProcessingRc, setIsProcessingRc] = useState(false);
@@ -349,7 +348,7 @@ export default function PDDTracking() {
     if (page > totalPages) setPage(totalPages);
   }, [page, totalPages]);
 
-  const hasManagerNameFilter = !isAdmin && !isSalesManager && !isBranchManagerOrDsa;
+  const hasManagerNameFilter = !isAdmin && !isSalesManager;
   const { data: managerNames = [] } = useQuery<string[]>({
     queryKey: ['pdd-manager-names'],
     queryFn: async () => {
@@ -371,7 +370,7 @@ export default function PDDTracking() {
         ]);
       return flatten(tree).filter(m => m.id && m.name);
     },
-    enabled: isSalesManager || isBranchManagerOrDsa,
+    enabled: isSalesManager,
   });
 
   const { data: userList = [] } = useQuery({
@@ -392,14 +391,9 @@ export default function PDDTracking() {
     enabled: userTypeFilter === 'dsa' || userTypeFilter === 'branch_manager' || userTypeFilter === 'sales_manager' || userTypeFilter === 'executive' || userTypeFilter === 'team_leader',
   });
 
-  // For Sales Manager and BM/DSA: derive user list directly from their hierarchy
+  // For Sales Manager: derive user list directly from their hierarchy
   // (by-role API is admin-only). For admin: use the by-role API result as-is.
   const filteredUserList = useMemo(() => {
-    if (isBranchManagerOrDsa) {
-      if (userTypeFilter === 'executive') return smTeamMembers.filter((m: any) => m.role === 'executive');
-      if (userTypeFilter === 'team_leader') return smTeamMembers.filter((m: any) => m.role === 'team_leader');
-      return [];
-    }
     if (isSalesManager) {
       if (userTypeFilter === 'dsa') return smTeamMembers.filter((m: any) => m.role === 'dsa');
       if (userTypeFilter === 'branch_manager') return smTeamMembers.filter((m: any) => m.role === 'branch_manager');
@@ -407,7 +401,7 @@ export default function PDDTracking() {
     }
     // Admin: use the by-role API result directly (covers dsa, branch_manager, sales_manager)
     return userList;
-  }, [userList, isSalesManager, isBranchManagerOrDsa, userTypeFilter, smTeamMembers]);
+  }, [userList, isSalesManager, userTypeFilter, smTeamMembers]);
 
   // Fetch all banks for lender filter
   const { data: allBanks = [] } = useQuery({
@@ -604,7 +598,7 @@ export default function PDDTracking() {
         <select value={daysFilter} onChange={event => setFilter(setDaysFilter, event.target.value)} className="h-7 flex-shrink-0 rounded-lg border border-border bg-background px-1 text-xs text-foreground min-w-[6rem]">
           <option value="all">All PDD Days</option><option value="1-30">1–30</option><option value="31-45">31–45</option><option value="46-60">46–60</option><option value="61-90">61–90</option><option value="90+">90+</option>
         </select>
-        {!isBranchManagerOrDsa && !isAdmin && !isSalesManager && <select value={managerFilter} onChange={event => setFilter(setManagerFilter, event.target.value)} className="h-7 flex-shrink-0 rounded-lg border border-border bg-background px-1 text-xs text-foreground min-w-[6rem]"><option value="all">All Managers</option>{filterOptions.managers.map(name => <option key={name}>{name}</option>)}</select>}
+        {!isAdmin && !isSalesManager && <select value={managerFilter} onChange={event => setFilter(setManagerFilter, event.target.value)} className="h-7 flex-shrink-0 rounded-lg border border-border bg-background px-1 text-xs text-foreground min-w-[6rem]"><option value="all">All Managers</option>{filterOptions.managers.map(name => <option key={name}>{name}</option>)}</select>}
         {isAdmin && (() => {
           const roleLabel: Record<string, string> = { sales_manager: 'SM', branch_manager: 'BM', dsa: 'DSA', team_leader: 'TL', executive: 'Exec' };
           const selectedManagerName = managerFilter !== 'all' ? (allManagerUsers.find((u: any) => u.id === managerFilter)?.name ?? 'All Managers') : 'All Managers';
@@ -823,17 +817,13 @@ export default function PDDTracking() {
           }}
         >
           <option value="all">All User Types</option>
-          {!isBranchManagerOrDsa && <option value="dsa">DSA</option>}
-          {!isBranchManagerOrDsa && <option value="branch_manager">Branch Manager</option>}
-          {!isBranchManagerOrDsa && !isSalesManager && <option value="sales_manager">Sales Manager</option>}
-          {isBranchManagerOrDsa && <option value="executive">Executive</option>}
-          {isBranchManagerOrDsa && <option value="team_leader">Team Leader</option>}
-          {(userTypeFilter === 'dsa' || userTypeFilter === 'branch_manager' || userTypeFilter === 'sales_manager' || userTypeFilter === 'executive' || userTypeFilter === 'team_leader') && filteredUserList.length > 0 && (
+          <option value="dsa">DSA</option>
+          <option value="branch_manager">Branch Manager</option>
+          {!isSalesManager && <option value="sales_manager">Sales Manager</option>}
+          {(userTypeFilter === 'dsa' || userTypeFilter === 'branch_manager' || userTypeFilter === 'sales_manager') && filteredUserList.length > 0 && (
             <optgroup label={
               userTypeFilter === 'dsa' ? 'DSA Users' :
-                userTypeFilter === 'branch_manager' ? 'Branch Managers' :
-                  userTypeFilter === 'sales_manager' ? 'Sales Managers' :
-                    userTypeFilter === 'executive' ? 'Executives' : 'Team Leaders'
+                userTypeFilter === 'branch_manager' ? 'Branch Managers' : 'Sales Managers'
             }>
               {filteredUserList.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
             </optgroup>
@@ -857,7 +847,7 @@ export default function PDDTracking() {
             </div>
             <div className="max-h-[calc(88vh-136px)] space-y-4 overflow-y-auto px-5 py-4 pb-28">
               <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">PDD Days<select value={daysFilter} onChange={event => setFilter(setDaysFilter, event.target.value)} className="mt-1 block h-12 w-full rounded-xl border border-border bg-background px-3 text-sm font-normal normal-case text-foreground"><option value="all">All PDD Days</option><option value="1-30">1–30</option><option value="31-45">31–45</option><option value="46-60">46–60</option><option value="61-90">61–90</option><option value="90+">90+</option></select></label>
-              {!isBranchManagerOrDsa && !isAdmin && !isSalesManager && <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">Manager Filter<select value={managerFilter} onChange={event => setFilter(setManagerFilter, event.target.value)} className="mt-1 block h-12 w-full rounded-xl border border-border bg-background px-3 text-sm font-normal normal-case text-foreground"><option value="all">All Managers</option>{filterOptions.managers.map(name => <option key={name}>{name}</option>)}</select></label>}
+              {!isAdmin && !isSalesManager && <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">Manager Filter<select value={managerFilter} onChange={event => setFilter(setManagerFilter, event.target.value)} className="mt-1 block h-12 w-full rounded-xl border border-border bg-background px-3 text-sm font-normal normal-case text-foreground"><option value="all">All Managers</option>{filterOptions.managers.map(name => <option key={name}>{name}</option>)}</select></label>}
               {isAdmin && (() => {
                 const roleLabel: Record<string, string> = { sales_manager: 'SM', branch_manager: 'BM', dsa: 'DSA', team_leader: 'TL', executive: 'Exec' };
                 const visibleUsers = managerSearch.trim()
@@ -957,7 +947,7 @@ export default function PDDTracking() {
                 )}
               </div>
               <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">PDD Status<select value={statusFilter} onChange={event => setFilter(setStatusFilter, event.target.value)} className="mt-1 block h-12 w-full rounded-xl border border-border bg-background px-3 text-sm font-normal normal-case text-foreground"><option value="all">All PDD Status</option><option>Completed</option><option>WIP</option><option>Pending</option></select></label>
-              <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">User Type<select value={userTypeFilter} onChange={event => { const value = event.target.value; setFilter(setUserTypeFilter, value); setSelectedUser(''); }} className="mt-1 block h-12 w-full rounded-xl border border-border bg-background px-3 text-sm font-normal normal-case text-foreground"><option value="all">All User Type</option>{!isBranchManagerOrDsa && <option value="dsa">DSA</option>}{!isBranchManagerOrDsa && <option value="branch_manager">Branch Manager</option>}{!isBranchManagerOrDsa && !isSalesManager && <option value="sales_manager">Sales Manager</option>}{isBranchManagerOrDsa && <option value="executive">Executive</option>}{isBranchManagerOrDsa && <option value="team_leader">Team Leader</option>}</select></label>
+              <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">User Type<select value={userTypeFilter} onChange={event => { const value = event.target.value; setFilter(setUserTypeFilter, value); setSelectedUser(''); }} className="mt-1 block h-12 w-full rounded-xl border border-border bg-background px-3 text-sm font-normal normal-case text-foreground"><option value="all">All User Type</option><option value="dsa">DSA</option><option value="branch_manager">Branch Manager</option>{!isSalesManager && <option value="sales_manager">Sales Manager</option>}</select></label>
               {userTypeFilter === 'dsa' && (
                 <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">DSA<select value={selectedUser} onChange={event => setFilter(setSelectedUser, event.target.value)} className="mt-1 block h-12 w-full rounded-xl border border-border bg-background px-3 text-sm font-normal normal-case text-foreground"><option value="">All DSAs</option>{filteredUserList.map(user => <option key={user.id} value={user.id}>{user.name}</option>)}</select></label>
               )}
@@ -966,12 +956,6 @@ export default function PDDTracking() {
               )}
               {userTypeFilter === 'sales_manager' && (
                 <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">Sales Manager<select value={selectedUser} onChange={event => setFilter(setSelectedUser, event.target.value)} className="mt-1 block h-12 w-full rounded-xl border border-border bg-background px-3 text-sm font-normal normal-case text-foreground"><option value="">All Sales Managers</option>{filteredUserList.map(user => <option key={user.id} value={user.id}>{user.name}</option>)}</select></label>
-              )}
-              {userTypeFilter === 'executive' && (
-                <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">Executive<select value={selectedUser} onChange={event => setFilter(setSelectedUser, event.target.value)} className="mt-1 block h-12 w-full rounded-xl border border-border bg-background px-3 text-sm font-normal normal-case text-foreground"><option value="">All Executives</option>{filteredUserList.map(user => <option key={user.id} value={user.id}>{user.name}</option>)}</select></label>
-              )}
-              {userTypeFilter === 'team_leader' && (
-                <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">Team Leader<select value={selectedUser} onChange={event => setFilter(setSelectedUser, event.target.value)} className="mt-1 block h-12 w-full rounded-xl border border-border bg-background px-3 text-sm font-normal normal-case text-foreground"><option value="">All Team Leaders</option>{filteredUserList.map(user => <option key={user.id} value={user.id}>{user.name}</option>)}</select></label>
               )}
             </div>
             <div className="absolute inset-x-0 bottom-0 flex gap-3 border-t border-border bg-background px-5 py-4"><button type="button" onClick={resetFilters} className="h-12 flex-1 rounded-xl border border-primary text-primary text-sm font-bold">Reset</button><button type="button" onClick={applyMobileFilters} className="h-12 flex-1 rounded-xl bg-primary text-primary-foreground text-sm font-bold">Apply</button></div>

@@ -531,7 +531,7 @@ const pendingUsers = users.filter((u: any) => u.status !== 'active');
           <h1 className="text-2xl font-bold text-foreground">User Management</h1>
           <p className="text-muted-foreground text-sm mt-1">Manage system users, roles, and reporting hierarchy</p>
         </div>
-        {(user?.role === 'admin' || user?.role === 'sales_manager' || user?.role === 'branch_manager' || user?.role === 'dsa' || user?.role === 'team_leader') && (
+        {(user?.role === 'admin' || user?.role === 'sales_manager') && (
           <div className="flex gap-2 flex-wrap">
             <button
               onClick={() => {

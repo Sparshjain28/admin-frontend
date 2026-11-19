@@ -366,11 +366,11 @@ export default function PayoutManagement() {
     const [withdrawAmountError, setWithdrawAmountError] = useState('');
     const [myWithdrawals, setMyWithdrawals] = useState<any[]>([]);
     const [loadingMyWithdrawals, setLoadingMyWithdrawals] = useState(false);
-    const isExecOrAdvisor = (user?.role || '').toLowerCase() === 'executive' || (user?.role || '').toLowerCase() === 'advisor';
-    const hasSuperior = Boolean(user?.reporting_to || (user as any)?.dsa_id);
-    const isIndependentAdvisor = isExecOrAdvisor && !hasSuperior;
-    const isPartnerPayoutRole = (user?.role || '').toLowerCase() === 'dsa' || isIndependentAdvisor;
-    const isPartnerWalletRole = ['dsa', 'dsa_partner'].includes((user?.role || '').toLowerCase()) || isIndependentAdvisor;
+    // Internal portal users are staff (Admin, Sales Manager, Accountant), not field partners
+    const isExecOrAdvisor = false;
+    const isIndependentAdvisor = false;
+    const isPartnerPayoutRole = false;
+    const isPartnerWalletRole = false;
     
     // States for Payout request form
     const [requestAmount, setRequestAmount] = useState('');

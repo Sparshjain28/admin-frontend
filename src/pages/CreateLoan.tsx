@@ -1187,9 +1187,9 @@ toast.error(error.message || 'Failed to save draft');
 
 
 
-  // Check if mandatory documents are uploaded (for executive and team_leader roles)
-  const isExecutive = user?.role === 'executive';
-  const isTeamLeader = user?.role === 'team_leader';
+  // Internal portal has no executive or team_leader users
+  const isExecutive = false;
+  const isTeamLeader = false;
   const mandatoryDocsUploaded = form.aadharFront && form.aadharBack && form.panCard && form.rcFront && form.rcBack;
   const showOtherDocs = (!isExecutive && !isTeamLeader) || mandatoryDocsUploaded;
 

@@ -105,7 +105,7 @@ const CallingStatistics = ({ teamMembers: propTeamMembers, onTeamMembersUpdate, 
       fetchTeamMembers();
     }
     fetchConfigs();
-    if (user?.role === 'admin' || user?.role === 'branch_manager' || user?.role === 'operation_team' || user?.role === 'sales_manager' || user?.role === 'manager') {
+    if (user?.role === 'admin' || user?.role === 'operation_team' || user?.role === 'sales_manager' || user?.role === 'manager') {
       fetchTeamLeaders();
     }
     const execUserId = isExecutive && user?.id ? user.id.toString() : undefined;
@@ -114,12 +114,6 @@ const CallingStatistics = ({ teamMembers: propTeamMembers, onTeamMembersUpdate, 
     fetchTodayRecords();
     fetchDailySummary();
   }, []);
-
-  useEffect(() => {
-    if (user?.role === 'executive') {
-      setFilterUser(user.id.toString());
-    }
-  }, [user]);
 
   useEffect(() => {
     if (showEntrySheet && entrySheetRef.current) {
@@ -683,9 +677,7 @@ toast({ title: 'Error', description: 'Failed to fetch statistics', variant: 'des
       }
 
       const doc = new jsPDF();
-      const title = user?.role === 'executive'
-        ? `${user.full_name || user.name} - ${format(date?.from || startOfMonth(new Date()), "MMMM yyyy")} Calling Report`
-        : `Calling Report: ${filterUser === 'all' ? 'Team Summary' : (statistics[0]?.full_name || 'Member')}`;
+      const title = `Calling Report: ${filterUser === 'all' ? 'Team Summary' : (statistics[0]?.full_name || 'Member')}`;
 
       // Add Title
       doc.setFontSize(18);
@@ -949,7 +941,7 @@ toast({ title: "Export Failed", description: "Could not generate PDF file.", var
 
   const getCallsData = () => {
     // Determine which manager filter to use for the chart
-    const activeChartManager = user?.role === 'executive' ? 'all' : chartFilterManager;
+    const activeChartManager = chartFilterManager;
 
     let filteredStats = statistics;
 
@@ -1370,30 +1362,28 @@ toast({ title: "Export Failed", description: "Could not generate PDF file.", var
               <div className="flex items-center gap-2 sm:gap-3">
                 <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-accent" />
                 <span className="lg:text-lg text-[0.6rem]">Today's Caller Entry</span>
-                {user?.role !== 'executive' && (
-                  <div className="flex items-center gap-2 border-l pl-3 ml-1">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      tabIndex={-1}
-                      disabled={selectedCallerIds.length === 0}
-                      className={`h-7 text-[10px] gap-1 transition-all ${selectedCallerIds.length > 0 ? 'text-red-500 border-red-200 bg-red-50' : 'opacity-50'}`}
-                      onClick={() => handleBulkAction('terminate')}
-                    >
-                    <UserX className="h-1 w-1 lg:h-3 lg:w-3" /> Terminate Selected
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      tabIndex={-1}
-                      disabled={selectedCallerIds.length === 0}
-                      className={`h-7 text-[10px] gap-1 transition-all ${selectedCallerIds.length > 0 ? 'text-amber-500 border-amber-200 bg-amber-50' : 'opacity-50'}`}
-                      onClick={() => handleBulkAction('absent')}
-                    >
-                      <Trash2 className="h-3 w-3" /> Mark Absent
-                    </Button>
-                  </div>
-                )}
+                <div className="flex items-center gap-2 border-l pl-3 ml-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    tabIndex={-1}
+                    disabled={selectedCallerIds.length === 0}
+                    className={`h-7 text-[10px] gap-1 transition-all ${selectedCallerIds.length > 0 ? 'text-red-500 border-red-200 bg-red-50' : 'opacity-50'}`}
+                    onClick={() => handleBulkAction('terminate')}
+                  >
+                  <UserX className="h-1 w-1 lg:h-3 lg:w-3" /> Terminate Selected
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    tabIndex={-1}
+                    disabled={selectedCallerIds.length === 0}
+                    className={`h-7 text-[10px] gap-1 transition-all ${selectedCallerIds.length > 0 ? 'text-amber-500 border-amber-200 bg-amber-50' : 'opacity-50'}`}
+                    onClick={() => handleBulkAction('absent')}
+                  >
+                    <Trash2 className="h-3 w-3" /> Mark Absent
+                  </Button>
+                </div>
               </div>
               <span className="text-[10px] sm:text-xs font-normal text-muted-foreground bg-background px-1.5 sm:px-2 py-0.5 sm:py-1 rounded border border-border">
                 {new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
@@ -1900,28 +1890,24 @@ toast({ title: "Export Failed", description: "Could not generate PDF file.", var
           <CardTitle className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-1.5">
               <Target className="h-3.5 w-3.5" />
-              {user?.role === 'executive'
-                ? `${format(date?.from || startOfMonth(new Date()), "MMM yyyy")} Report`
-                : (
-                  <div className="flex items-center text-xs lg:text-sm gap-1.5">
-                    <span>{filterUser === 'all' ? 'Team Statistics' : `Logs: ${statistics[0]?.full_name || 'Member'}`}</span>
+              <div className="flex items-center text-xs lg:text-sm gap-1.5">
+                <span>{filterUser === 'all' ? 'Team Statistics' : `Logs: ${statistics[0]?.full_name || 'Member'}`}</span>
 
-                    {date?.from ? (
-                      date.to ? (
-                        <span className="font-medium text-[10px]">
-                          {format(date.from, "MMM dd")} - {format(date.to, "MMM dd")}
-                        </span>
-                      ) : (
-                        <span className="font-medium text-[10px]">{format(date.from, "MMM dd")}</span>
-                      )
-                    ) : (
-                      <span className="text-[10px]">Pick range</span>
-                    )}
-
-                  </div>
+                {date?.from ? (
+                  date.to ? (
+                    <span className="font-medium text-[10px]">
+                      {format(date.from, "MMM dd")} - {format(date.to, "MMM dd")}
+                    </span>
+                  ) : (
+                    <span className="font-medium text-[10px]">{format(date.from, "MMM dd")}</span>
+                  )
+                ) : (
+                  <span className="text-[10px]">Pick range</span>
                 )}
+
+              </div>
             </div>
-            {user?.role !== 'executive' && filterUser !== 'all' && (
+            {filterUser !== 'all' && (
               <Badge variant="outline" className="text-[9px] uppercase px-1.5 py-0">
                 {detailedRecords.length} Entries
               </Badge>
@@ -1929,9 +1915,9 @@ toast({ title: "Export Failed", description: "Could not generate PDF file.", var
           </CardTitle>
         </CardHeader> 
         <CardContent className="p-2">
-          {/* Desktop Table - For Executives or Team Details */}
+          {/* Desktop Table - For Team Details */}
           <div className="hidden md:block overflow-x-auto">
-            {user?.role === 'executive' || filterUser !== 'all' ? (
+            {filterUser !== 'all' ? (
               <Table>
                 <TableHeader>
                   <TableRow className="bg-muted/50">

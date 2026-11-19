@@ -26,9 +26,9 @@ setTeamMembers([]);
   };
 
   const canEdit = ['admin', 'sales_manager', 'manager'].includes(user?.role);
-  const canEnter = ['admin', 'sales_manager', 'manager', 'branch_manager', 'team_leader'].includes(user?.role);
-  const canApprove = user?.role === 'executive';
-  const isExecutive = user?.role === 'executive';
+  const canEnter = ['admin', 'sales_manager', 'manager'].includes(user?.role);
+  const canApprove = false;
+  const isExecutive = false;
 
   return (
     <div className="container mx-auto p-2 sm:p-3 space-y-4 pb-20 lg:pb-6">
@@ -38,7 +38,7 @@ setTeamMembers([]);
             <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
             <span className="sm:hidden inline">Performance</span>
             <span className="sm:inline hidden">
-              {isExecutive ? 'My Daily Performance' : "Today's Performance & Records"}
+              Today's Performance & Records
             </span>
           </TabsTrigger>
           {canEdit && (

@@ -160,30 +160,6 @@ export default function Dashboard() {
     enabled: !!user,
   });
 
-  const { data: convertedLeadsData } = useQuery({
-    queryKey: ['converted-leads', timeline, dateRange, selectedManager],
-    queryFn: async () => {
-      try {
-        const params = new URLSearchParams({ timeline });
-        if (timeline === 'custom' && dateRange.start && dateRange.end) {
-          params.append('startDate', dateRange.start);
-          params.append('endDate', dateRange.end);
-        }
-        if (selectedManager) {
-          params.append('managerId', selectedManager.toString());
-        }
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/dashboard/converted-leads?${params}`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
-        });
-        if (!response.ok) return [];
-        return await response.json();
-      } catch (error) {
-        return [];
-      }
-    },
-    enabled: !!user && user.role === 'executive',
-  });
-
   // Fetch performance chart data
   const { data: performanceData } = useQuery({
     queryKey: ['performance-data', timeline, dateRange, selectedManager],
@@ -210,8 +186,6 @@ export default function Dashboard() {
   });
 
   if (!user) return null;
-
-  const convertedLeads = convertedLeadsData || [];
 
   const stats = dashboardData || {
     loginBankWise: [],
@@ -751,9 +725,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Burst Table - Hidden for executives */}
-        {user?.role !== 'executive' && (
-          <ScrollSection delay={0} className="w-full">
+        <ScrollSection delay={0} className="w-full">
             <div className="bg-white dark:bg-gray-900/40 rounded-xl border border-border/50 shadow-sm overflow-hidden">
               {/* Header */}
               <div className="px-4 py-3 border-b border-border/50 bg-gray-50/30 dark:bg-gray-800/20">
@@ -769,7 +741,6 @@ export default function Dashboard() {
               </div>
             </div>
           </ScrollSection>
-        )}
 
         {/* Charts Grid */}
         <ScrollSection delay={0.1} className="grid grid-cols-1 xl:grid-cols-2 gap-3">
@@ -1071,54 +1042,6 @@ export default function Dashboard() {
                   <Area type="monotone" dataKey="approved" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorApproved)" />
                 </AreaChart>
               </ResponsiveContainer>
-            </div>
-          </ScrollSection>
-        )}
-
-        {user?.role === 'executive' && (
-          <ScrollSection delay={0.4} className={chartCardClass}>
-            <div className={headerClass}>
-              <div className="flex items-center gap-1">
-                <FileText size={13} className="text-primary" />
-                <h3 className="font-bold text-xs text-foreground">Leads Converted to Loans</h3>
-              </div>
-            </div>
-            <div className="p-4 overflow-x-auto">
-              {convertedLeads && convertedLeads.length > 0 ? (
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-border/50">
-                      <th className="text-left py-2 px-2 font-semibold text-foreground text-xs">Lead Name</th>
-                      <th className="text-left py-2 px-2 font-semibold text-foreground text-xs">Loan ID</th>
-                      <th className="text-left py-2 px-2 font-semibold text-foreground text-xs">Amount</th>
-                      <th className="text-left py-2 px-2 font-semibold text-foreground text-xs">Bank</th>
-                      <th className="text-left py-2 px-2 font-semibold text-foreground text-xs">Status</th>
-                      <th className="text-left py-2 px-2 font-semibold text-foreground text-xs">Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {convertedLeads.map((lead: any) => (
-                      <tr key={lead.id} className="border-b border-border/30 hover:bg-muted/30 transition-colors">
-                        <td className="py-2 px-2 text-foreground">{lead.leadName}</td>
-                        <td className="py-2 px-2 text-foreground font-medium">{lead.loanId}</td>
-                        <td className="py-2 px-2 text-foreground">₹{(lead.loanAmount / 100000).toFixed(1)}L</td>
-                        <td className="py-2 px-2 text-muted-foreground text-xs">{lead.bankName}</td>
-                        <td className="py-2 px-2">
-                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${lead.status === 'DISBURSED' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' :
-                            lead.status === 'APPROVED' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' :
-                              'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
-                            }`}>
-                            {lead.status}
-                          </span>
-                        </td>
-                        <td className="py-2 px-2 text-muted-foreground text-xs">{new Date(lead.createdAt).toLocaleDateString()}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <div className="h-32 flex items-center justify-center opacity-20 text-[10px]">No converted leads</div>
-              )}
             </div>
           </ScrollSection>
         )}

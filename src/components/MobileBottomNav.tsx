@@ -30,7 +30,7 @@ export default function MobileBottomNav() {
   const getActiveIndex = () => {
     const path = location.pathname.toLowerCase();
     if (path === "/dashboard" || path === "/loan-ops/dashboard" || path === "/ops/dashboard" || path === "/") return 0;
-    if (path === "/offline-disbursement" || path === "/leads-list" || path.startsWith("/leads") || path === "/ops/leads") return 1;
+    if (path === "/loans" || path.startsWith("/loans") || path === "/offline-disbursement" || path === "/leads-list" || path.startsWith("/leads") || path === "/ops/leads") return 1;
     if (path === "/payouts" || path.startsWith("/payouts")) return 2;
     return -1;
   };
@@ -52,9 +52,9 @@ export default function MobileBottomNav() {
     },
     {
       index: 1,
-      label: isLoanOps ? "Disburse" : "Leads",
+      label: isLoanOps ? "Loans" : "Leads",
       icon: List,
-      path: isLoanOps ? "/offline-disbursement" : isAccountant ? "/ops/leads" : "/leads-list",
+      path: isLoanOps ? "/loans" : isAccountant ? "/ops/leads" : "/leads-list",
     },
     {
       index: 2,

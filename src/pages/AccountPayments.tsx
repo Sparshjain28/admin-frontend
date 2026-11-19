@@ -503,7 +503,7 @@ export default function AccountPayments() {
 
       const data = await res.json();
       if (res.ok) {
-        const nextApprover = user?.role === 'branch_manager' || user?.role === 'dsa' ? 'Sales Manager' : 'Accountant';
+        const nextApprover = 'Accountant';
         toast.success(`✅ ${data.message || `Bill mapping request sent to ${nextApprover} successfully!`}`);
         setShowBillMappingModal(false);
         setSelectedLoanIdForRequest('');
@@ -2072,8 +2072,6 @@ export default function AccountPayments() {
           let nextStatus = getApproveStatus(payment);
           if (!nextStatus) {
             if (user?.role === 'sales_manager') {
-              nextStatus = 'sales_manager_approval';
-            } else if (user?.role === 'branch_manager' || user?.role === 'dsa') {
               nextStatus = 'sales_manager_approval';
             } else if (isAccountantRole) {
               nextStatus = 'admin_approval';

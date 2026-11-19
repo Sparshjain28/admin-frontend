@@ -67,11 +67,6 @@ export default function FolioDetails() {
     }
   }, [loanId, navigate]);
 
-  useEffect(() => {
-    if (folio?.loan_id) {
-      navigate(`/loans/${folio.loan_id}/payments`, { replace: true });
-    }
-  }, [folio?.loan_id, navigate]);
   const [showEdit, setShowEdit] = useState(false);
   const [saving, setSaving] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState('');
@@ -230,6 +225,12 @@ export default function FolioDetails() {
     },
     enabled: !!folioId || !!loanId,
   });
+
+  useEffect(() => {
+    if (folio?.loan_id) {
+      navigate(`/loans/${folio.loan_id}/payments`, { replace: true });
+    }
+  }, [folio?.loan_id, navigate]);
 
   const hierarchyChain = useMemo(() => {
     if (!folio) return [];

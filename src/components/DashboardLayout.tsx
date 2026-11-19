@@ -33,53 +33,55 @@ export interface NavItem {
 }
 
 export const NAV_ITEMS: NavItem[] = [
-  { label: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={18} />, roles: ['admin', 'manager', 'sales_manager', 'branch_manager', 'dsa', 'team_leader', 'executive'] },
+  { label: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={18} />, roles: ['admin', 'manager', 'sales_manager'] },
   { label: 'Dashboard', path: '/loan-ops/dashboard', icon: <LayoutDashboard size={18} />, roles: ['loan_operations'] },
   { label: 'Dashboard', path: '/ops/dashboard', icon: <LayoutDashboard size={18} />, roles: ['operation_team', 'ops_team'] },
   { label: 'Leads', path: '/ops/leads', icon: <FileText size={18} />, roles: ['operation_team'] },
   { label: 'API Tools', path: '/ops/api-tools', icon: <Database size={18} />, roles: ['operation_team'] },
+  // Loan Operations items - direct items without leads dropdown
+  { label: 'Loan Apps', path: '/loans', icon: <FileText size={18} />, roles: ['loan_operations'] },
+  { label: 'Offline Disbursement', path: '/offline-disbursement', icon: <FileText size={18} />, roles: ['loan_operations'] },
   {
-    label: 'Leads & Loans', path: '/loan', icon: <Folder size={18} />, roles: ['admin', 'manager', 'sales_manager', 'loan_operations'],
+    label: 'Leads & Loans', path: '/loan', icon: <Folder size={18} />, roles: ['admin', 'manager', 'sales_manager'],
     children: [
       { label: 'Leads', path: '/leads-list', icon: <UserPlus size={16} />, roles: ['admin', 'manager', 'sales_manager'] },
-      { label: 'Loan Apps', path: '/loans', icon: <FileText size={16} />, roles: ['admin', 'manager', 'sales_manager', 'loan_operations'] },
-      { label: 'Offline Disbursement', path: '/offline-disbursement', icon: <FileText size={16} />, roles: ['admin', 'sales_manager', 'loan_operations'] },
+      { label: 'Loan Apps', path: '/loans', icon: <FileText size={16} />, roles: ['admin', 'manager', 'sales_manager'] },
+      { label: 'Offline Disbursement', path: '/offline-disbursement', icon: <FileText size={16} />, roles: ['admin', 'sales_manager'] },
     ]
   },
-  { label: 'Team', path: '/team', icon: <Users size={18} />, roles: ['manager', 'sales_manager', 'team_leader', 'dsa', 'branch_manager', 'operation_team', 'loan_operations'] },
+  { label: 'Team', path: '/team', icon: <Users size={18} />, roles: ['manager', 'sales_manager', 'operation_team', 'loan_operations'] },
   // Accountant items - expanded directly for accountant role
   { label: 'Accountant Dashboard', path: '/accountant/dashboard', icon: <LayoutDashboard size={18} />, roles: ['accountant'] },
   { label: 'Operations Leads', path: '/ops/leads', icon: <Zap size={18} />, roles: ['accountant'] },
   {
-    label: 'RC Limits', icon: <Wallet size={18} />, roles: ['admin', 'manager', 'sales_manager', 'branch_manager', 'dsa', 'team_leader', 'executive', 'operation_team', 'loan_operations', 'accountant'],
+    label: 'RC Limits', icon: <Wallet size={18} />, roles: ['admin', 'manager', 'sales_manager', 'operation_team', 'loan_operations', 'accountant'],
     children: [
-      { label: 'Bills', path: '/rc-limits/bills', icon: <Receipt size={16} />, roles: ['admin', 'manager', 'sales_manager', 'branch_manager', 'dsa', 'team_leader', 'executive', 'operation_team', 'loan_operations', 'accountant'] },
-      { label: 'Payment', path: '/rc-limits/payment', icon: <CreditCard size={16} />, roles: ['admin', 'manager', 'sales_manager', 'branch_manager', 'dsa', 'team_leader', 'executive', 'operation_team', 'loan_operations', 'accountant'] }
+      { label: 'Bills', path: '/rc-limits/bills', icon: <Receipt size={16} />, roles: ['admin', 'manager', 'sales_manager', 'operation_team', 'loan_operations', 'accountant'] },
+      { label: 'Payment', path: '/rc-limits/payment', icon: <CreditCard size={16} />, roles: ['admin', 'manager', 'sales_manager', 'operation_team', 'loan_operations', 'accountant'] }
     ]
   },
   { label: 'Folio Accounts', path: '/accountant/folio', icon: <CreditCard size={18} />, roles: ['accountant'] },
   { label: 'Payouts', path: '/payouts', icon: <Receipt size={18} />, roles: ['accountant'] },
   {
-    label: 'Operations', icon: <ShieldCheck size={18} />, roles: ['admin', 'manager', 'sales_manager', 'branch_manager', 'dsa', 'executive', 'team_leader', 'ops_team', 'operation_team'],
+    label: 'Operations', icon: <ShieldCheck size={18} />, roles: ['admin', 'manager', 'sales_manager', 'ops_team', 'operation_team'],
     children: [
-      { label: 'Credit Report', path: '/credit-reports', icon: <FileText size={16} />, roles: ['admin', 'sales_manager', 'manager', 'branch_manager', 'team_leader', 'executive', 'dsa'] },
-      { label: 'Link Loan Finder', path: '/link-loan-finder', icon: <Shield size={16} />, roles: ['admin', 'sales_manager', 'branch_manager'] },
+      { label: 'Credit Report', path: '/credit-reports', icon: <FileText size={16} />, roles: ['admin', 'sales_manager', 'manager'] },
+      { label: 'Link Loan Finder', path: '/link-loan-finder', icon: <Shield size={16} />, roles: ['admin', 'sales_manager'] },
     ]
   },
-  { label: 'PDD Management', path: '/pdd-management', icon: <FileText size={18} />, roles: ['admin', 'branch_manager', 'sales_manager', 'dsa', 'operation_team', 'loan_operations'] },
+  { label: 'PDD Management', path: '/pdd-management', icon: <FileText size={18} />, roles: ['admin', 'sales_manager', 'operation_team', 'loan_operations'] },
   {
-    label: 'Find My Tool', icon: <Search size={18} />, roles: ['admin', 'manager', 'sales_manager', 'branch_manager', 'dsa', 'team_leader', 'executive'],
+    label: 'Find My Tool', icon: <Search size={18} />, roles: ['admin', 'manager', 'sales_manager'],
     children: [
-      { label: 'Find My Lender', path: '/find-lender', icon: <MapPin size={16} />, roles: ['admin', 'manager', 'sales_manager', 'branch_manager', 'dsa', 'team_leader', 'executive'] },
+      { label: 'Find My Lender', path: '/find-lender', icon: <MapPin size={16} />, roles: ['admin', 'manager', 'sales_manager'] },
       { label: 'Find My Eligibility', path: '/find-eligibility', icon: <Calculator size={16} />, roles: ['admin'] },
-      { label: 'Find My Car Value', path: '/find-car-value', icon: <Car size={16} />, roles: ['admin', 'manager', 'sales_manager', 'branch_manager', 'dsa', 'team_leader', 'executive'] },
+      { label: 'Find My Car Value', path: '/find-car-value', icon: <Car size={16} />, roles: ['admin', 'manager', 'sales_manager'] },
     ]
   },
-  { label: 'Payouts', path: '/payouts', icon: <Receipt size={18} />, roles: ['dsa', 'executive'] },
   {
-    label: 'Administration', icon: <Settings size={18} />, roles: ['admin', 'manager', 'sales_manager', 'branch_manager'],
+    label: 'Administration', icon: <Settings size={18} />, roles: ['admin', 'manager', 'sales_manager'],
     children: [
-      { label: 'Reports', path: '/reports', icon: <BarChart3 size={16} />, roles: ['admin', 'manager', 'sales_manager', 'branch_manager'] },
+      { label: 'Reports', path: '/reports', icon: <BarChart3 size={16} />, roles: ['admin', 'manager', 'sales_manager'] },
       { label: 'Payouts', path: '/payouts', icon: <Receipt size={16} />, roles: ['admin'] },
       { label: 'Users', path: '/users', icon: <Users size={16} />, roles: ['admin', 'manager', 'sales_manager'] },
       { label: 'DSA Applications', path: '/dsa-applications', icon: <UserCheck size={16} />, roles: ['admin', 'sales_manager'] },
@@ -277,20 +279,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   const filteredNav = NAV_ITEMS.filter((item) => {
     if (user.role && !item.roles.includes(user.role)) return false;
-    // Payouts is only visible to DSA, Admin, and Independent Advisor/Executive (no superior)
-    if (item.path === '/payouts' && (user.role === 'executive' || (user.role as string) === 'advisor')) {
-      const hasSuperior = Boolean(user.reporting_to || (user as any).dsa_id);
-      if (hasSuperior) return false;
-    }
     return true;
   }).map((item) => {
     if (item.children) {
       const children = item.children.filter((child) => {
         if (user.role && !child.roles.includes(user.role)) return false;
-        if (child.path === '/payouts' && (user.role === 'executive' || (user.role as string) === 'advisor')) {
-          const hasSuperior = Boolean(user.reporting_to || (user as any).dsa_id);
-          if (hasSuperior) return false;
-        }
 
         if (!hasPermission(child.permission)) return false;
 

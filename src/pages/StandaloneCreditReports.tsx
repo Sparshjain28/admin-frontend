@@ -482,7 +482,6 @@ export default function StandaloneCreditReports() {
   };
 
   const isSalesManager = user?.role === 'sales_manager';
-  const canUseFilters = user?.role !== 'branch_manager' && user?.role !== 'team_leader';
 
   // Without Advanced Filters, these come straight from the backend
   // (computed via SQL over the full search-matched set, not from
@@ -573,20 +572,18 @@ export default function StandaloneCreditReports() {
                 </button>
               )}
             </div>
-            {canUseFilters && (
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-semibold transition-all shrink-0 ${showFilters
-                  ? 'bg-accent text-accent-foreground border-accent'
-                  : 'border-border text-foreground hover:border-accent hover:bg-accent/5'
-                  }`}
-              >
-                <Filter size={15} />
-                <span>Filters</span>
-              </button>
-            )}
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-semibold transition-all shrink-0 ${showFilters
+                ? 'bg-accent text-accent-foreground border-accent'
+                : 'border-border text-foreground hover:border-accent hover:bg-accent/5'
+                }`}
+            >
+              <Filter size={15} />
+              <span>Filters</span>
+            </button>
           </div>
-          {canUseFilters && showFilters && (
+          {showFilters && (
             <div className="mt-3">
               <Suspense fallback={
                 <div className="flex items-center justify-center py-4 bg-muted/10 rounded-xl">

@@ -467,7 +467,7 @@ export default function LoanPaymentRequest() {
       setShowBillMappingUploadModal(false);
       setBillMappingFiles([]);
       setBillMappingRemarks('');
-      const nextApprover = user?.role === 'branch_manager' || user?.role === 'dsa' ? 'Sales Manager' : 'Accountant';
+      const nextApprover = 'Accountant';
       toast.success(`✅ ${data.message || `Bill mapping request sent to ${nextApprover} successfully!`}`);
     },
     onError: (error: any) => {

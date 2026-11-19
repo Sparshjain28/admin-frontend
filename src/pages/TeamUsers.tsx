@@ -205,7 +205,7 @@ export default function TeamUsers() {
     mpin: '',
     role: 'executive' as string,
     reporting_to: user?.id || null,
-    branch_id: user?.role === 'branch_manager' ? user?.branch_id : null,
+    branch_id: null,
   });
 
   // Only admin gets a choice between manual entry and an invite link —
@@ -242,7 +242,7 @@ export default function TeamUsers() {
     }
   }, [user?.role]);
 
-  const needsBranch = (role: string) => (role === 'team_leader' || role === 'branch_manager') && user?.role === 'branch_manager';
+  const needsBranch = (_role: string) => false;
 
   const { data: rawTeamData = [], isLoading, error } = useQuery({
     queryKey: ['team-hierarchy', user?.id, viewTab],
@@ -336,7 +336,7 @@ export default function TeamUsers() {
       setNewUser({
         full_name: '', phone: '', mpin: '', role: allowedRoles[0] || 'executive',
         reporting_to: user?.id || null,
-        branch_id: user?.role === 'branch_manager' ? user?.branch_id : null,
+        branch_id: null,
       });
     },
     onError: (e: any) => toast.error(e.message || 'Failed to create user'),

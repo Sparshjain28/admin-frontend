@@ -112,8 +112,6 @@ export default function MobileLeadsWorkflow() {
     const submittedLeads = leads
       .filter((l: any) => {
         if (l.converted_to_loan) return false;
-        if (user?.role === "executive" && l.created_by !== user?.id)
-          return false;
         return !l.application_stage || l.application_stage === "SUBMITTED";
       })
       .map((l) => ({

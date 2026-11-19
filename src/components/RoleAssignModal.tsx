@@ -143,22 +143,15 @@ export function RoleAssignModal({ open, onClose, onSuccess, user: targetUser, de
       setPhone(targetUser.phone || '');
     } else {
       setRole('executive');
-      setBranchId(defaultBranchId || (user?.role === 'branch_manager' ? (user?.branch_id || '') : ''));
+      setBranchId(defaultBranchId || '');
       setDsaId('');
-      setReportingTo(user?.role === 'team_leader' ? user.id : (user?.role === 'branch_manager' ? user.id : ''));
+      setReportingTo('');
       setFullName('');
       setPhone('');
       setMpin('');
     }
     setError('');
   }, [targetUser, user]);
-
-  useEffect(() => {
-    if (!targetUser && role === 'team_leader' && user?.role === 'branch_manager') {
-      setBranchId(user?.branch_id || '');
-      setReportingTo(user.id);
-    }
-  }, [role, targetUser, user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -447,17 +440,6 @@ export function RoleAssignModal({ open, onClose, onSuccess, user: targetUser, de
                   ))}
                 </select>
               </div>
-              {user?.role === 'dsa' && (
-                <div>
-                  <label className="block text-sm font-medium mb-1.5">Associated DSA</label>
-                  <select className="w-full px-3 py-2 rounded-lg border border-border bg-background" value={dsaId} onChange={e => setDsaId(e.target.value)}>
-                    <option value="">No DSA</option>
-                    {dsas.map((dsa: any) => (
-                      <option key={dsa.id} value={dsa.id}>{dsa.full_name}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
             </>
           )}
 

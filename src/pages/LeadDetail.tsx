@@ -259,11 +259,6 @@ return (
               >
                 New Lead
               </button>
-              {user?.role === 'executive' && (
-                <span className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 text-amber-700 rounded-xl text-[11px] font-medium whitespace-nowrap border border-amber-200">
-                  Contact manager to update status
-                </span>
-              )}
             </div>
           </div>,
           document.body
