@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { X, Upload } from 'lucide-react';
 import { toast } from 'sonner';
+import { API_URL, getAuthHeaders } from '@/lib/api';
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API = API_URL;
 
 export function BankImportModal({ open, onClose, onSuccess }: { open: boolean; onClose: () => void; onSuccess: () => void }) {
   const [file, setFile] = useState<File | null>(null);
@@ -35,7 +36,7 @@ export function BankImportModal({ open, onClose, onSuccess }: { open: boolean; o
 
       const res = await fetch(`${API}/banks/import/excel`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+        headers: getAuthHeaders(),
         body: formData
       });
 

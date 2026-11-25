@@ -4,6 +4,7 @@ import { Receipt, Search, Plus, X, Upload, CheckCircle, XCircle, Clock, DollarSi
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
+import { API_URL, getAuthHeaders } from '@/lib/api';
 
 export default function ExpenseManagement() {
     const [showAddModal, setShowAddModal] = useState(false);
@@ -26,8 +27,8 @@ export default function ExpenseManagement() {
         queryKey: ['users-list'],
         queryFn: async () => {
             try {
-                const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/users`, {
-                    headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                const response = await fetch(`${API_URL}/users`, {
+                    headers: getAuthHeaders()
                 });
                 if (!response.ok) return [];
                 return await response.json();
@@ -41,8 +42,8 @@ export default function ExpenseManagement() {
         queryKey: ['expenses'],
         queryFn: async () => {
             try {
-                const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/expenses`, {
-                    headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                const response = await fetch(`${API_URL}/expenses`, {
+                    headers: getAuthHeaders()
                 });
                 if (!response.ok) return [];
                 return await response.json();
@@ -56,8 +57,8 @@ export default function ExpenseManagement() {
         queryKey: ['expense-stats'],
         queryFn: async () => {
             try {
-                const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/expenses/stats`, {
-                    headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                const response = await fetch(`${API_URL}/expenses/stats`, {
+                    headers: getAuthHeaders()
                 });
                 if (!response.ok) return null;
                 return await response.json();
@@ -69,11 +70,9 @@ export default function ExpenseManagement() {
 
     const createExpense = useMutation({
         mutationFn: async (formData: FormData) => {
-            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/expenses`, {
+            const response = await fetch(`${API_URL}/expenses`, {
                 method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-                },
+                headers: getAuthHeaders(),
                 body: formData
             });
             if (!response.ok) throw new Error('Failed to create expense');
@@ -100,11 +99,9 @@ export default function ExpenseManagement() {
 
     const approveExpense = useMutation({
         mutationFn: async (id: number) => {
-            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/expenses/${id}/approve`, {
+            const response = await fetch(`${API_URL}/expenses/${id}/approve`, {
                 method: 'PATCH',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-                }
+                headers: getAuthHeaders()
             });
             if (!response.ok) throw new Error('Failed to approve expense');
             return response.json();
@@ -121,11 +118,11 @@ export default function ExpenseManagement() {
 
     const rejectExpense = useMutation({
         mutationFn: async ({ id, remarks }: { id: number; remarks: string }) => {
-            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/expenses/${id}/reject`, {
+            const response = await fetch(`${API_URL}/expenses/${id}/reject`, {
                 method: 'PATCH',
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    ...getAuthHeaders()
                 },
                 body: JSON.stringify({ remarks })
             });

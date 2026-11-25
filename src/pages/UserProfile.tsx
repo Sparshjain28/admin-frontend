@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { api } from '@/lib/api';
+import { api, API_URL, getAuthHeaders } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { User, CreditCard, FileText, MapPin, CheckCircle, XCircle, Eye, EyeOff, Calendar, Users, Pencil, Check, X, Camera, Upload, Shield, ArrowLeft, Phone, Mail, Building, Home, Code, Landmark, Wallet, Activity, Lock } from 'lucide-react';
 import { toast } from 'sonner';
@@ -228,12 +228,11 @@ export default function UserProfile() {
     if (file.size > 5 * 1024 * 1024) { toast.error('Photo must be under 5MB'); return; }
     setUploadingPhoto(true);
     try {
-      const token = localStorage.getItem('auth_token');
       const formData = new FormData();
       formData.append('photo', file);
-      const res = await fetch(`/api/auth/profile/photo`, {
+      const res = await fetch(`${API_URL}/auth/profile/photo`, {
         method: 'PUT',
-        headers: { Authorization: `Bearer ${token}` },
+        headers: getAuthHeaders(),
         body: formData
       });
       const text = await res.text();

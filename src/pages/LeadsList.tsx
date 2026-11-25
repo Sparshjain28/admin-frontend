@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '@/lib/api';
+import { api, API_URL, getAuthHeaders } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { Search, Plus, ArrowRight, Copy, Check, Eye, Trash2, X, Edit, Filter, Users, ClipboardCheck, TrendingUp, Clock, UserX, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
@@ -149,8 +149,6 @@ toast.error(error.message || 'Failed to delete leads');
     }
 
     try {
-console.log('🌐 API URL:', import.meta.env.VITE_API_URL || 'http://localhost:5000/api');
-      
       const response = await api.post('/leads/search-by-sourcing-person', {
         sourcing_person_name: name.trim()
       });
@@ -183,8 +181,8 @@ toast.error(error.message || 'Failed to search leads');
   const { data: configs = [] } = useQuery({
     queryKey: ['system-config'],
     queryFn: async () => {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/config`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+      const response = await fetch(`${API_URL}/config`, {
+        headers: getAuthHeaders()
       });
       return response.ok ? await response.json() : [];
     },

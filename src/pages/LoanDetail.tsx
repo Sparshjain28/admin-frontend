@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
-import { api } from '@/lib/api';
+import { api, API_URL, getAuthHeaders } from '@/lib/api';
 import { formatCurrency, APPLICATION_STAGES } from '@/lib/mock-data';
 import LoanStatusBadge from '@/components/LoanStatusBadge';
 import { ArrowLeft, IndianRupee, FileText, Eye, X, Printer, Share2, Download, RefreshCw, Edit2, Settings, Mail, ChevronDown, CheckCircle2, XCircle, MessageCircle, Plus } from 'lucide-react';
@@ -75,8 +75,8 @@ export default function LoanDetail() {
     queryClient.prefetchQuery({
       queryKey: ['loan-payments', id],
       queryFn: async () => {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/payments?status=all&loanId=${id}`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+        const response = await fetch(`${API_URL}/accountant/payments?status=all&loanId=${id}`, {
+          headers: getAuthHeaders(),
         });
         if (!response.ok) return [];
         return await response.json();
@@ -85,8 +85,8 @@ export default function LoanDetail() {
     queryClient.prefetchQuery({
       queryKey: ['folio-accounts'],
       queryFn: async () => {
-        const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/folio-accounts`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+        const res = await fetch(`${API_URL}/accountant/folio-accounts`, {
+          headers: getAuthHeaders(),
         });
         if (!res.ok) return [];
         return await res.json();
@@ -112,9 +112,8 @@ export default function LoanDetail() {
   const { data: reworkHistoryData } = useQuery({
     queryKey: ['loan-rework-history', id],
     queryFn: async () => {
-      const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-      const res = await fetch(`${API}/loans/${id}/rework/history`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+      const res = await fetch(`${API_URL}/loans/${id}/rework/history`, {
+        headers: getAuthHeaders(),
       });
       if (!res.ok) return { events: [], itemStatus: {} };
       const data = await res.json();
@@ -151,8 +150,8 @@ export default function LoanDetail() {
   const { data: configs = [] } = useQuery({
     queryKey: ['system-config'],
     queryFn: async () => {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/config`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+      const response = await fetch(`${API_URL}/config`, {
+        headers: getAuthHeaders(),
       });
       return response.ok ? await response.json() : [];
     },
@@ -162,8 +161,8 @@ export default function LoanDetail() {
     queryKey: ['user-permissions', user?.role],
     queryFn: async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/permissions`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+        const response = await fetch(`${API_URL}/permissions`, {
+          headers: getAuthHeaders(),
         });
         if (!response.ok) return null;
         return await response.json();
@@ -223,11 +222,11 @@ export default function LoanDetail() {
 
   const convertToLead = useMutation({
     mutationFn: async () => {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/loans/${id}/convert-to-lead`, {
+      const response = await fetch(`${API_URL}/loans/${id}/convert-to-lead`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
         }
       });
       if (!response.ok) {
@@ -376,11 +375,9 @@ export default function LoanDetail() {
     formData.append('loan_id', id || '');
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/documents`, {
+      const response = await fetch(`${API_URL}/documents`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
+        headers: getAuthHeaders(),
         body: formData
       });
 
@@ -419,15 +416,14 @@ export default function LoanDetail() {
       return;
     }
     setTagActionLoading(prev => ({ ...prev, [tag]: true }));
-    const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
     if (files.length === 0) {
       try {
-        const response = await fetch(`${API}/loans/${id}/rework/message`, {
+        const response = await fetch(`${API_URL}/loans/${id}/rework/message`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+            ...getAuthHeaders(),
           },
           body: JSON.stringify({ tag, message: note })
         });
@@ -457,9 +453,9 @@ export default function LoanDetail() {
       formData.append('document_type', docType);
       formData.append('loan_id', id || '');
       try {
-        const response = await fetch(`${API}/documents`, {
+        const response = await fetch(`${API_URL}/documents`, {
           method: 'POST',
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+          headers: getAuthHeaders(),
           body: formData
         });
         if (response.ok) {
@@ -480,11 +476,11 @@ export default function LoanDetail() {
     }
 
     try {
-      const response = await fetch(`${API}/loans/${id}/rework/notify-initiator`, {
+      const response = await fetch(`${API_URL}/loans/${id}/rework/notify-initiator`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          ...getAuthHeaders(),
         },
         body: JSON.stringify({ docLabel: tag, documentIds: uploadedIds, note })
       });
@@ -514,13 +510,12 @@ export default function LoanDetail() {
   // normal pipeline on its own.
   const handleApproveTag = async (tag: string) => {
     setTagActionLoading(prev => ({ ...prev, [tag]: true }));
-    const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
     try {
-      const response = await fetch(`${API}/loans/${id}/rework/items/approve`, {
+      const response = await fetch(`${API_URL}/loans/${id}/rework/items/approve`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          ...getAuthHeaders(),
         },
         body: JSON.stringify({ tag })
       });
@@ -550,13 +545,12 @@ export default function LoanDetail() {
       return;
     }
     setTagActionLoading(prev => ({ ...prev, [tag]: true }));
-    const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
     try {
-      const response = await fetch(`${API}/loans/${id}/rework/items/reject`, {
+      const response = await fetch(`${API_URL}/loans/${id}/rework/items/reject`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          ...getAuthHeaders(),
         },
         body: JSON.stringify({ tag, reason })
       });
@@ -585,13 +579,12 @@ export default function LoanDetail() {
       return;
     }
     setIsAddingIssue(true);
-    const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
     try {
-      const response = await fetch(`${API}/loans/${id}/rework/items/add`, {
+      const response = await fetch(`${API_URL}/loans/${id}/rework/items/add`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          ...getAuthHeaders(),
         },
         body: JSON.stringify({ tag: newIssueText.trim() })
       });
@@ -672,11 +665,9 @@ export default function LoanDetail() {
       replyFiles.forEach((file) => formData.append('documents', file));
       formData.append('documentIds', JSON.stringify(replyDocIds));
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/loans/${id}/mail-trail/reply`, {
+      const response = await fetch(`${API_URL}/loans/${id}/mail-trail/reply`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
+        headers: getAuthHeaders(),
         body: formData
       });
 
@@ -913,8 +904,8 @@ export default function LoanDetail() {
   const previewDocument = async (doc: any) => {
     setLoadingPreview(doc.id);
     try {
-      const downloadResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/documents/${doc.id}/download`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+      const downloadResponse = await fetch(`${API_URL}/documents/${doc.id}/download`, {
+        headers: getAuthHeaders(),
       });
 
       if (downloadResponse.ok) {

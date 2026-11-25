@@ -9,7 +9,7 @@ import {
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
-import { api } from '@/lib/api';
+import { api, API_URL, getAuthHeaders } from '@/lib/api';
 
 // Interface matching database schema
 interface PayoutRecord {
@@ -845,9 +845,6 @@ export default function PayoutManagement() {
     const baseIOMenuRef = useRef<HTMLDivElement>(null);
     const bonusIOMenuRef = useRef<HTMLDivElement>(null);
 
-    const API_URL = import.meta.env.VITE_API_URL || '/api';
-    const getAuthHeaders = () => ({ Authorization: `Bearer ${localStorage.getItem('auth_token') || ''}` });
-
     // Close Import/Export dropdown menus when clicking outside
     useEffect(() => {
         const handler = (e: MouseEvent) => {
@@ -943,10 +940,9 @@ export default function PayoutManagement() {
             const formData = new FormData();
             formData.append('file', file);
             const apiUrl = `${API_URL}/payouts/reward-schemes/${type}/import-preview`;
-            const authToken = localStorage.getItem('auth_token');
             const previewRes = await fetch(apiUrl, {
                 method: 'POST',
-                headers: { 'Authorization': `Bearer ${authToken || ''}` },
+                headers: getAuthHeaders(),
                 body: formData,
             });
             if (!previewRes.ok) {
@@ -989,10 +985,9 @@ export default function PayoutManagement() {
             formData.append('file', rewardImportPreviewFile);
             formData.append('eligible_row_indices', JSON.stringify(eligibleRowIndices));
             const apiUrl = `${API_URL}/payouts/reward-schemes/${rewardImportPreviewType}/import`;
-            const authToken = localStorage.getItem('auth_token');
             const importRes = await fetch(apiUrl, {
                 method: 'POST',
-                headers: { 'Authorization': `Bearer ${authToken || ''}` },
+                headers: getAuthHeaders(),
                 body: formData,
             });
             if (!importRes.ok) {
@@ -1858,15 +1853,12 @@ toast.error("Failed to export data to Excel.");
             const formData = new FormData();
             formData.append('file', file);
             
-            const apiUrl = `${import.meta.env.VITE_API_URL || '/api'}/payouts/earnings/import-preview`;
-            const authToken = localStorage.getItem('auth_token');
+            const apiUrl = `${API_URL}/payouts/earnings/import-preview`;
             
             // First, get the preview using raw fetch to handle FormData properly
             const previewRes = await fetch(apiUrl, {
                 method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${authToken || ''}`
-                },
+                headers: getAuthHeaders(),
                 body: formData,
             });
             
@@ -1917,15 +1909,12 @@ toast.error("Failed to export data to Excel.");
             formData.append('remarks', JSON.stringify(importRemarks));
             formData.append('eligible_ids', JSON.stringify(eligibleIds));
             
-            const apiUrl = `${import.meta.env.VITE_API_URL || '/api'}/payouts/earnings/import`;
-            const authToken = localStorage.getItem('auth_token');
+            const apiUrl = `${API_URL}/payouts/earnings/import`;
             
             // Use raw fetch to handle FormData properly
             const importRes = await fetch(apiUrl, {
                 method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${authToken || ''}`
-                },
+                headers: getAuthHeaders(),
                 body: formData,
             });
             

@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { ArrowLeft, Save, Lock, Users, UsersRound, Eye, Edit, Trash2, ChevronDown, ChevronUp, ChevronRight, RotateCcw, AlertCircle, Power, PowerOff, Plus, UserCheck, Download, ArrowLeftRight, LayoutDashboard, LayoutGrid, FileBarChart, Settings2, ShieldCheck, ShieldAlert, Calculator, Plug, Banknote, Phone, FileClock, Gauge, Receipt, Link2, Database, Search, Car, Building2, Handshake, GitBranch, ScrollText, BookOpen, Activity, ClipboardList, X, } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { API_URL, getAuthHeaders } from '@/lib/api';
 
 import { ROLES, MODULES } from '@/config/permissions';
 
@@ -164,8 +165,8 @@ export default function FieldPermissions() {
   const { data: allPermissions, isLoading } = useQuery({
     queryKey: ['all-permissions'],
     queryFn: async () => {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/permissions/all`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+      const res = await fetch(`${API_URL}/permissions/all`, {
+        headers: getAuthHeaders(),
       });
       if (!res.ok) throw new Error('Failed to fetch permissions');
       return await res.json();
@@ -176,8 +177,8 @@ export default function FieldPermissions() {
   const { data: roleUsers = [], isLoading: isLoadingUsers } = useQuery({
     queryKey: ['users-by-role', selectedRole],
     queryFn: async () => {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/users/by-role?roles=${selectedRole}`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+      const res = await fetch(`${API_URL}/users/by-role?roles=${selectedRole}`, {
+        headers: getAuthHeaders(),
       });
       if (!res.ok) throw new Error('Failed to fetch users');
       return await res.json();
@@ -189,8 +190,8 @@ export default function FieldPermissions() {
   const { data: selectedUserPerms, isLoading: isLoadingUserPerms } = useQuery({
     queryKey: ['user-permissions', selectedUserId],
     queryFn: async () => {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/permissions/user/${selectedUserId}`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+      const res = await fetch(`${API_URL}/permissions/user/${selectedUserId}`, {
+        headers: getAuthHeaders(),
       });
       if (!res.ok) throw new Error('Failed to fetch user permissions');
       return await res.json();
@@ -201,8 +202,8 @@ export default function FieldPermissions() {
   const { data: configs = [] } = useQuery({
     queryKey: ['system-config'],
     queryFn: async () => {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/config`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+      const response = await fetch(`${API_URL}/config`, {
+        headers: getAuthHeaders()
       });
       return response.ok ? await response.json() : [];
     },
@@ -230,11 +231,11 @@ export default function FieldPermissions() {
   // Mutation to save role permissions
   const savePermissions = useMutation({
     mutationFn: async () => {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/permissions`, {
+      const res = await fetch(`${API_URL}/permissions`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+          ...getAuthHeaders(),
         },
         body: JSON.stringify({ role: selectedRole, permissions: permissions[selectedRole] }),
       });
@@ -254,11 +255,11 @@ export default function FieldPermissions() {
   // Mutation to save user-specific permission overrides
   const saveUserPermissions = useMutation({
     mutationFn: async () => {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/permissions/user`, {
+      const res = await fetch(`${API_URL}/permissions/user`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+          ...getAuthHeaders(),
         },
         body: JSON.stringify({ userId: selectedUserId, permissions: userEditedPermissions }),
       });
@@ -278,11 +279,11 @@ export default function FieldPermissions() {
   // Mutation to reset role permissions to defaults
   const resetPermissions = useMutation({
     mutationFn: async () => {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/permissions/reset`, {
+      const res = await fetch(`${API_URL}/permissions/reset`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+          ...getAuthHeaders(),
         },
         body: JSON.stringify({ role: selectedRole }),
       });
@@ -303,11 +304,11 @@ export default function FieldPermissions() {
   // Mutation to reset user permissions (removes all override rows)
   const resetUserPermissions = useMutation({
     mutationFn: async () => {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/permissions/user/reset`, {
+      const res = await fetch(`${API_URL}/permissions/user/reset`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+          ...getAuthHeaders(),
         },
         body: JSON.stringify({ userId: selectedUserId }),
       });
@@ -325,9 +326,9 @@ export default function FieldPermissions() {
 
   const toggleStage = useMutation({
     mutationFn: async ({ stage_type, enabled }: any) => {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/config/toggle-stage`, {
+      const response = await fetch(`${API_URL}/config/toggle-stage`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
         body: JSON.stringify({ stage_type, enabled })
       });
       if (!response.ok) {
@@ -424,22 +425,6 @@ export default function FieldPermissions() {
     if (!config) return true;
     return config.config_value === 'true';
   };
-
-  useEffect(() => {
-  console.log(`========== ${selectedRole} ==========`);
-
-  if (roleUsers.length === 0) {
-    console.log("No users found.");
-  } else {
-    console.log(`Total Users : ${roleUsers.length}`);
-
-    roleUsers.forEach((user, index) => {
-      console.log(
-        `${index + 1}. ${user.full_name} (${user.user_id})`
-      );
-    });
-  }
-}, [selectedRole, roleUsers]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">

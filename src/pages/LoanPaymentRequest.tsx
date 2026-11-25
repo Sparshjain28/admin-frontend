@@ -2,7 +2,7 @@ import React from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useEffect, useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '@/lib/api';
+import { api, API_URL, getAuthHeaders } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import FolioLedger from '@/components/FolioLedger';
 import FolioAccountCard from '@/components/FolioAccountCard';
@@ -62,8 +62,8 @@ export default function LoanPaymentRequest() {
   const { data: payments } = useQuery({
     queryKey: ['loan-payments', id],
     queryFn: async () => {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/payments?status=all&loanId=${id}`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+      const response = await fetch(`${API_URL}/accountant/payments?status=all&loanId=${id}`, {
+        headers: getAuthHeaders()
       });
       if (!response.ok) return [];
       return await response.json();
@@ -74,8 +74,8 @@ export default function LoanPaymentRequest() {
   const { data: folioAccounts } = useQuery({
     queryKey: ['folio-accounts'],
     queryFn: async () => {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/folio-accounts`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+      const res = await fetch(`${API_URL}/accountant/folio-accounts`, {
+        headers: getAuthHeaders()
       });
       if (!res.ok) return [];
       return await res.json();
@@ -445,10 +445,9 @@ export default function LoanPaymentRequest() {
         formData.append('document', billMappingFiles[0]);
       }
 
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/payments/request`, {
+      const response = await fetch(`${API_URL}/accountant/payments/request`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
+        headers: getAuthHeaders(),
         body: formData
       });
 
@@ -510,10 +509,9 @@ export default function LoanPaymentRequest() {
       if (payload.paymentProofs?.length) {
         payload.paymentProofs.forEach((f, i) => formData.append(`documents`, f));
       }
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/payments/request`, {
+      const response = await fetch(`${API_URL}/accountant/payments/request`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
+        headers: getAuthHeaders(),
         body: formData
       });
       if (!response.ok) {

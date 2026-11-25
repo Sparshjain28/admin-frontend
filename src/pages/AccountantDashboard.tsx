@@ -3,6 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { IndianRupee, TrendingUp, AlertCircle, CheckCircle2, Clock, FileText, ArrowRight } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useNavigate } from 'react-router-dom';
+import { API_URL, getAuthHeaders } from '@/lib/api';
 
 export default function AccountantDashboard() {
   const { user } = useAuth();
@@ -11,8 +12,8 @@ export default function AccountantDashboard() {
   const { data: stats } = useQuery({
     queryKey: ['accountant-dashboard', user?.id],
     queryFn: async () => {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/dashboard`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+      const response = await fetch(`${API_URL}/accountant/dashboard`, {
+        headers: getAuthHeaders()
       });
       if (!response.ok) return null;
       return await response.json();
@@ -23,8 +24,8 @@ export default function AccountantDashboard() {
   const { data: pendingPayments } = useQuery({
     queryKey: ['account-payments-pending', user?.id],
     queryFn: async () => {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/payments?status=pending`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+      const response = await fetch(`${API_URL}/accountant/payments?status=pending`, {
+        headers: getAuthHeaders()
       });
       if (!response.ok) return [];
       return await response.json();
@@ -35,8 +36,8 @@ export default function AccountantDashboard() {
   const { data: pendingBillMappings = [] } = useQuery({
     queryKey: ['pending-bill-mappings', user?.id],
     queryFn: async () => {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/bill-mapping/pending`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+      const response = await fetch(`${API_URL}/accountant/bill-mapping/pending`, {
+        headers: getAuthHeaders()
       });
       if (!response.ok) return [];
       return await response.json();

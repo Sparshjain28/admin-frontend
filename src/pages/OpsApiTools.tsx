@@ -1,8 +1,8 @@
+import { API_URL, getAuthHeaders } from '@/lib/api';
 import { useState, useEffect, useCallback } from 'react';
 import { Search, Loader2, XCircle, ArrowLeft, Car, Phone, AlertTriangle, Clock, Eye, Database, FileText } from 'lucide-react';
 
-const API_URL = import.meta.env.VITE_API_URL || '/api';
-const auth = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` });
+const auth = () => ({ 'Content-Type': 'application/json', ...getAuthHeaders() });
 
 const inputClass = 'w-full px-3 py-2 text-sm rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all';
 const btnClass = 'flex items-center gap-2 px-4 py-2 bg-accent text-accent-foreground rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 shrink-0';

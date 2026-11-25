@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Upload, X, FileText, CheckCircle, XCircle, File, Image, CreditCard, Car, Building, User, Shield, Eye, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
+import { API_URL, getAuthHeaders } from '@/lib/api';
 
 interface DocumentUploadProps {
   leadId: number;
@@ -97,11 +98,9 @@ export default function DocumentUpload({ leadId, onUploadComplete }: DocumentUpl
       if (notes) formData.append('notes', notes);
 
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/documents`, {
+        const response = await fetch(`${API_URL}/documents`, {
           method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-          },
+          headers: getAuthHeaders(),
           body: formData
         });
 
@@ -307,11 +306,9 @@ export function DocumentList({ leadId }: DocumentListProps) {
   const fetchDocuments = async () => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/documents/lead/${leadId}`,
+        `${API_URL}/documents/lead/${leadId}`,
         {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-          }
+          headers: getAuthHeaders()
         }
       );
       if (response.ok) {
@@ -334,12 +331,10 @@ setDocuments(uniqueDocs);
 
   const handlePreview = async (doc: any) => {
     try {
-      const downloadUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/documents/${doc.id}/download`;
+      const downloadUrl = `${API_URL}/documents/${doc.id}/download`;
       
       const response = await fetch(downloadUrl, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
+        headers: getAuthHeaders()
       });
       
       if (response.ok) {
@@ -367,11 +362,9 @@ setDocuments(uniqueDocs);
     if (!confirm('Are you sure you want to delete this document?')) return;
     
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/documents/${docId}`, {
+      const response = await fetch(`${API_URL}/documents/${docId}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
+        headers: getAuthHeaders()
       });
       
       if (response.ok) {
@@ -397,11 +390,9 @@ toast.error('Failed to delete document');
 
     try {
       // First delete the old document
-      await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/documents/${docId}`, {
+      await fetch(`${API_URL}/documents/${docId}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
+        headers: getAuthHeaders()
       });
 
       // Then upload the new one
@@ -410,11 +401,9 @@ toast.error('Failed to delete document');
       formData.append('lead_id', leadId.toString());
       formData.append('document_type', docType);
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/documents`, {
+      const response = await fetch(`${API_URL}/documents`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
+        headers: getAuthHeaders(),
         body: formData
       });
 

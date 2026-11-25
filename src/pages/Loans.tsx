@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useMemo, useCallback, lazy, Suspense } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '@/lib/api';
+import { api, API_URL, getAuthHeaders } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatCurrency, APPLICATION_STAGES, ApplicationStage } from '@/lib/mock-data';
 import { exportToExcel, parseExcel } from '@/lib/export-utils';
@@ -261,8 +261,8 @@ export function DesktopLoansWorkflow() {
   const { data: configs = [] } = useQuery({
     queryKey: ['system-config'],
     queryFn: async () => {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/config`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+      const response = await fetch(`${API_URL}/config`, {
+        headers: getAuthHeaders()
       });
       return response.ok ? await response.json() : [];
     },
@@ -272,8 +272,8 @@ export function DesktopLoansWorkflow() {
     queryKey: ['user-permissions', user?.role],
     queryFn: async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/permissions/dashboard`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+        const response = await fetch(`${API_URL}/permissions/dashboard`, {
+          headers: getAuthHeaders()
         });
         if (!response.ok) return null;
         const allPerms = await response.json();
@@ -304,11 +304,9 @@ export function DesktopLoansWorkflow() {
 
   const deleteLoan = useMutation({
     mutationFn: async (id: string) => {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/loans/${id}`, {
+      const response = await fetch(`${API_URL}/loans/${id}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
+        headers: getAuthHeaders()
       });
       if (!response.ok) throw new Error('Failed to delete loan');
     },
@@ -577,11 +575,11 @@ if (error?.name === 'AbortError') {
           caseType = 'BT';
         }
 
-        const response = await fetch(`${import.meta.env.VITE_API_URL || '/api'}/loans`, {
+        const response = await fetch(`${API_URL}/loans`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+            ...getAuthHeaders()
           },
           body: JSON.stringify({
             applicant_name: row['Applicant'] || row['applicant_name'] || row['Customer Name'] || row['customer_name'] || row['Name'] || 'Unknown',

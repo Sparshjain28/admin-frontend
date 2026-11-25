@@ -7,15 +7,7 @@ import {
   TrendingDown, TrendingUp, Minus, Database, Gauge, Info,
   Camera, History, Building2,
 } from 'lucide-react';
-
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-
-function authHeaders() {
-  return {
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
-  };
-}
+import { API_URL, getAuthHeaders } from '@/lib/api';
 
 /* ------------------------------------------------------------------ *
  * Ranking — faithful copy of LinkLoanFinderStep.tsx:111-151.
@@ -167,8 +159,8 @@ export default function LenderAnalysis() {
     setRunError(null);
     try {
       // Leads first.
-      const leadRes = await fetch(`${API}/leads?search=${encodeURIComponent(q)}&limit=10`, {
-        headers: authHeaders(),
+      const leadRes = await fetch(`${API_URL}/leads?search=${encodeURIComponent(q)}&limit=10`, {
+        headers: getAuthHeaders(),
       });
       if (!leadRes.ok) throw new Error(`Lead lookup failed (HTTP ${leadRes.status})`);
       const leadRows = await leadRes.json();
@@ -180,8 +172,8 @@ export default function LenderAnalysis() {
       // the Loans screen shows it.
       let loanList: Lead[] = [];
       if (leadList.length === 0) {
-        const loanRes = await fetch(`${API}/loans/search?q=${encodeURIComponent(q)}`, {
-          headers: authHeaders(),
+        const loanRes = await fetch(`${API_URL}/loans/search?q=${encodeURIComponent(q)}`, {
+          headers: getAuthHeaders(),
         });
         if (loanRes.ok) {
           const loanRows = await loanRes.json();
@@ -213,15 +205,15 @@ export default function LenderAnalysis() {
     setApiIdv(null);
     setCompanion(null);
     try {
-      const path = source === 'loan' ? `${API}/loans/${id}` : `${API}/leads/${id}`;
-      const res = await fetch(path, { headers: authHeaders() });
+      const path = source === 'loan' ? `${API_URL}/loans/${id}` : `${API_URL}/leads/${id}`;
+      const res = await fetch(path, { headers: getAuthHeaders() });
       if (!res.ok) throw new Error(`Could not load ${source} (HTTP ${res.status})`);
       const row = await res.json();
 
       // A lead's snapshot stops at the lender step; the rest is on its loan.
       let mate: any = null;
       if (source === 'lead' && row?.loan_id) {
-        const r = await fetch(`${API}/loans/${row.loan_id}`, { headers: authHeaders() });
+        const r = await fetch(`${API_URL}/loans/${row.loan_id}`, { headers: getAuthHeaders() });
         if (r.ok) mate = await r.json();
       }
 
@@ -502,9 +494,9 @@ export default function LenderAnalysis() {
     }
     setIdvFetching(true);
     try {
-      const res = await fetch(`${API}/find-lender/idv`, {
+      const res = await fetch(`${API_URL}/find-lender/idv`, {
         method: 'POST',
-        headers: authHeaders(),
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
         body: JSON.stringify({ id_number: rcNumber }),
       });
       if (!res.ok) throw new Error(`IDV lookup failed (HTTP ${res.status})`);
@@ -637,9 +629,9 @@ export default function LenderAnalysis() {
       const body: any = { address, case_type: caseType, radius: 50, vehicleData, loanData };
       if (creditScore) body.creditReportData = { credit_score: creditScore, auto_loans: autoLoans };
 
-      const res = await fetch(`${API}/find-lender/search-by-address`, {
+      const res = await fetch(`${API_URL}/find-lender/search-by-address`, {
         method: 'POST',
-        headers: authHeaders(),
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
         body: JSON.stringify(body),
       });
       const data = await res.json();

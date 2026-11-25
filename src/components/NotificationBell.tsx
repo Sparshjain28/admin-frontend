@@ -4,11 +4,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Bell, Check, CheckCheck, Trash2, FileText, AlertCircle, CheckCircle2, Info, X, RefreshCw } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Link } from 'react-router-dom';
+import { API_URL, getAuthHeaders } from '@/lib/api';
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-function authHeaders() {
-  return { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('auth_token')}` };
-}
+const API = API_URL;
+const authHeaders = () => ({ 'Content-Type': 'application/json', ...getAuthHeaders() });
 
 interface Notification {
   id: number;

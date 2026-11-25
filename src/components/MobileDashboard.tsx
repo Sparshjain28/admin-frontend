@@ -2,6 +2,7 @@ import React, { useState, useRef, useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { API_URL, getAuthHeaders } from '@/lib/api';
 import {
   Wallet,
   CreditCard,
@@ -53,14 +54,9 @@ export default function MobileDashboard() {
   const { data: pageConfigs = [] } = useQuery({
     queryKey: ["system-config"],
     queryFn: async () => {
-      const token = localStorage.getItem("auth_token");
-      if (!token) return [];
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/config`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
+      const res = await fetch(`${API_URL}/config`, {
+        headers: getAuthHeaders(),
+      });
       return res.ok ? res.json() : [];
     },
     staleTime: 60_000,
@@ -73,11 +69,9 @@ export default function MobileDashboard() {
   const { data: dashboardStats } = useQuery({
     queryKey: ["dashboard-stats-mobile"],
     queryFn: async () => {
-      const token = localStorage.getItem("auth_token");
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/dashboard/stats?timeline=this_month`,
-        { headers: { Authorization: `Bearer ${token}` } },
-      );
+      const res = await fetch(`${API_URL}/dashboard/stats?timeline=this_month`, {
+        headers: getAuthHeaders(),
+      });
       return res.ok ? res.json() : null;
     },
     enabled: !!user,
@@ -86,11 +80,9 @@ export default function MobileDashboard() {
   const { data: earningsList = [] } = useQuery({
     queryKey: ["earnings-mobile"],
     queryFn: async () => {
-      const token = localStorage.getItem("auth_token");
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/payouts/earnings`,
-        { headers: { Authorization: `Bearer ${token}` } },
-      );
+      const res = await fetch(`${API_URL}/payouts/earnings`, {
+        headers: getAuthHeaders(),
+      });
       return res.ok ? res.json() : [];
     },
     enabled: !!user,
@@ -99,11 +91,9 @@ export default function MobileDashboard() {
   const { data: payoutsList = [] } = useQuery({
     queryKey: ["payouts-mobile"],
     queryFn: async () => {
-      const token = localStorage.getItem("auth_token");
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/payouts`,
-        { headers: { Authorization: `Bearer ${token}` } },
-      );
+      const res = await fetch(`${API_URL}/payouts`, {
+        headers: getAuthHeaders(),
+      });
       return res.ok ? res.json() : [];
     },
     enabled: !!user,

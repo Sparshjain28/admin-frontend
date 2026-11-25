@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { Download, Filter, Search, FileText } from 'lucide-react';
 import { toast } from 'sonner';
+import { API_URL, getAuthHeaders } from '@/lib/api';
 
 export default function DisbursementLedger() {
   const { user } = useAuth();
@@ -17,8 +18,8 @@ export default function DisbursementLedger() {
       if (dateRange.end) params.append('endDate', dateRange.end);
       if (search) params.append('search', search);
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/disbursement-ledger?${params}`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+      const response = await fetch(`${API_URL}/accountant/disbursement-ledger?${params}`, {
+        headers: getAuthHeaders()
       });
       if (!response.ok) return [];
       return await response.json();

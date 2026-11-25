@@ -1,3 +1,5 @@
+import { getAuthToken } from '@/lib/api';
+
 export interface LenderCharges {
   stamp_duty: number;       // default: 0.35 (%)
   processing_fee: number;   // default: 1.5 (%)
@@ -138,16 +140,7 @@ export const DEFAULT_BANK_COMPARE_CHARGES: BankCompareChargesConfig = {
  * - Defaults to https://api.finonest.com
  */
 export const getSettingsApiBaseUrl = (): string => {
-  const envUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL;
-  if (envUrl && typeof envUrl === 'string' && envUrl.trim().length > 0) {
-    return envUrl.replace(/\/api\/?$/, '').replace(/\/$/, '');
-  }
-  
-  if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-    return 'http://localhost:5000';
-  }
-  
-  return 'https://api.finonest.com';
+  return API_BASE_URL;
 };
 
 /**
@@ -158,10 +151,7 @@ export const getAdminAuthToken = (): string | null => {
     const match = document.cookie.match(new RegExp('(^| )auth_token=([^;]+)'));
     if (match && match[2]) return decodeURIComponent(match[2]);
   }
-  if (typeof localStorage !== 'undefined') {
-    return localStorage.getItem('auth_token') || localStorage.getItem('token') || null;
-  }
-  return null;
+  return getAuthToken();
 };
 
 /**

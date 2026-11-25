@@ -6,6 +6,7 @@ import { Plus, Download, Filter, CheckCircle2, Clock, AlertCircle, X, Edit2, Che
 import { toast } from 'sonner';
 import LedgerDetailModal from '@/components/LedgerDetailModal';
 import PaymentRequestModal from '@/components/PaymentRequestModal';
+import { API_URL, getAuthHeaders } from '@/lib/api';
 
 const ENTRY_PURPOSES = [
   'LOAN CLOSURE',
@@ -102,12 +103,10 @@ export default function AccountPayments() {
   const { data: payments = [] } = useQuery({
     queryKey: ['account-payments', user?.id],
     queryFn: async () => {
-      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-      const headers = { Authorization: `Bearer ${localStorage.getItem('auth_token')}` };
       const statuses = ['bm_dsa_pending', 'bm_dsa_sm_pending', 'sales_manager_approval', 'accountant_approval', 'admin_approval', 'pending'];
       const results = await Promise.all(
         statuses.map(s =>
-          fetch(`${baseUrl}/accountant/payments?status=${s}`, { headers })
+          fetch(`${API_URL}/accountant/payments?status=${s}`, { headers: getAuthHeaders() })
             .then(r => r.ok ? r.json() : [])
         )
       );
@@ -146,11 +145,11 @@ export default function AccountPayments() {
     queryKey: ['account-payments-history', user?.id],
     queryFn: async () => {
       const [completedRes, rejectedRes] = await Promise.all([
-        fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/payments?status=completed`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+        fetch(`${API_URL}/accountant/payments?status=completed`, {
+          headers: getAuthHeaders()
         }),
-        fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/payments?status=rejected`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+        fetch(`${API_URL}/accountant/payments?status=rejected`, {
+          headers: getAuthHeaders()
         })
       ]);
       const completed = completedRes.ok ? await completedRes.json() : [];
@@ -167,9 +166,9 @@ export default function AccountPayments() {
   // Sync an approved payout earning to Tally (Commission A/c Dr → Person A/c Cr)
   const handleSyncPayoutToTally = async (earningId: number) => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/payouts/earnings/${earningId}/sync-tally`, {
+      const res = await fetch(`${API_URL}/payouts/earnings/${earningId}/sync-tally`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+        headers: getAuthHeaders()
       });
       const data = await res.json();
       if (res.ok) {
@@ -185,9 +184,9 @@ export default function AccountPayments() {
   // Mark an approved payout as paid (also pushes the Tally journal)
   const handleMarkPayoutPaid = async (earningId: number) => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/payouts/earnings/${earningId}`, {
+      const res = await fetch(`${API_URL}/payouts/earnings/${earningId}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
         body: JSON.stringify({ status: 'paid' })
       });
       const data = await res.json();
@@ -208,8 +207,8 @@ export default function AccountPayments() {
   const { data: folioAccounts = [], isLoading: foliosLoading } = useQuery({
     queryKey: ['folio-accounts', user?.id],
     queryFn: async () => {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/folio-accounts`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+      const res = await fetch(`${API_URL}/accountant/folio-accounts`, {
+        headers: getAuthHeaders()
       });
       if (!res.ok) return [];
       return await res.json();
@@ -221,9 +220,8 @@ export default function AccountPayments() {
   const { data: userLoansList = [] } = useQuery({
     queryKey: ['user-loans-all', user?.id],
     queryFn: async () => {
-      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-      const res = await fetch(`${baseUrl}/loans?limit=500`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('auth_token')}` }
+      const res = await fetch(`${API_URL}/loans?limit=500`, {
+        headers: getAuthHeaders()
       });
       if (!res.ok) return [];
       const data = await res.json();
@@ -235,11 +233,11 @@ export default function AccountPayments() {
   const handleAddEntry = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/payments/entries`, {
+      const response = await fetch(`${API_URL}/accountant/payments/entries`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          ...getAuthHeaders()
         },
         body: JSON.stringify({
           ...entryData,
@@ -278,11 +276,11 @@ export default function AccountPayments() {
       if (options?.accountant_remarks) payload.accountant_remarks = options.accountant_remarks;
       if (options?.sales_manager_remarks) payload.sales_manager_remarks = options.sales_manager_remarks;
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/payments/${id}/status`, {
+      const response = await fetch(`${API_URL}/accountant/payments/${id}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          ...getAuthHeaders()
         },
         body: JSON.stringify(payload)
       });
@@ -326,11 +324,11 @@ export default function AccountPayments() {
     e.preventDefault();
     if (!editingPayment) return;
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/payments/${editingPayment.id}`, {
+      const response = await fetch(`${API_URL}/accountant/payments/${editingPayment.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          ...getAuthHeaders()
         },
         body: JSON.stringify(editingPayment)
       });
@@ -349,8 +347,8 @@ export default function AccountPayments() {
 
   const handleExport = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/payments/export`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+      const response = await fetch(`${API_URL}/accountant/payments/export`, {
+        headers: getAuthHeaders()
       });
       if (response.ok) {
         const blob = await response.blob();
@@ -377,8 +375,8 @@ export default function AccountPayments() {
     setShowLedgerModal(true);
     if (payment.loan_id) {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/payments/case-details/${payment.loan_id}`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+        const response = await fetch(`${API_URL}/accountant/payments/case-details/${payment.loan_id}`, {
+          headers: getAuthHeaders()
         });
         if (response.ok) {
           const data = await response.json();
@@ -391,9 +389,9 @@ export default function AccountPayments() {
 
   const handleDeleteAll = async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/payments/all`, {
+      const res = await fetch(`${API_URL}/accountant/payments/all`, {
         method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+        headers: getAuthHeaders()
       });
       if (res.ok) {
         const data = await res.json();
@@ -412,9 +410,8 @@ export default function AccountPayments() {
 
   const fetchUserLoans = async () => {
     try {
-      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-      const res = await fetch(`${baseUrl}/loans?limit=100`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('auth_token')}` }
+      const res = await fetch(`${API_URL}/loans?limit=100`, {
+        headers: getAuthHeaders()
       });
       if (res.ok) {
         const data = await res.json();
@@ -433,7 +430,6 @@ export default function AccountPayments() {
     }
     setIsSubmittingRaise(true);
     try {
-      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
       const formData = new FormData();
       formData.append('loan_id', selectedLoanIdForRequest);
       formData.append('amount', raiseAmount);
@@ -444,11 +440,9 @@ export default function AccountPayments() {
       if (raiseRemarks) formData.append('remarks', raiseRemarks);
       if (raiseFile) formData.append('document', raiseFile);
 
-      const res = await fetch(`${baseUrl}/accountant/payments/request`, {
+      const res = await fetch(`${API_URL}/accountant/payments/request`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
+        headers: getAuthHeaders(),
         body: formData
       });
 
@@ -484,7 +478,6 @@ export default function AccountPayments() {
     }
     setIsSubmittingBillMapping(true);
     try {
-      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
       const formData = new FormData();
       formData.append('loan_id', selectedLoanIdForRequest);
       formData.append('amount', '0');
@@ -493,11 +486,9 @@ export default function AccountPayments() {
       if (billMappingRemarks) formData.append('remarks', billMappingRemarks);
       if (billMappingFiles.length > 0) formData.append('document', billMappingFiles[0]);
 
-      const res = await fetch(`${baseUrl}/accountant/payments/request`, {
+      const res = await fetch(`${API_URL}/accountant/payments/request`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
+        headers: getAuthHeaders(),
         body: formData
       });
 
@@ -594,9 +585,9 @@ export default function AccountPayments() {
       next.set(id, { ...existing, ...data });
       return next;
     });
-    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/payments/${id}/semi-approve`, {
+    fetch(`${API_URL}/accountant/payments/${id}/semi-approve`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
       body: JSON.stringify(data || {}),
     }).then(() => {
       queryClient.invalidateQueries({ queryKey: ['account-payments'] });
@@ -932,10 +923,10 @@ export default function AccountPayments() {
                             {payment.ifsc_code && <span className="text-[10px] font-semibold text-foreground truncate">IFSC:- {payment.ifsc_code}</span>}
                             {payment.upi_link && <button onClick={() => navigator.clipboard.writeText(payment.upi_link)} className="px-1.5 py-0.5 bg-blue-600/10 hover:bg-blue-600/20 text-blue-600 dark:text-blue-400 text-[8px] font-semibold rounded border border-blue-600/20">Copy UPI</button>}
                             {payment.documents?.filter((d: any) => d.field_name === 'qr_upload').map((doc: any) => (
-                              <a key={doc.id} href={`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}${doc.file_path}`} target="_blank" className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[8px] font-semibold rounded border border-blue-600/20">QR Upload</a>
+                              <a key={doc.id} href={`${API_URL}${doc.file_path}`} target="_blank" className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[8px] font-semibold rounded border border-blue-600/20">QR Upload</a>
                             ))}
                             {payment.documents?.filter((d: any) => d.field_name !== 'qr_upload').map((doc: any) => (
-                              <a key={doc.id} href={`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}${doc.file_path}`} target="_blank" className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[8px] font-semibold rounded border border-blue-600/20">{payment.purpose === 'LOAN CLOSURE' ? 'Docs' : 'Proof'}</a>
+                              <a key={doc.id} href={`${API_URL}${doc.file_path}`} target="_blank" className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[8px] font-semibold rounded border border-blue-600/20">{payment.purpose === 'LOAN CLOSURE' ? 'Docs' : 'Proof'}</a>
                             ))}
                           </div>
                           <div className="flex items-center gap-2 shrink-0">
@@ -1003,10 +994,10 @@ export default function AccountPayments() {
                                 <span>{payment.ifsc_code || '-'}</span>
                                 {payment.upi_link && <button onClick={() => navigator.clipboard.writeText(payment.upi_link)} className="px-1.5 py-0.5 bg-blue-600/10 hover:bg-blue-600/20 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20">Copy UPI</button>}
                                 {payment.documents?.filter((d: any) => d.field_name === 'qr_upload').map((doc: any) => (
-                                  <a key={doc.id} href={`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}${doc.file_path}`} target="_blank" className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20">QR</a>
+                                  <a key={doc.id} href={`${API_URL}${doc.file_path}`} target="_blank" className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20">QR</a>
                                 ))}
                                 {payment.documents?.filter((d: any) => d.field_name !== 'qr_upload').map((doc: any) => (
-                                  <a key={doc.id} href={`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}${doc.file_path}`} target="_blank" className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20">{payment.purpose === 'LOAN CLOSURE' ? 'Docs' : 'Proof'}</a>
+                                  <a key={doc.id} href={`${API_URL}${doc.file_path}`} target="_blank" className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20">{payment.purpose === 'LOAN CLOSURE' ? 'Docs' : 'Proof'}</a>
                                 ))}
                               </div>
                             </td>
@@ -1082,10 +1073,10 @@ export default function AccountPayments() {
                             {payment.ifsc_code && <span className="text-[10px] font-semibold text-foreground truncate">IFSC:- {payment.ifsc_code}</span>}
                             {payment.upi_link && <button onClick={() => navigator.clipboard.writeText(payment.upi_link)} className="px-1.5 py-0.5 bg-blue-600/10 hover:bg-blue-600/20 text-blue-600 dark:text-blue-400 text-[8px] font-semibold rounded border border-blue-600/20">Copy UPI</button>}
                             {payment.documents?.filter((d: any) => d.field_name === 'qr_upload').map((doc: any) => (
-                              <a key={doc.id} href={`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}${doc.file_path}`} target="_blank" className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[8px] font-semibold rounded border border-blue-600/20">QR Upload</a>
+                              <a key={doc.id} href={`${API_URL}${doc.file_path}`} target="_blank" className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[8px] font-semibold rounded border border-blue-600/20">QR Upload</a>
                             ))}
                             {payment.documents?.filter((d: any) => d.field_name !== 'qr_upload').map((doc: any) => (
-                              <a key={doc.id} href={`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}${doc.file_path}`} target="_blank" className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[8px] font-semibold rounded border border-blue-600/20">{payment.purpose === 'LOAN CLOSURE' ? 'Docs' : 'Proof'}</a>
+                              <a key={doc.id} href={`${API_URL}${doc.file_path}`} target="_blank" className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[8px] font-semibold rounded border border-blue-600/20">{payment.purpose === 'LOAN CLOSURE' ? 'Docs' : 'Proof'}</a>
                             ))}
                           </div>
                           <div className="  flex items-center gap-2 shrink-0">
@@ -1142,10 +1133,10 @@ export default function AccountPayments() {
                                 <span>{payment.ifsc_code || '-'}</span>
                                 {payment.upi_link && <button onClick={() => navigator.clipboard.writeText(payment.upi_link)} className="px-1.5 py-0.5 bg-blue-600/10 hover:bg-blue-600/20 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20">Copy UPI</button>}
                                 {payment.documents?.filter((d: any) => d.field_name === 'qr_upload').map((doc: any) => (
-                                  <a key={doc.id} href={`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}${doc.file_path}`} target="_blank" className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20">QR</a>
+                                  <a key={doc.id} href={`${API_URL}${doc.file_path}`} target="_blank" className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20">QR</a>
                                 ))}
                                 {payment.documents?.filter((d: any) => d.field_name !== 'qr_upload').map((doc: any) => (
-                                  <a key={doc.id} href={`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}${doc.file_path}`} target="_blank" className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20">{payment.purpose === 'LOAN CLOSURE' ? 'Docs' : 'Proof'}</a>
+                                  <a key={doc.id} href={`${API_URL}${doc.file_path}`} target="_blank" className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20">{payment.purpose === 'LOAN CLOSURE' ? 'Docs' : 'Proof'}</a>
                                 ))}
                               </div>
                             </td>
@@ -1211,10 +1202,10 @@ export default function AccountPayments() {
                             {payment.ifsc_code && <span className="text-[10px] font-semibold text-foreground truncate">IFSC:- {payment.ifsc_code}</span>}
                             {payment.upi_link && <button onClick={() => navigator.clipboard.writeText(payment.upi_link)} className="px-1.5 py-0.5 bg-blue-600/10 hover:bg-blue-600/20 text-blue-600 dark:text-blue-400 text-[8px] font-semibold rounded border border-blue-600/20">Copy UPI</button>}
                             {payment.documents?.filter((d: any) => d.field_name === 'qr_upload').map((doc: any) => (
-                              <a key={doc.id} href={`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}${doc.file_path}`} target="_blank" className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[8px] font-semibold rounded border border-blue-600/20">QR Upload</a>
+                              <a key={doc.id} href={`${API_URL}${doc.file_path}`} target="_blank" className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[8px] font-semibold rounded border border-blue-600/20">QR Upload</a>
                             ))}
                             {payment.documents?.filter((d: any) => d.field_name !== 'qr_upload').map((doc: any) => (
-                              <a key={doc.id} href={`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}${doc.file_path}`} target="_blank" className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[8px] font-semibold rounded border border-blue-600/20">{payment.purpose === 'LOAN CLOSURE' ? 'Docs' : 'Proof'}</a>
+                              <a key={doc.id} href={`${API_URL}${doc.file_path}`} target="_blank" className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[8px] font-semibold rounded border border-blue-600/20">{payment.purpose === 'LOAN CLOSURE' ? 'Docs' : 'Proof'}</a>
                             ))}
                           </div>
                           <div className="  flex items-center gap-2 shrink-0">
@@ -1268,10 +1259,10 @@ export default function AccountPayments() {
                                 <span>{payment.ifsc_code || '-'}</span>
                                 {payment.upi_link && <button onClick={() => navigator.clipboard.writeText(payment.upi_link)} className="px-1.5 py-0.5 bg-blue-600/10 hover:bg-blue-600/20 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20">Copy UPI</button>}
                                 {payment.documents?.filter((d: any) => d.field_name === 'qr_upload').map((doc: any) => (
-                                  <a key={doc.id} href={`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}${doc.file_path}`} target="_blank" className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20">QR</a>
+                                  <a key={doc.id} href={`${API_URL}${doc.file_path}`} target="_blank" className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20">QR</a>
                                 ))}
                                 {payment.documents?.filter((d: any) => d.field_name !== 'qr_upload').map((doc: any) => (
-                                  <a key={doc.id} href={`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}${doc.file_path}`} target="_blank" className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20">{payment.purpose === 'LOAN CLOSURE' ? 'Docs' : 'Proof'}</a>
+                                  <a key={doc.id} href={`${API_URL}${doc.file_path}`} target="_blank" className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20">{payment.purpose === 'LOAN CLOSURE' ? 'Docs' : 'Proof'}</a>
                                 ))}
                               </div>
                             </td>

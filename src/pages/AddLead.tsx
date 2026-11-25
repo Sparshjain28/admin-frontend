@@ -7,6 +7,7 @@ import CreditReportSummary from '@/components/CreditReportSummary';
 import LinkLoanFinderStep from '@/components/LinkLoanFinderStep';
 import ConsentModal from '@/components/ConsentModal';
 import { useAuth } from '@/contexts/AuthContext';
+import { API_URL, getAuthHeaders } from '@/lib/api';
 
 const inputClass = "w-full px-4 py-3.5 text-sm font-medium rounded-[16px] border border-[#E2E8F0] bg-[#F8FAFC] text-[#0F172A] placeholder:text-[#94A3B8] placeholder:font-normal focus:outline-none focus:bg-white focus:ring-2 focus:ring-[#3B82F6]/20 focus:border-[#3B82F6] transition-all shadow-2xs";
 const selectClass = "w-full px-4 py-3.5 text-sm font-medium rounded-[16px] border border-[#E2E8F0] bg-[#F8FAFC] text-[#0F172A] appearance-none focus:outline-none focus:bg-white focus:ring-2 focus:ring-[#3B82F6]/20 focus:border-[#3B82F6] transition-all shadow-2xs pr-10 cursor-pointer";
@@ -368,7 +369,7 @@ export default function AddLeadWizard() {
     const isReapplyLoan = searchParams.get('reapply_loan') === 'true';
     if (isReapplyLoan && !hasLoadedLead.current) {
       hasLoadedLead.current = true;
-      if (loadId) { fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/documents/lead/${loadId}`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` } }).then(res => res.json()).then(data => { if (Array.isArray(data)) setExistingDocs(data); }).catch(() => { }); }
+      if (loadId) { fetch(`${API_URL}/documents/lead/${loadId}`, { headers: getAuthHeaders() }).then(res => res.json()).then(data => { if (Array.isArray(data)) setExistingDocs(data); }).catch(() => { }); }
       try {
         const savedData = sessionStorage.getItem('reapply_loan_data');
         if (savedData) {
@@ -384,7 +385,7 @@ export default function AddLeadWizard() {
             rent_agreement: 'rentAgreement', customer_photo: 'customerPhoto',
             disbursement_memo: 'disbursementMemo', insurance: 'insurance', customer_ledger: 'customerLedger',
           };
-          fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/loans/${loanData.id}/documents`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` } })
+          fetch(`${API_URL}/loans/${loanData.id}/documents`, { headers: getAuthHeaders() })
             .then(res => res.json())
             .then((data) => {
               if (Array.isArray(data)) {
@@ -395,7 +396,7 @@ export default function AddLeadWizard() {
                   const formField = docTypeMap[String(doc.document_type).toLowerCase().trim()];
                   if (!formField) return;
                   loaders.push(
-                    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/documents/${doc.id}/download`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` } })
+                    fetch(`${API_URL}/documents/${doc.id}/download`, { headers: getAuthHeaders() })
                       .then(r => { if (!r.ok) throw new Error('doc'); return r.blob(); })
                       .then(blob => {
                         const fileName = doc.file_name || `${doc.document_type}.pdf`;
@@ -507,7 +508,7 @@ export default function AddLeadWizard() {
 
     if (loadId && !hasLoadedLead.current) {
       hasLoadedLead.current = true;
-      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/documents/lead/${loadId}`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` } })
+      fetch(`${API_URL}/documents/lead/${loadId}`, { headers: getAuthHeaders() })
         .then(res => res.json())
         .then(data => { 
           if (Array.isArray(data)) {
@@ -526,7 +527,7 @@ export default function AddLeadWizard() {
               data.forEach((doc: any) => {
                 const formField = docTypeMap[String(doc.document_type).toLowerCase().trim()];
                 if (!formField) return;
-                fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/documents/${doc.id}/download`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` } })
+                fetch(`${API_URL}/documents/${doc.id}/download`, { headers: getAuthHeaders() })
                   .then(r => { if (!r.ok) throw new Error('doc'); return r.blob(); })
                   .then(blob => {
                     const fileName = doc.file_name || `${doc.document_type}.pdf`;
@@ -545,8 +546,8 @@ export default function AddLeadWizard() {
             }
           } 
         }).catch(() => { });
-      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/leads/${loadId}`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+      fetch(`${API_URL}/leads/${loadId}`, {
+        headers: getAuthHeaders(),
       })
         .then(res => res.json())
         .then(data => {
@@ -622,9 +623,9 @@ export default function AddLeadWizard() {
               }
               const vehicleNumberForRefetch = stageData.vehicle_number || data.vehicle_number;
               if (!stageData.rc_data && vehicleNumberForRefetch) {
-                fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/add-lead/details`, {
+                fetch(`${API_URL}/add-lead/details`, {
                   method: 'POST',
-                  headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+                  headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
                   body: JSON.stringify({ rc_number: vehicleNumberForRefetch, mobile: stageData.mobile || data.phone || data.mobile || '' })
                 })
                   .then(res => res.ok ? res.json() : null)
@@ -686,9 +687,9 @@ export default function AddLeadWizard() {
               if (data.link_loan_data?.auto_loans) setAutoLoans(data.link_loan_data.auto_loans);
               if (data.link_loan_data?.full_report) setFullReport(data.link_loan_data.full_report);
               if (data.vehicle_number) {
-                fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/add-lead/details`, {
+                fetch(`${API_URL}/add-lead/details`, {
                   method: 'POST',
-                  headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+                  headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
                   body: JSON.stringify({ rc_number: data.vehicle_number, mobile: data.phone || data.mobile || '' })
                 })
                   .then(res => res.ok ? res.json() : null)
@@ -790,8 +791,8 @@ export default function AddLeadWizard() {
   const { data: assignableUsers = [] } = useQuery({
     queryKey: ['assignable-users-add-lead'],
     queryFn: async () => {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/users/hierarchy`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+      const res = await fetch(`${API_URL}/users/hierarchy`, {
+        headers: getAuthHeaders(),
       });
       if (!res.ok) return [];
       return res.json();
@@ -844,8 +845,8 @@ export default function AddLeadWizard() {
   // Fetch Makes
   useEffect(() => {
     if (step === 2 && form.case_type === 'new_car_purchase' && carMakes.length === 0) {
-      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/add-lead/car-makes`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+      fetch(`${API_URL}/add-lead/car-makes`, {
+        headers: getAuthHeaders(),
       })
         .then(res => res.json())
         .then(data => setCarMakes(Array.isArray(data) ? data : []))
@@ -856,8 +857,8 @@ export default function AddLeadWizard() {
   // Fetch Models when Make changes
   useEffect(() => {
     if (form.car_make) {
-      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/add-lead/car-models?make=${encodeURIComponent(form.car_make)}`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+      fetch(`${API_URL}/add-lead/car-models?make=${encodeURIComponent(form.car_make)}`, {
+        headers: getAuthHeaders(),
       })
         .then(res => res.json())
         .then(data => setCarModels(Array.isArray(data) ? data : []))
@@ -873,8 +874,8 @@ export default function AddLeadWizard() {
   // Fetch Cities when Model changes
   useEffect(() => {
     if (form.car_make && form.car_model) {
-      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/add-lead/car-cities?make=${encodeURIComponent(form.car_make)}&model=${encodeURIComponent(form.car_model)}`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+      fetch(`${API_URL}/add-lead/car-cities?make=${encodeURIComponent(form.car_make)}&model=${encodeURIComponent(form.car_model)}`, {
+        headers: getAuthHeaders(),
       })
         .then(res => res.json())
         .then(data => setCarCities(Array.isArray(data) ? data : []))
@@ -889,8 +890,8 @@ export default function AddLeadWizard() {
   // Fetch Variants when City changes
   useEffect(() => {
     if (form.car_make && form.car_model && form.city) {
-      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/add-lead/car-variants?make=${encodeURIComponent(form.car_make)}&model=${encodeURIComponent(form.car_model)}&city=${encodeURIComponent(form.city)}`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+      fetch(`${API_URL}/add-lead/car-variants?make=${encodeURIComponent(form.car_make)}&model=${encodeURIComponent(form.car_model)}&city=${encodeURIComponent(form.city)}`, {
+        headers: getAuthHeaders(),
       })
         .then(res => res.json())
         .then(data => {
@@ -915,9 +916,9 @@ export default function AddLeadWizard() {
   const step1Mutation = useMutation({
     mutationFn: async (data: any) => {
       const endpoint = data.case_type === 'new_car_purchase' ? 'new-car-step1' : 'step1';
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/add-lead/${endpoint}`, {
+      const res = await fetch(`${API_URL}/add-lead/${endpoint}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
         body: JSON.stringify(data)
       });
       if (!res.ok) {
@@ -980,9 +981,9 @@ export default function AddLeadWizard() {
   // Fetch Step 2 Details
   const fetchDetails = async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/add-lead/details`, {
+      const res = await fetch(`${API_URL}/add-lead/details`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
         body: JSON.stringify({ rc_number: form.vehicle_number, mobile: form.mobile })
       });
       if (!res.ok) throw new Error(await res.text());
@@ -1034,9 +1035,9 @@ export default function AddLeadWizard() {
         maker_name: rcData?.maker_name || rcData?.maker_description || rcData?.full_rc_data?.maker_description || '',
         model_variant_name: rcData?.model_name || rcData?.maker_model || rcData?.full_rc_data?.maker_model || '',
       };
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/add-lead/submit`, {
+      const res = await fetch(`${API_URL}/add-lead/submit`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
         body: JSON.stringify(payload)
       });
       if (!res.ok) throw new Error(await res.text());
@@ -1198,9 +1199,9 @@ export default function AddLeadWizard() {
       let loanId = createdLoanIdRef.current;
       let loanData;
       if (!loanId) {
-        const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/loans`, {
+        const res = await fetch(`${API_URL}/loans`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+          headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
           body: JSON.stringify(payload)
         });
         if (!res.ok) {
@@ -1237,9 +1238,9 @@ export default function AddLeadWizard() {
                 formData.append('document', file);
                 formData.append('document_type', docType);
                 formData.append('loan_id', String(loanId));
-                const resp = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/documents`, {
+                const resp = await fetch(`${API_URL}/documents`, {
                   method: 'POST',
-                  headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+                  headers: getAuthHeaders(),
                   body: formData,
                 });
                 if (!resp.ok) {
@@ -1257,9 +1258,9 @@ export default function AddLeadWizard() {
                 formData.append('document', val);
                 formData.append('document_type', docType);
                 formData.append('loan_id', String(loanId));
-                const resp = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/documents`, {
+                const resp = await fetch(`${API_URL}/documents`, {
                   method: 'POST',
-                  headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+                  headers: getAuthHeaders(),
                   body: formData,
                 });
                 if (!resp.ok) {
@@ -1307,9 +1308,9 @@ export default function AddLeadWizard() {
       step
     });
     if (step === 2 && !rcData && form.vehicle_number) {
-      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/add-lead/details`, {
+      fetch(`${API_URL}/add-lead/details`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem('auth_token')}` },
+        headers: { "Content-Type": "application/json", ...getAuthHeaders() },
         body: JSON.stringify({ rc_number: form.vehicle_number, mobile: form.mobile })
       })
         .then(async res => {
@@ -1352,9 +1353,9 @@ export default function AddLeadWizard() {
       if (rcOcrFront) formData.append('documents', rcOcrFront);
       if (rcOcrBack) formData.append('documents', rcOcrBack);
       formData.append('rc_number', form.vehicle_number);
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/link-loan/rc-extract-ocr`, {
+      const res = await fetch(`${API_URL}/link-loan/rc-extract-ocr`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${localStorage.getItem('auth_token')}` },
+        headers: getAuthHeaders(),
         body: formData,
       });
       const data = await res.json();
@@ -1409,7 +1410,6 @@ export default function AddLeadWizard() {
   React.useEffect(() => {
     if (step === 2 && !idvData && !idvLoading && (form.vehicle_number || rcData?.rc_number)) {
       setIdvLoading(true);
-      const token = localStorage.getItem('auth_token');
       const rcNumber = form.vehicle_number || rcData?.rc_number || rcData?.full_rc_data?.rc_number;
       // The very first automatic IDV calculation never sent any kilometers
       // at all (undefined), so n8n valued the car with no mileage input and
@@ -1424,9 +1424,9 @@ export default function AddLeadWizard() {
         ? Math.round((Number(ageMatch[1]) + Number(ageMatch[2]) / 12) * 12000 / 1000) * 1000
         : null;
       if (estimatedKm && !kilometers) setKilometers(String(estimatedKm));
-      fetch(`${import.meta.env.VITE_API_URL || '/api'}/find-lender/idv`, {
+      fetch(`${API_URL}/find-lender/idv`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        headers: { "Content-Type": "application/json", ...getAuthHeaders() },
         body: JSON.stringify({ id_number: rcNumber, kilometers: estimatedKm ? String(estimatedKm) : undefined })
       })
         .then(res => res.json())
@@ -1454,10 +1454,9 @@ export default function AddLeadWizard() {
       return;
     }
     setIdvLoading(true);
-    const token = localStorage.getItem('auth_token');
-    fetch(`${import.meta.env.VITE_API_URL || '/api'}/find-lender/idv`, {
+    fetch(`${API_URL}/find-lender/idv`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      headers: { "Content-Type": "application/json", ...getAuthHeaders() },
       body: JSON.stringify({ id_number: form.vehicle_number || rcData?.rc_number, kilometers })
     })
       .then(res => res.json())
@@ -1496,11 +1495,11 @@ export default function AddLeadWizard() {
     if (!showDropdowns) {
       // Check if report is already cached to bypass OTP
       try {
-        const cacheCheckRes = await fetch(`${import.meta.env.VITE_API_URL || '/api'}/link-loan/credit-report`, {
+        const cacheCheckRes = await fetch(`${API_URL}/link-loan/credit-report`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+            ...getAuthHeaders(),
           },
           body: JSON.stringify({
             name: form.customer_name,
@@ -1578,10 +1577,9 @@ export default function AddLeadWizard() {
 
           if (form.vehicle_number && !idvLoading && !idvData) {
             setIdvLoading(true);
-            const token = localStorage.getItem('auth_token');
-            fetch(`${import.meta.env.VITE_API_URL || '/api'}/find-lender/idv`, {
+            fetch(`${API_URL}/find-lender/idv`, {
               method: "POST",
-              headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+              headers: { "Content-Type": "application/json", ...getAuthHeaders() },
               body: JSON.stringify({ id_number: form.vehicle_number })
             })
               .then(res => res.json())
@@ -1692,9 +1690,9 @@ export default function AddLeadWizard() {
                       onBlur={() => {
                         if (form.vehicle_number && form.vehicle_number.length >= 6 && form.case_type !== 'new_car_purchase' && (!rcData || rcData.rc_number !== form.vehicle_number)) {
                           toast.info('Fetching vehicle details...');
-                          fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/add-lead/details`, {
+                          fetch(`${API_URL}/add-lead/details`, {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+                            headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
                             body: JSON.stringify({ rc_number: form.vehicle_number, mobile: form.mobile })
                           })
                           .then(res => res.json())
@@ -1794,9 +1792,9 @@ export default function AddLeadWizard() {
                       onBlur={() => {
                         if (form.pan_number && form.pan_number.length === 10 && (!panData || panData.pan_number !== form.pan_number)) {
                           toast.info('Fetching PAN details...');
-                          fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/kyc/verify-pan`, {
+                          fetch(`${API_URL}/kyc/verify-pan`, {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+                            headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
                             body: JSON.stringify({ pan_number: form.pan_number })
                           })
                           .then(res => res.json())

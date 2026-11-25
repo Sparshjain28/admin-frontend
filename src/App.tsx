@@ -6,7 +6,6 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-route
 import React, { Suspense, lazy, useEffect } from "react";
 import { cleanupDigilocker } from "@/lib/digilockerCleanup";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
-import { RoleProvider } from "@/contexts/RoleContext";
 import { useScreenshotProtection } from "@/hooks/useScreenshotProtection";
 import DashboardLayout from "@/components/DashboardLayout";
 const Login = lazy(() => import("@/pages/Login"));
@@ -474,9 +473,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <AuthProvider>
-          <RoleProvider>
-            <AppRoutes />
-          </RoleProvider>
+          <AppRoutes />
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/lib/api';
+import { supabase, API_URL, getAuthHeaders } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { ArrowLeft, User, Car, IndianRupee, ArrowRight, FileText, Copy, X, ClipboardCheck, Share2, Phone, ExternalLink, History } from 'lucide-react';
 import { toast } from 'sonner';
@@ -28,8 +28,8 @@ export default function LeadDetail() {
     queryKey: ['banks-list'],
     queryFn: async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/banks`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+        const response = await fetch(`${API_URL}/banks`, {
+          headers: getAuthHeaders()
         });
         if (!response.ok) return [];
         return await response.json();
@@ -58,11 +58,9 @@ export default function LeadDetail() {
   const { data: lead, isLoading, error } = useQuery({
     queryKey: ['lead', id],
     queryFn: async () => {
-try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/leads/${id}`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-          }
+      try {
+        const response = await fetch(`${API_URL}/leads/${id}`, {
+          headers: getAuthHeaders()
         });
 if (!response.ok) {
           const errorText = await response.text();
@@ -79,11 +77,11 @@ throw error;
 
   const cloneMutation = useMutation({
     mutationFn: async (newFinancierId?: number) => {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/leads/${id}/clone`, {
+      const response = await fetch(`${API_URL}/leads/${id}/clone`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          ...getAuthHeaders()
         },
         body: JSON.stringify({ new_financier_id: newFinancierId })
       });
@@ -107,8 +105,8 @@ throw error;
 
   const handleConvertToLoan = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/loan-drafts/lead/${id}`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+      const response = await fetch(`${API_URL}/loan-drafts/lead/${id}`, {
+        headers: getAuthHeaders()
       });
       if (response.ok) {
         const draft = await response.json();

@@ -2,13 +2,12 @@ import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Car, Search, Loader2, AlertCircle, TrendingUp, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+import { API_URL, getAuthHeaders } from '@/lib/api';
 
 function authHeaders() {
   return {
     'Content-Type': 'application/json',
-    Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
+    ...getAuthHeaders(),
   };
 }
 

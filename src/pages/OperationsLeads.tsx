@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { api } from "@/lib/api";
+import { api, API_URL, getAuthHeaders } from "@/lib/api";
 import {
   Search,
   Eye,
@@ -285,12 +285,12 @@ setBillError(error.message || "Failed to map bill number and create payment requ
       setRcResults((prev) => ({ ...prev, [loan.id]: { loading: true } }));
       try {
         const res = await fetch(
-          `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/rc-verification/lookup`,
+          `${API_URL}/rc-verification/lookup`,
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+              ...getAuthHeaders(),
             },
             body: JSON.stringify({
               rc_number: loan.vehicle_number,
@@ -324,12 +324,12 @@ setBillError(error.message || "Failed to map bill number and create payment requ
           );
           
           const putRes = await fetch(
-            `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/loans/${loan.id}`,
+            `${API_URL}/loans/${loan.id}`,
             {
               method: "PUT",
               headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+                ...getAuthHeaders(),
               },
               body: JSON.stringify({ new_hpn: newHpn }),
             },
@@ -375,12 +375,12 @@ setBillError(error.message || "Failed to map bill number and create payment requ
     await Promise.all(
       ids.map((id) =>
         fetch(
-          `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/loans/${id}`,
+          `${API_URL}/loans/${id}`,
           {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+              ...getAuthHeaders(),
             },
             body: JSON.stringify({ pdd_status: status }),
           },
@@ -1104,8 +1104,8 @@ Created By                    </th>
                     setShowFolioDropdown(true);
                     try {
                       const res = await fetch(
-                        `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/folio-accounts`,
-                        { headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` } }
+                        `${API_URL}/accountant/folio-accounts`,
+                        { headers: getAuthHeaders() }
                       );
                       if (res.ok) {
                         const all = await res.json();

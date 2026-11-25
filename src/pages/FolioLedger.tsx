@@ -2,6 +2,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import LoanPayments from '@/components/LoanPayments';
 import { Car, Hash, User, FileText } from 'lucide-react';
+import { API_URL, getAuthHeaders } from '@/lib/api';
 
 export default function FolioLedger() {
   const [searchParams] = useSearchParams();
@@ -12,8 +13,8 @@ export default function FolioLedger() {
     queryKey: ['payment-case-details', loanId],
     queryFn: async () => {
       if (!loanId) return null;
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/payments/case-details/${loanId}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('auth_token')}` },
+      const res = await fetch(`${API_URL}/accountant/payments/case-details/${loanId}`, {
+        headers: getAuthHeaders(),
       });
       if (!res.ok) return null;
       return await res.json();
@@ -25,8 +26,8 @@ export default function FolioLedger() {
     queryKey: ['loan', loanId],
     queryFn: async () => {
       if (!loanId) return null;
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/loans/${loanId}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('auth_token')}` },
+      const res = await fetch(`${API_URL}/loans/${loanId}`, {
+        headers: getAuthHeaders(),
       });
       if (!res.ok) return null;
       return await res.json();
@@ -38,8 +39,8 @@ export default function FolioLedger() {
     queryKey: ['loan-payments', loanId],
     queryFn: async () => {
       if (!loanId) return [];
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/payments?loanId=${loanId}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('auth_token')}` },
+      const res = await fetch(`${API_URL}/accountant/payments?loanId=${loanId}`, {
+        headers: getAuthHeaders(),
       });
       if (!res.ok) return [];
       return await res.json();

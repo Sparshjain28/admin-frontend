@@ -9,6 +9,7 @@ import DraggableDocumentViewer from '@/components/DraggableDocumentViewer';
 import { createPortal } from 'react-dom';
 import { toast } from 'sonner';
 import html2canvas from 'html2canvas';
+import { API_URL, getAuthHeaders } from '@/lib/api';
 
 const ROLE_SHORT_LABELS: Record<string, string> = {
   executive: 'Executive',
@@ -29,8 +30,8 @@ function ApprovedPayments({ folio, onOpenViewer }: { folio: any; onOpenViewer?: 
       if (folio.loan_id) params.append('loanId', folio.loan_id.toString());
       if (folio.bill_number) params.append('billNumber', folio.bill_number);
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/payments?${params}`,
-        { headers: { Authorization: `Bearer ${localStorage.getItem('auth_token')}` } }
+        `${API_URL}/accountant/payments?${params}`,
+        { headers: getAuthHeaders() }
       );
       if (!res.ok) return [];
       const data = await res.json();
@@ -77,11 +78,11 @@ export default function FolioDetails() {
   const handleManualTallySync = async () => {
     setIsSyncingTally(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/tally/sync-now`, {
+      const response = await fetch(`${API_URL}/accountant/tally/sync-now`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          ...getAuthHeaders()
         }
       });
       const data = await response.json();
@@ -154,8 +155,8 @@ export default function FolioDetails() {
       setSearchLoading(true);
       try {
         const res = await fetch(
-          `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/loans?search=${encodeURIComponent(searchQuery)}`,
-          { headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` } }
+          `${API_URL}/loans?search=${encodeURIComponent(searchQuery)}`,
+          { headers: getAuthHeaders() }
         );
         if (res.ok) {
           const data = await res.json();
@@ -188,9 +189,9 @@ export default function FolioDetails() {
       if (folioId) {
         try {
           const res = await fetch(
-            `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/folio-accounts`,
+            `${API_URL}/accountant/folio-accounts`,
             {
-              headers: { Authorization: `Bearer ${localStorage.getItem('auth_token')}` },
+              headers: getAuthHeaders(),
             }
           );
           if (!res.ok) return null;
@@ -208,9 +209,9 @@ export default function FolioDetails() {
       // If loanId is provided, find by loan_id
       if (loanId) {
         const res = await fetch(
-          `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/folio-accounts`,
+          `${API_URL}/accountant/folio-accounts`,
           {
-            headers: { Authorization: `Bearer ${localStorage.getItem('auth_token')}` },
+            headers: getAuthHeaders(),
           }
         );
         if (!res.ok) return null;
@@ -266,8 +267,8 @@ export default function FolioDetails() {
   const { data: lenders = [] } = useQuery({
     queryKey: ['lenders-for-folio-edit'],
     queryFn: async () => {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/banks`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+      const response = await fetch(`${API_URL}/banks`, {
+        headers: getAuthHeaders()
       });
       if (!response.ok) return [];
       return await response.json();
@@ -362,10 +363,10 @@ export default function FolioDetails() {
     setIsSubmittingPayment(true);
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/folio-accounts/${folio.id}/payment-received`,
+        `${API_URL}/accountant/folio-accounts/${folio.id}/payment-received`,
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+          headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
           body: JSON.stringify({ amount: parseFloat(paymentAmount), remarks: paymentRemarks }),
         }
       );
@@ -905,9 +906,9 @@ export default function FolioDetails() {
                   if (editData.selectedLoanId) {
                     body.loan_id = editData.selectedLoanId;
                   }
-                  const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/folio-accounts/${folio.id}`, {
+                  const res = await fetch(`${API_URL}/accountant/folio-accounts/${folio.id}`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+                    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
                     body: JSON.stringify(body),
                   });
                   if (!res.ok) {

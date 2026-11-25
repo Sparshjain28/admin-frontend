@@ -27,9 +27,7 @@ export default function Reports() {
   const { data: loans = [], isLoading } = useQuery({
     queryKey: ['loans-reports'],
     queryFn: async () => {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/loans`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
-      });
+      const res = await fetch(`${API_URL}/loans`, { headers: getAuthHeaders() });
       if (!res.ok) throw new Error('Failed to fetch loans');
       return res.json();
     },

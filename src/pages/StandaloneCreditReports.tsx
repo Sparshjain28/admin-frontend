@@ -19,19 +19,7 @@ import {
   filterReportsByOverdueAmount,
   extractAllLenders
 } from '@/utils/creditReportFilters';
-
-function getAPI() {
-  return import.meta.env.VITE_API_URL || '/api';
-}
-
-function authHeaders() {
-  const token = localStorage.getItem('auth_token');
-  if (!token) throw new Error('Authentication token not found. Please log in again.');
-  return {
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${token}`,
-  };
-}
+import { API_URL, getAuthHeaders } from '@/lib/api';
 
 interface CreditReport {
   id: number;
@@ -177,7 +165,7 @@ export default function StandaloneCreditReports() {
     }
     const toastId = toast.loading('Loading full report details...');
     try {
-      const res = await fetch(`${getAPI()}/credit-reports/standalone/${report.id}`, { headers: authHeaders() });
+      const res = await fetch(`${API_URL}/credit-reports/standalone/${report.id}`, { headers: getAuthHeaders() });
       if (!res.ok) throw new Error('Failed to load full report');
       const data = await res.json();
       if (data.success && data.report) {
@@ -203,10 +191,10 @@ export default function StandaloneCreditReports() {
       // demand), so this was tripling+ the payload on every ordinary load.
       const reportDataParam = activeFilters ? '&include_report_data=true' : '';
       const url = user?.role === 'sales_manager'
-        ? `${getAPI()}/credit-reports/standalone?search=${searchTerm}&created_by=${user.id}${reportDataParam}`
-        : `${getAPI()}/credit-reports/standalone?search=${searchTerm}${reportDataParam}`;
+        ? `${API_URL}/credit-reports/standalone?search=${searchTerm}&created_by=${user.id}${reportDataParam}`
+        : `${API_URL}/credit-reports/standalone?search=${searchTerm}${reportDataParam}`;
       const res = await fetch(url, {
-        headers: authHeaders(),
+        headers: getAuthHeaders(),
       });
       if (!res.ok) throw new Error('Failed to fetch reports');
       return res.json();
@@ -218,9 +206,9 @@ export default function StandaloneCreditReports() {
       const nameParts = payload.customerName.trim().split(/\s+/);
       const firstName = nameParts[0] || '';
       const lastName = nameParts.slice(1).join(' ') || '';
-      const res = await fetch(`${getAPI()}/link-loan/credit-report`, {
+      const res = await fetch(`${API_URL}/link-loan/credit-report`, {
         method: 'POST',
-        headers: authHeaders(),
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
         body: JSON.stringify({
           name: `${firstName} ${lastName}`.trim(),
           mobile: payload.mobile.trim(),
@@ -236,9 +224,9 @@ export default function StandaloneCreditReports() {
     onSuccess: async ({ reportData: data, payload }) => {
       toast.success('Credit report fetched! Saving...');
       try {
-        const saveRes = await fetch(`${getAPI()}/credit-reports/standalone/save`, {
+        const saveRes = await fetch(`${API_URL}/credit-reports/standalone/save`, {
           method: 'POST',
-          headers: authHeaders(),
+          headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
           body: JSON.stringify({
             customerName: payload.customerName,
             mobile: payload.mobile.trim(),
@@ -250,8 +238,8 @@ export default function StandaloneCreditReports() {
         const saveData = await saveRes.json();
         if (!saveRes.ok) throw new Error(saveData.message || 'Failed to save');
         await queryClient.invalidateQueries({ queryKey: ['standalone-credit-reports'] });
-        const listRes = await fetch(`${getAPI()}/credit-reports/standalone/${saveData.reportId}`, {
-          headers: authHeaders(),
+        const listRes = await fetch(`${API_URL}/credit-reports/standalone/${saveData.reportId}`, {
+          headers: getAuthHeaders(),
         });
         const listData = await listRes.json();
         setShowPanel(false);
@@ -278,8 +266,8 @@ export default function StandaloneCreditReports() {
     const toastId = toast.loading('Checking existing reports in database...');
 
     try {
-      const checkRes = await fetch(`${getAPI()}/credit-reports/standalone/check?mobile=${formData.mobile.trim()}`, {
-        headers: authHeaders(),
+      const checkRes = await fetch(`${API_URL}/credit-reports/standalone/check?mobile=${formData.mobile.trim()}`, {
+        headers: getAuthHeaders(),
       });
 
       if (checkRes.ok) {
@@ -298,9 +286,9 @@ export default function StandaloneCreditReports() {
       }
       
       // Check crif_cibil_cache
-      const cacheCheckRes = await fetch(`${getAPI()}/link-loan/credit-report`, {
+      const cacheCheckRes = await fetch(`${API_URL}/link-loan/credit-report`, {
         method: 'POST',
-        headers: authHeaders(),
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
         body: JSON.stringify({
           name: formData.customerName,
           mobile: formData.mobile.trim(),
@@ -379,9 +367,9 @@ export default function StandaloneCreditReports() {
       const formData = new FormData();
       formData.append('excel_file', file);
       
-      const res = await fetch(`${getAPI()}/credit-reports/standalone/bulk-upload`, {
+      const res = await fetch(`${API_URL}/credit-reports/standalone/bulk-upload`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${localStorage.getItem('auth_token')}` },
+        headers: getAuthHeaders(),
         body: formData
       });
       
@@ -402,7 +390,7 @@ export default function StandaloneCreditReports() {
       // Polling loop
       const pollInterval = setInterval(async () => {
         try {
-          const statusRes = await fetch(`${getAPI()}/credit-reports/standalone/bulk-upload/${jobId}/status`, { headers: authHeaders() });
+          const statusRes = await fetch(`${API_URL}/credit-reports/standalone/bulk-upload/${jobId}/status`, { headers: getAuthHeaders() });
           if (!statusRes.ok) return;
           const statusData = await statusRes.json();
           

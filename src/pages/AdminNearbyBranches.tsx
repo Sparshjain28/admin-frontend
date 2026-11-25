@@ -3,14 +3,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { MapPin, Search, Loader2, AlertCircle, CheckCircle2, Phone, User, Building2, Map, Download, Copy } from 'lucide-react';
 import { toast } from 'sonner';
 import { Navigate } from 'react-router-dom';
-import { resolveImageUrl } from '@/services/api';
-
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+import { API_URL, getAuthHeaders, resolveImageUrl } from '@/lib/api';
 
 function authHeaders() {
   return {
     'Content-Type': 'application/json',
-    Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
+    ...getAuthHeaders(),
   };
 }
 
@@ -118,7 +116,7 @@ export default function AdminNearbyBranches() {
       addLog(`   Radius: ${radius}km`);
       addLog(`   Case Type: ${caseType || 'All'}`);
 
-      const response = await fetch(`${API}/find-lender/search`, {
+      const response = await fetch(`${API_URL}/find-lender/search`, {
         method: 'POST',
         headers: authHeaders(),
         body: JSON.stringify({

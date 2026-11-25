@@ -15,30 +15,18 @@ import MobileDashboard from '@/components/MobileDashboard';
 const STATUS_CHART_COLORS = ['#3b82f6', '#60a5fa', '#93c5fd', '#2563eb', '#1d4ed8', '#1e40af', '#1e3a8a'];
 const PIE_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
-interface DashboardContextType {
-  timeline: string;
-  setTimeline: (value: string) => void;
-  dateRange: { start: string; end: string };
-  setDateRange: (value: { start: string; end: string }) => void;
-  showExportMenu: boolean;
-  setShowExportMenu: (value: boolean) => void;
-  isGeneratingPDF: boolean;
-  setIsGeneratingPDF: (value: boolean) => void;
-  handleExportDashboard?: () => Promise<void>;
-  handleViewDashboard?: () => Promise<void>;
-  handleShareDashboard?: () => Promise<void>;
-}
+import {
+  DashboardContext,
+  useDashboardContext,
+  useDashboardContextSafe,
+  type DashboardContextType
+} from '@/contexts/DashboardContext';
 
-export const DashboardContext = React.createContext<DashboardContextType | null>(null);
-
-export const useDashboardContext = () => {
-  const context = React.useContext(DashboardContext);
-  if (!context) throw new Error('useDashboardContext must be used within Dashboard');
-  return context;
-};
-
-export const useDashboardContextSafe = () => {
-  return React.useContext(DashboardContext);
+export {
+  DashboardContext,
+  useDashboardContext,
+  useDashboardContextSafe,
+  type DashboardContextType
 };
 
 const DASHBOARD_TITLES: { [key in UserRole]: string } = {
@@ -91,8 +79,8 @@ export default function Dashboard() {
     queryKey: ['sales-managers'],
     queryFn: async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/users/by-role?roles=sales_manager`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+        const response = await fetch(`${API_URL}/users/by-role?roles=sales_manager`, {
+          headers: getAuthHeaders()
         });
         if (!response.ok) return [];
         return await response.json();
@@ -107,8 +95,8 @@ export default function Dashboard() {
     queryKey: ['user-permissions', user?.role],
     queryFn: async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/permissions/dashboard`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+        const response = await fetch(`${API_URL}/permissions/dashboard`, {
+          headers: getAuthHeaders()
         });
         if (!response.ok) return null;
         const allPerms = await response.json();
@@ -148,8 +136,8 @@ export default function Dashboard() {
         if (bankDistributionFilter !== 'ALL') {
           params.append('bankDistributionFilter', bankDistributionFilter);
         }
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/dashboard/stats?${params}`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+        const response = await fetch(`${API_URL}/dashboard/stats?${params}`, {
+          headers: getAuthHeaders()
         });
         if (!response.ok) return null;
         return await response.json();
@@ -173,8 +161,8 @@ export default function Dashboard() {
         if (selectedManager) {
           params.append('managerId', selectedManager.toString());
         }
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/dashboard/performance?${params}`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+        const response = await fetch(`${API_URL}/dashboard/performance?${params}`, {
+          headers: getAuthHeaders()
         });
         if (!response.ok) return [];
         return await response.json();
@@ -411,8 +399,8 @@ export default function Dashboard() {
     useEffect(() => {
       const fetchTimerConfig = async () => {
         try {
-          const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/config/key/login_stage_enabled`, {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+          const response = await fetch(`${API_URL}/config/key/login_stage_enabled`, {
+            headers: getAuthHeaders()
           });
           if (response.ok) {
             const config = await response.json();
@@ -437,8 +425,8 @@ export default function Dashboard() {
             params.append('managerId', selectedManager.toString());
           }
 
-          const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/loans/burst-table?${params}`, {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+          const response = await fetch(`${API_URL}/loans/burst-table?${params}`, {
+            headers: getAuthHeaders()
           });
           if (response.ok) {
             const data = await response.json();

@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { api } from '@/lib/api';
-import { useRole } from '@/contexts/RoleContext';
+import { api, API_BASE_URL } from '@/lib/api';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { Copy, Key, Terminal, Download, Settings, Activity, Plus, Loader2, BookOpen, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { API_BASE_URL } from '@/services/api';
 
 const formatJsonExample = (obj: unknown) => JSON.stringify(obj, null, 2);
 
@@ -15,7 +14,8 @@ const formatJsonExample = (obj: unknown) => JSON.stringify(obj, null, 2);
 const ALLOWED_ROLES = ['super_admin', 'admin'];
 
 export default function LoansApiIntegration() {
-  const { role, authUser } = useRole();
+  const { user } = useAuth();
+  const role = user?.role;
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [targetUserId, setTargetUserId] = useState<string>('');

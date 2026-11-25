@@ -38,7 +38,7 @@ export default function DownloadDocuments() {
         const fetchedFiles = [];
 
         for (const docId of documentIds) {
-          const downloadUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/documents/${docId}/download?loan_id=${id}`;
+          const downloadUrl = `${API_URL}/documents/${docId}/download?loan_id=${id}`;
           const response = await fetch(downloadUrl);
           if (!response.ok) throw new Error(`Failed to fetch document ${docId}`);
           const blob = await response.blob();

@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api, supabase } from '@/lib/api';
+import { api, supabase, API_URL, getAuthHeaders } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 import { HierarchyDropdown } from '@/components/HierarchyDropdown';
@@ -118,8 +118,8 @@ export default function CreateLoan() {
     queryKey: ['banks-list'],
     queryFn: async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/banks?product=used_car_loan`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+        const response = await fetch(`${API_URL}/banks?product=used_car_loan`, {
+          headers: getAuthHeaders()
         });
         if (!response.ok) return [];
         const data = await response.json();
@@ -134,8 +134,8 @@ export default function CreateLoan() {
     queryKey: ['lenders-from-banks'],
     queryFn: async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/banks?product=used_car_loan`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+        const response = await fetch(`${API_URL}/banks?product=used_car_loan`, {
+          headers: getAuthHeaders()
         });
         if (!response.ok) {
           return ['Others']; // Fallback
@@ -154,8 +154,8 @@ export default function CreateLoan() {
     queryKey: ['assignable-users'],
     queryFn: async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/users/by-role?roles=branch_manager,dsa,executive`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+        const response = await fetch(`${API_URL}/users/by-role?roles=branch_manager,dsa,executive`, {
+          headers: getAuthHeaders()
         });
         if (!response.ok) return [];
         return await response.json();
@@ -170,8 +170,8 @@ export default function CreateLoan() {
     queryKey: ['brokers'],
     queryFn: async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/brokers`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+        const response = await fetch(`${API_URL}/brokers`, {
+          headers: getAuthHeaders()
         });
         if (!response.ok) return [];
         return await response.json();
@@ -184,8 +184,8 @@ export default function CreateLoan() {
   const { data: configs = [] } = useQuery({
     queryKey: ['system-config'],
     queryFn: async () => {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/config`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+      const response = await fetch(`${API_URL}/config`, {
+        headers: getAuthHeaders()
       });
       return response.ok ? await response.json() : [];
     },
@@ -195,8 +195,8 @@ export default function CreateLoan() {
     queryKey: ['leads-for-dropdown'],
     queryFn: async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/leads`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+        const response = await fetch(`${API_URL}/leads`, {
+          headers: getAuthHeaders()
         });
         if (!response.ok) return [];
         return await response.json();
@@ -222,9 +222,7 @@ export default function CreateLoan() {
       if (user.role && ['admin', 'ops_team', 'sales_manager', 'manager', 'branch_manager', 'dsa', 'team_leader'].includes(user.role)) {
         const isGlobal = user.role === 'admin' || user.role === 'ops_team';
         const endpoint = isGlobal ? '/users/hierarchy' : '/users/my-team/hierarchy';
-        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-        
-        fetch(`${API_URL}${endpoint}`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` } })
+        fetch(`${API_URL}${endpoint}`, { headers: getAuthHeaders() })
           .then(res => res.json())
           .then(data => {
             const ROLE_PRIORITY: Record<string, number> = {
@@ -320,10 +318,9 @@ export default function CreateLoan() {
   const checkLinkLoansForBank = async (lenderName: string) => {
     if (!lenderName || lenderName === 'Others' || !form.vehicleNumber) return;
     try {
-      const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-      const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` };
+      const headers = { 'Content-Type': 'application/json', ...getAuthHeaders() };
       // Fetch credit report for the customer
-      const res = await fetch(`${API}/link-loan/credit-report`, {
+      const res = await fetch(`${API_URL}/link-loan/credit-report`, {
         method: 'POST',
         headers,
         body: JSON.stringify({
@@ -348,7 +345,7 @@ export default function CreateLoan() {
       if (bankLoans.length > 1) {
         // Auto-tag as link loan
         try {
-          await fetch(`${API}/link-loan/tag-lead`, {
+          await fetch(`${API_URL}/link-loan/tag-lead`, {
             method: 'POST',
             headers,
             body: JSON.stringify({ rc_number: form.vehicleNumber, lender: lenderName, link_loans: bankLoans, auto_tagged: true }),
@@ -382,8 +379,8 @@ export default function CreateLoan() {
     if (!matchedBank) return;
     setLoadingBranches(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/banks/${matchedBank.id}/branches`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+      const res = await fetch(`${API_URL}/banks/${matchedBank.id}/branches`, {
+        headers: getAuthHeaders()
       });
       if (res.ok) {
         const data = await res.json();
@@ -417,8 +414,8 @@ export default function CreateLoan() {
   const fetchLeadDocuments = async (leadId: number) => {
     setFetchingDocuments(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/documents/lead/${leadId}`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+      const response = await fetch(`${API_URL}/documents/lead/${leadId}`, {
+        headers: getAuthHeaders()
       });
       
       if (response.ok) {
@@ -460,14 +457,14 @@ console.log('Document types received:', documents.map((d: any) => d.document_typ
         for (const doc of documents) {
           const docType = doc.document_type?.toLowerCase().trim() || '';
           const formField = docTypeMap[docType];
-          const downloadUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/documents/${doc.id}/download`;
+          const downloadUrl = `${API_URL}/documents/${doc.id}/download`;
 if (!formField) {
 continue;
           }
           
           try {
             const fileResponse = await fetch(downloadUrl, {
-              headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+              headers: getAuthHeaders()
             });
             
             if (fileResponse.ok) {
@@ -557,10 +554,9 @@ failedCount++;
     };
 
     try {
-      const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/rc-verification/lookup`;
-      const res = await fetch(apiUrl, {
+      const res = await fetch(`${API_URL}/rc-verification/lookup`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
         body: JSON.stringify({ rc_number: rcNumber, _source: 'loan-application', force_fresh: isSecondClick }),
       });
       const data = await res.json();
@@ -698,8 +694,8 @@ failedCount++;
   // Fetch saved draft for a lead
   const fetchDraftForLead = async (leadId: number) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/loan-drafts/lead/${leadId}`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+      const response = await fetch(`${API_URL}/loan-drafts/lead/${leadId}`, {
+        headers: getAuthHeaders()
       });
       
       if (response.ok) {
@@ -886,11 +882,11 @@ failedCount++;
 // Debug log
 // Debug log
       
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/loans`, {
+      const res = await fetch(`${API_URL}/loans`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+          ...getAuthHeaders(),
         },
         body: JSON.stringify({
           id: loanId,
@@ -1014,9 +1010,9 @@ failedCount++;
       const draftId = sessionStorage.getItem('current_draft_id');
       if (draftId) {
         try {
-          await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/loan-drafts/${draftId}`, {
+          await fetch(`${API_URL}/loan-drafts/${draftId}`, {
             method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+            headers: getAuthHeaders(),
           });
           sessionStorage.removeItem('current_draft_id');
         } catch (err) {
@@ -1045,9 +1041,9 @@ failedCount++;
           formData.append('document_type', docType);
           if (leadId) formData.append('lead_id', String(leadId));
           if (loanId) formData.append('loan_id', String(loanId));
-          return fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/documents`, {
+          return fetch(`${API_URL}/documents`, {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+            headers: getAuthHeaders(),
             body: formData,
           });
         });
@@ -1065,9 +1061,9 @@ failedCount++;
         pdfFormData.append('loan_id', String(data.id));
         if (selectedLeadId) pdfFormData.append('lead_id', String(selectedLeadId));
 
-        const pdfUploadResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/documents`, {
+        const pdfUploadResponse = await fetch(`${API_URL}/documents`, {
           method: 'POST',
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+          headers: getAuthHeaders(),
           body: pdfFormData,
         });
 
@@ -1158,11 +1154,11 @@ failedCount++;
         payload.draft_id = Number(existingDraftId);
       }
       
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/loan-drafts`, {
+      const response = await fetch(`${API_URL}/loan-drafts`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+          ...getAuthHeaders(),
         },
         body: JSON.stringify(payload),
       });

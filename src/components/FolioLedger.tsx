@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { TrendingDown } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { API_URL, getAuthHeaders } from '@/lib/api';
 
 interface FolioLedgerProps {
   folioId?: string | null;
@@ -43,7 +44,7 @@ export default function FolioLedger({
   onCloseViewer,
 }: FolioLedgerProps) {
   const handleOpenDoc = (filePath: string, docId: number) => {
-    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const baseUrl = API_URL;
     const url = filePath.startsWith('http') ? filePath : `${baseUrl}${filePath.startsWith('/') ? '' : '/'}${filePath}`;
     if (onOpenViewer) {
       onOpenViewer(url, docId);
@@ -63,12 +64,12 @@ export default function FolioLedger({
     }
     setIsSubmittingPayment(true);
     try {
-      const url = `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/accountant/folio-accounts/${folioId}/payment-received`;
+      const url = `${API_URL}/accountant/folio-accounts/${folioId}/payment-received`;
       const res = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+          ...getAuthHeaders(),
         },
         body: JSON.stringify({ amount: parseFloat(paymentAmount) }),
       });
@@ -115,11 +116,9 @@ export default function FolioLedger({
       if (!folioId) {
         return [];
       }
-      const url = `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/accountant/folio-ledger/${folioId}`;
+      const url = `${API_URL}/accountant/folio-ledger/${folioId}`;
       const res = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
-        },
+        headers: getAuthHeaders(),
       });
       if (!res.ok) {
         return [];

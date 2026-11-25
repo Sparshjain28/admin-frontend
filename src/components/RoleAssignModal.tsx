@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { ROLE_LABELS } from '@/lib/auth';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
+import { API_URL, getAuthHeaders } from '@/lib/api';
 
 interface RoleAssignModalProps {
   open: boolean;
@@ -85,8 +86,8 @@ export function RoleAssignModal({ open, onClose, onSuccess, user: targetUser, de
   const { data: branchesData } = useQuery({
     queryKey: ['branches', branchSearch],
     queryFn: async () => {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/branches?limit=50&search=${branchSearch}`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+      const res = await fetch(`${API_URL}/branches?limit=50&search=${branchSearch}`, {
+        headers: getAuthHeaders(),
       });
       if (!res.ok) throw new Error('Failed to fetch branches');
       return res.json();
@@ -98,8 +99,8 @@ export function RoleAssignModal({ open, onClose, onSuccess, user: targetUser, de
   const { data: managers = [] } = useQuery({
     queryKey: ['managers', role],
     queryFn: async () => {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/users`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+      const res = await fetch(`${API_URL}/users`, {
+        headers: getAuthHeaders(),
       });
       if (!res.ok) throw new Error('Failed to fetch users');
       const users = await res.json();
@@ -123,8 +124,8 @@ export function RoleAssignModal({ open, onClose, onSuccess, user: targetUser, de
   const { data: dsas = [] } = useQuery({
     queryKey: ['dsas'],
     queryFn: async () => {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/users`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+      const res = await fetch(`${API_URL}/users`, {
+        headers: getAuthHeaders(),
       });
       if (!res.ok) throw new Error('Failed to fetch users');
       const users = await res.json();
@@ -192,11 +193,11 @@ export function RoleAssignModal({ open, onClose, onSuccess, user: targetUser, de
     try {
       if (targetUser) {
         // Update existing user
-        const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/users/${targetUser.id}`, {
+        const res = await fetch(`${API_URL}/users/${targetUser.id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+            ...getAuthHeaders(),
           },
           body: JSON.stringify({
             full_name: fullName,
@@ -219,11 +220,11 @@ export function RoleAssignModal({ open, onClose, onSuccess, user: targetUser, de
         }
       } else {
         // Create new user
-        const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/users`, {
+        const res = await fetch(`${API_URL}/users`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+            ...getAuthHeaders(),
           },
           body: JSON.stringify({
             full_name: fullName,

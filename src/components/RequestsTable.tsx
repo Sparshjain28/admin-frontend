@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { Eye, XCircle } from 'lucide-react';
+import { API_BASE_URL, resolveImageUrl } from '@/lib/api';
 
 const getStatusBadge = (status: string, txnType?: string, purpose?: string) => {
   const isBillMapping = txnType === 'BILL_MAPPING_REQUEST' || purpose === 'REQUEST RAISED FOR BILL MAPPING';
@@ -63,8 +64,7 @@ const getStatusLabel = (status: string, txnType?: string, purpose?: string) => {
 
 export default function RequestsTable({ requests, showActions, onViewLedger, onReject, onOpenViewer }: RequestsTableProps) {
   const handleOpenDoc = (filePath: string, docId: number) => {
-    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-    const url = filePath.startsWith('http') ? filePath : `${baseUrl}${filePath.startsWith('/') ? '' : '/'}${filePath}`;
+    const url = resolveImageUrl(filePath) || filePath;
     if (onOpenViewer) {
       onOpenViewer(url, docId);
     } else {

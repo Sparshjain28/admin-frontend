@@ -28,8 +28,8 @@ export default function DBView() {
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['accountant-db-view', user?.id, selectedTable],
     queryFn: async () => {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/db-view?table=${selectedTable}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('auth_token')}` }
+      const res = await fetch(`${API_URL}/accountant/db-view?table=${selectedTable}`, {
+        headers: getAuthHeaders()
       });
       if (!res.ok) throw new Error('Failed to load DB view');
       return await res.json();
@@ -114,11 +114,11 @@ export default function DBView() {
     if (selectedRowIds.length === 0) return;
     setDeletingRows(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/db-view/delete`, {
+      const res = await fetch(`${API_URL}/accountant/db-view/delete`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('auth_token')}`
+          ...getAuthHeaders()
         },
         body: JSON.stringify({ table: selectedTable, ids: selectedRowIds })
       });

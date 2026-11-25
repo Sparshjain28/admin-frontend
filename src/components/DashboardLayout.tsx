@@ -13,8 +13,8 @@ import MobilePremiumDrawer from './MobilePremiumDrawer';
 import Navbar from './Navbar';
 import { toast } from 'sonner';
 import NotificationBell from './NotificationBell';
-import { useDashboardContextSafe } from '@/pages/Dashboard';
 import { usePermission } from "@/hooks/usePermission";
+import { API_URL, getAuthHeaders } from "@/lib/api";
 
 
 export interface NavItem {
@@ -116,7 +116,6 @@ export const NAV_ITEMS: NavItem[] = [
 
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
-  // const { user, logout } = useAuth();
   const { user, permissions, logout } = useAuth();
   const logo = "/Finonest%20logo.png?v=2";
   const location = useLocation();
@@ -127,14 +126,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const { data: pageConfigs = [] } = useQuery({
     queryKey: ["system-config"],
     queryFn: async () => {
-      const token = localStorage.getItem("auth_token");
-      if (!token) return [];
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/config`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
+      const headers = getAuthHeaders();
+      if (!headers.Authorization) return [];
+      const res = await fetch(`${API_URL}/config`, { headers });
       return res.ok ? res.json() : [];
     },
     staleTime: 60_000,
@@ -760,15 +754,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       </aside>
 
       {/* Mobile Premium 3D Drawer (Hidden on Desktop) */}
-      {/* <MobilePremiumDrawer
-        sidebarOpen={sidebarOpen}
-        setSidebarOpen={setSidebarOpen}
-        filteredNav={filteredNav}
-        user={user}
-        initials={initials}
-        handleLogout={handleLogout}
-      /> */}
-
       <MobilePremiumDrawer
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}

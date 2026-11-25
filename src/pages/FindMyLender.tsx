@@ -3,6 +3,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { MapPin, Search, Phone, User, Building2, Loader2, AlertCircle, CheckCircle2, Map, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Navigate } from 'react-router-dom';
+import { API_URL, getAuthHeaders } from '@/lib/api';
+
 declare const google: any;
 declare global {
   interface Window {
@@ -10,15 +12,7 @@ declare global {
   }
 }
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 const GOOGLE_MAPS_API_KEY = 'AIzaSyBMkTPRdi-YeWJO-tLIdQ44hNLKsV-YfAE';
-
-function authHeaders() {
-  return {
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
-  };
-}
 
 interface AddressSuggestion {
   place_id: string;
@@ -65,7 +59,7 @@ async function getAddressSuggestions(input: string): Promise<AddressSuggestion[]
   try {
     const response = await fetch(`${API_URL}/google-maps/autocomplete`, {
       method: 'POST',
-      headers: authHeaders(),
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
       body: JSON.stringify({ input })
     });
 
@@ -84,7 +78,7 @@ async function getPlaceDetails(placeId: string): Promise<{ lat: number; lng: num
   try {
     const response = await fetch(`${API_URL}/google-maps/place-details`, {
       method: 'POST',
-      headers: authHeaders(),
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
       body: JSON.stringify({ place_id: placeId })
     });
 
@@ -102,7 +96,7 @@ async function geocodeAddress(addr: string) {
   try {
     const response = await fetch(`${API_URL}/google-maps/geocode`, {
       method: 'POST',
-      headers: authHeaders(),
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
       body: JSON.stringify({ address: addr })
     });
 
@@ -369,8 +363,6 @@ export default function FindMyLender() {
       return;
     }
 
-    console.log('🔍 [FRONTEND] Case type:', caseType);
-
     if (!address.trim()) {
       toast.error('Please enter an address');
       return;
@@ -381,7 +373,7 @@ export default function FindMyLender() {
     try {
       const response = await fetch(`${API_URL}/find-lender/search-by-address`, {
         method: 'POST',
-        headers: authHeaders(),
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
         body: JSON.stringify({
           address: address.trim(),
           case_type: caseType || null
@@ -389,10 +381,7 @@ export default function FindMyLender() {
         signal: AbortSignal.timeout(90000) // 90 second timeout
       });
 
-      const endFetch = performance.now();
       const data = await response.json();
-      console.log('   - Status:', response.ok ? '✅ OK' : '❌ Error');
-      console.log('   - Search stats:', data.stats);
       if (!response.ok) {
         toast.error(data.error || 'Search failed');
         setLoading(false);
@@ -409,7 +398,6 @@ export default function FindMyLender() {
 
       // Filter lenders to only keep serviceable ones and extract their single nearest branch
       const eligibleLenders = data.lenders.filter((lender: Lender) => lender.is_serviceable && lender.nearest_branch);
-      console.log('   - Total eligible lenders:', eligibleLenders.length);
       const allBranches = eligibleLenders.map((lender: Lender) => lender.nearest_branch);
       const branchesWithCoords = allBranches.filter(b =>
         b &&
@@ -422,15 +410,7 @@ export default function FindMyLender() {
       setLenders(eligibleLenders);
       setSearched(true);
 
-      const endProcess = performance.now();
-      console.log(`⏱️  [FRONTEND] TOTAL TIME (including geocoding): ${(endProcess - startSearch).toFixed(2)}ms`);
-
       if (eligibleLenders.length === 0) {
-        console.log('   - All lenders from API:', data.lenders);
-        data.lenders.forEach((lender: any, idx: number) => {
-          console.log(`      - is_serviceable: ${lender.is_serviceable}`);
-          console.log(`      - serviceable branches: ${lender.branches.filter((b: any) => b.is_serviceable).length}`);
-        });
         toast.info('No eligible lenders found for this location and loan type');
       } else {
         toast.success(`Found ${eligibleLenders.length} eligible lenders`);
@@ -438,7 +418,7 @@ export default function FindMyLender() {
 
       await fetch(`${API_URL}/find-lender/save-search`, {
         method: 'POST',
-        headers: authHeaders(),
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
         body: JSON.stringify({
           latitude: customerCoords.lat,
           longitude: customerCoords.lng,

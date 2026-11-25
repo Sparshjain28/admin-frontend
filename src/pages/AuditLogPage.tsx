@@ -6,7 +6,7 @@ import {
   ShieldAlert, Users, PlusCircle, Pencil, XCircle, X,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { api } from '@/lib/api';
+import { api, API_URL, getAuthHeaders } from '@/lib/api';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -179,12 +179,12 @@ export default function AuditLogPage() {
   const deleteLogs = useMutation({
     mutationFn: async ({ fromDate, toDate }: { fromDate: string; toDate: string }) => {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/audit-logs/delete-range`,
+        `${API_URL}/audit-logs/delete-range`,
         {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+            ...getAuthHeaders(),
           },
           body: JSON.stringify({ fromDate, toDate }),
         }
@@ -220,8 +220,8 @@ export default function AuditLogPage() {
     try {
       const params = new URLSearchParams(Object.fromEntries(Object.entries(filters).filter(([, v]) => v)));
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/audit-logs/export?${params}`,
-        { headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` } }
+        `${API_URL}/audit-logs/export?${params}`,
+        { headers: getAuthHeaders() }
       );
       if (!response.ok) throw new Error('Export failed');
       const blob = await response.blob();

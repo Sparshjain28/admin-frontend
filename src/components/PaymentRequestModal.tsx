@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { FloatingLabelInput, FloatingLabelSelect } from '@/components/FloatingLabelInput';
 import { toast } from 'sonner';
 import { X } from 'lucide-react';
+import { API_URL, getAuthHeaders } from '@/lib/api';
 
 function compressImage(file: File, maxSizeMB = 1, maxWidth = 1920): Promise<File> {
   return new Promise((resolve) => {
@@ -89,8 +90,8 @@ export default function PaymentRequestModal({ loanId: propLoanId, folio, initial
   const { data: userLoans = [] } = useQuery({
     queryKey: ['user-loans-modal'],
     queryFn: async () => {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/user-loans`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('auth_token')}` }
+      const res = await fetch(`${API_URL}/accountant/user-loans`, {
+        headers: getAuthHeaders()
       });
       if (!res.ok) return [];
       return res.json();
@@ -101,8 +102,8 @@ export default function PaymentRequestModal({ loanId: propLoanId, folio, initial
   const { data: loan, isLoading: loanLoading } = useQuery({
     queryKey: ['loan', activeLoanId],
     queryFn: async () => {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/loans/${activeLoanId}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('auth_token')}` }
+      const res = await fetch(`${API_URL}/loans/${activeLoanId}`, {
+        headers: getAuthHeaders()
       });
       if (!res.ok) throw new Error('Failed to fetch loan');
       return res.json();
@@ -144,9 +145,9 @@ export default function PaymentRequestModal({ loanId: propLoanId, folio, initial
     setBankVerifyError('');
     setBankVerifyAttempted(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/kyc/verify-bank`, {
+      const res = await fetch(`${API_URL}/kyc/verify-bank`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('auth_token')}` },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
         body: JSON.stringify({ id_number: accountNumber, ifsc: ifscCode, loan_id: activeLoanId }),
       });
       if (res.ok) {
@@ -226,9 +227,9 @@ export default function PaymentRequestModal({ loanId: propLoanId, folio, initial
       if (payload.paymentProofs) {
         payload.paymentProofs.forEach((proof, i) => formData.append(`payment_proofs`, proof));
       }
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/payments/request`, {
+      const res = await fetch(`${API_URL}/accountant/payments/request`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${localStorage.getItem('auth_token')}` },
+        headers: getAuthHeaders(),
         body: formData,
       });
       if (!res.ok) {

@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { Calendar, CalendarDays, CheckCircle2, ChevronDown, ChevronUp, Download, Eye, FileText, Filter, Loader2, Search, X, Zap } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { toast } from 'sonner';
-import { api } from '@/lib/api';
+import { api, API_URL, getAuthHeaders } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import RtoSummaryBar from '@/components/rto/RtoSummaryBar';
 import { RtoFlagBadge, TxnCell, RcCell, txnText, rcText, istDateTime, istShort } from '@/components/rto/rtoShared';
@@ -107,12 +107,12 @@ export default function PDDTracking() {
       if (!loan.vehicle_number) continue;
       try {
         const res = await fetch(
-          `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/rc-verification/lookup`,
+          `${API_URL}/rc-verification/lookup`,
           {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
+              ...getAuthHeaders(),
             },
             body: JSON.stringify({
               rc_number: loan.vehicle_number,
@@ -130,12 +130,12 @@ export default function PDDTracking() {
           const newHpn = extractedFinancer ? extractedFinancer : (isNotFinanced ? 'NO HPN' : '');
 
           const putRes = await fetch(
-            `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/loans/${loan.id}`,
+            `${API_URL}/loans/${loan.id}`,
             {
               method: 'PUT',
               headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
+                ...getAuthHeaders(),
               },
               body: JSON.stringify({ new_hpn: newHpn }),
             }
@@ -163,12 +163,12 @@ export default function PDDTracking() {
     setUpdatingId(loanId);
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/loans/${loanId}`,
+        `${API_URL}/loans/${loanId}`,
         {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
+            ...getAuthHeaders(),
           },
           body: JSON.stringify({ pdd_status: status }),
         }
@@ -190,10 +190,10 @@ export default function PDDTracking() {
     await Promise.all(
       Array.from(selectedIds).map(id =>
         fetch(
-          `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/loans/${id}`,
+          `${API_URL}/loans/${id}`,
           {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('auth_token')}` },
+            headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
             body: JSON.stringify({ pdd_status: status }),
           }
         ).catch(() => { })

@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { HierarchyDropdown } from '@/components/HierarchyDropdown';
+import { API_URL, getAuthHeaders } from '@/lib/api';
 
 export default function OfflineDisbursement() {
   const [formData, setFormData] = useState({
@@ -57,8 +58,7 @@ export default function OfflineDisbursement() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-  const auth = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` });
+  const auth = () => ({ 'Content-Type': 'application/json', ...getAuthHeaders() });
 
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [isImporting, setIsImporting] = useState(false);
@@ -80,9 +80,7 @@ export default function OfflineDisbursement() {
     try {
       const response = await fetch(`${API_URL}/loans/import-offline`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
+        headers: getAuthHeaders(),
         body: formData
       });
 
@@ -125,9 +123,8 @@ export default function OfflineDisbursement() {
   const handleDownloadTemplate = async () => {
     try {
       // Fetch users for Channel Codes
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
       const usersRes = await fetch(`${API_URL}/users`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+        headers: getAuthHeaders()
       });
       const usersData = await usersRes.json();
       const usersList = Array.isArray(usersData) ? usersData : (usersData.data || []);
@@ -221,7 +218,7 @@ export default function OfflineDisbursement() {
         const isGlobal = user.role === 'admin' || user.role === 'ops_team';
         const endpoint = isGlobal ? '/users/hierarchy' : '/users/my-team/hierarchy';
 
-        fetch(`${API_URL}${endpoint}`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` } })
+        fetch(`${API_URL}${endpoint}`, { headers: getAuthHeaders() })
           .then(res => res.json())
           .then(data => {
             const ROLE_PRIORITY: Record<string, number> = {

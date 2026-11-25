@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Loader2, X, Link as LinkIcon, Smartphone, ShieldCheck } from 'lucide-react';
 import { toast } from 'sonner';
+import { API_URL, getAuthHeaders } from '@/lib/api';
 
 interface ConsentModalProps {
   isOpen: boolean;
@@ -27,8 +28,8 @@ export default function ConsentModal({ isOpen, onClose, onSuccess, mobile, assoc
     if (consentMode === 'LINK' && linkAttemptId) {
       intervalId = setInterval(async () => {
         try {
-          const res = await fetch(`${import.meta.env.VITE_API_URL || '/api'}/consent/link/status/${linkAttemptId}`, {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+          const res = await fetch(`${API_URL}/consent/link/status/${linkAttemptId}`, {
+            headers: getAuthHeaders()
           });
           if (res.ok) {
             const data = await res.json();
@@ -62,11 +63,11 @@ export default function ConsentModal({ isOpen, onClose, onSuccess, mobile, assoc
   const handleSendLink = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || '/api'}/consent/link/initiate`, {
+      const res = await fetch(`${API_URL}/consent/link/initiate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          ...getAuthHeaders()
         },
         body: JSON.stringify({
           mobileNumber: mobile,
@@ -91,11 +92,11 @@ export default function ConsentModal({ isOpen, onClose, onSuccess, mobile, assoc
     setLoading(true);
     try {
       // Create a dummy subject if needed or rely on backend fallback logic
-      const res = await fetch(`${import.meta.env.VITE_API_URL || '/api'}/consent/otp/trigger`, {
+      const res = await fetch(`${API_URL}/consent/otp/trigger`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          ...getAuthHeaders()
         },
         body: JSON.stringify({
           subjectId: '00000000-0000-0000-0000-000000000000', // Typically fetched, but the backend handles it or we need to pass a real one. Let's assume the backend handles it or we pass a generic one for now.
@@ -121,11 +122,11 @@ export default function ConsentModal({ isOpen, onClose, onSuccess, mobile, assoc
     if (!otp) return toast.error('Enter OTP');
     setLoading(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || '/api'}/consent/otp/submit`, {
+      const res = await fetch(`${API_URL}/consent/otp/submit`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          ...getAuthHeaders()
         },
         body: JSON.stringify({
           otpVerificationId,

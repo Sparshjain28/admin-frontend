@@ -9,8 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-const authHeader = () => ({ 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` });
+import { API_URL, getAuthHeaders } from '@/lib/api';
+
+const API = API_URL;
+const authHeader = () => getAuthHeaders();
 
 declare global {
   interface Window {

@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { Upload, X, Plus, Trash2, MapPin, Loader2 } from 'lucide-react';
 import { BranchFormTable } from '@/components/BranchFormTable';
+import { API_URL, getAuthHeaders } from '@/lib/api';
 
 interface Branch {
   id?: number;
@@ -31,9 +32,9 @@ const emptyBranch = (): Branch => ({
   status: 'active',
 });
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API = API_URL;
 const API_BASE = API.replace('/api', '');
-const authHeader = () => ({ 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` });
+const authHeader = getAuthHeaders;
 
 interface AddressSuggestion {
   place_id: string;

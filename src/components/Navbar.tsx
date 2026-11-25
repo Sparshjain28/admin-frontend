@@ -3,9 +3,10 @@ import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { useAuth, UserRole } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { ROLE_LABELS } from '@/lib/auth';
+import { API_URL, getAuthHeaders } from '@/lib/api';
 import { Download, LogOut, Eye, Share2, UserCircle, ArrowLeft, ChevronRight } from 'lucide-react';
 import NotificationBell from './NotificationBell';
-import { useDashboardContextSafe } from '@/pages/Dashboard';
+import { useDashboardContextSafe } from '@/contexts/DashboardContext';
 
 
 interface BreadcrumbItem {
@@ -396,8 +397,8 @@ export default function Navbar({
     queryKey: ['sales-managers'],
     queryFn: async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/users/by-role?roles=sales_manager`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+        const response = await fetch(`${API_URL}/users/by-role?roles=sales_manager`, {
+          headers: getAuthHeaders()
         });
         if (!response.ok) return [];
         return await response.json();

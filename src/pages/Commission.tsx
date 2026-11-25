@@ -5,6 +5,7 @@ import { exportToExcel } from '@/lib/export-utils';
 import { CreditCard, Download, Filter, CheckCircle2, Clock, XCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import MobileStatCarousel from '@/components/MobileStatCarousel';
+import { API_URL, getAuthHeaders } from '@/lib/api';
 
 const STATUS_STYLES: Record<string, { bg: string; icon: React.ReactNode; label: string }> = {
   paid: { bg: 'bg-emerald-100 text-emerald-700', icon: <CheckCircle2 size={10} />, label: 'Paid' },
@@ -35,8 +36,8 @@ export default function Commission() {
   const { data: commissions = [], isLoading } = useQuery({
     queryKey: ['commissions'],
     queryFn: async () => {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/commissions`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+      const res = await fetch(`${API_URL}/commissions`, {
+        headers: getAuthHeaders(),
       });
       if (!res.ok) throw new Error('Failed to fetch commissions');
       return res.json();

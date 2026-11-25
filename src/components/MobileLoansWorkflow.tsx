@@ -19,7 +19,7 @@ import {
   ShieldCheck,
   Menu,
 } from "lucide-react";
-import { resolveImageUrl } from "../services/api";
+import { resolveImageUrl } from "@/lib/api";
 
 export default function MobileLoansWorkflow() {
   const navigate = useNavigate();
@@ -30,13 +30,9 @@ export default function MobileLoansWorkflow() {
   const { data: banks = [], isLoading } = useQuery({
     queryKey: ["banks"],
     queryFn: async () => {
-      const token = localStorage.getItem("auth_token");
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/banks`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
+      const res = await fetch(`${API_URL}/banks`, {
+        headers: getAuthHeaders(),
+      });
       if (!res.ok) throw new Error("Failed to fetch banks");
       return res.json();
     },

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Car, Loader2 } from 'lucide-react';
 import { Card, Field, renderChallanDetails, getVehicleAge, getTentativeValue, SharedTabProps, PddStatusField } from './shared';
-import { api } from '@/lib/api';
+import { api, API_URL, getAuthHeaders } from '@/lib/api';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -60,9 +60,9 @@ export default function VehicleTab({ loan, idvData }: VehicleTabProps) {
     queryFn: async () => {
       try {
         const rcNum = encodeURIComponent(String(l.vehicle_number || '').replace(/\s+/g, '').toUpperCase());
-        const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/rc-verification/data/${rcNum}`, {
+        const res = await fetch(`${API_URL}/rc-verification/data/${rcNum}`, {
           method: 'GET',
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+          headers: getAuthHeaders(),
         });
         if (!res.ok) return null;
         const data = await res.json();

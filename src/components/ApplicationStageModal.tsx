@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { X, Save, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { API_URL, getAuthHeaders } from '@/lib/api';
 import { 
   ApplicationStage, 
   ApplicationStageData,
@@ -46,8 +47,8 @@ export default function ApplicationStageModal({
     if (selectedStage !== 'LOGIN') return;
     
     // Just fetch lead to check if score already exists
-    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/leads/${leadId}`, {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+    fetch(`${API_URL}/leads/${leadId}`, {
+      headers: getAuthHeaders()
     })
       .then(r => r.json())
       .then(lead => {
@@ -108,11 +109,9 @@ export default function ApplicationStageModal({
             formDataUpload.append('lead_id', leadId.toString());
             
             try {
-              const uploadRes = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/documents`, {
+              const uploadRes = await fetch(`${API_URL}/documents`, {
                 method: 'POST',
-                headers: {
-                  'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-                },
+                headers: getAuthHeaders(),
                 body: formDataUpload
               });
               
@@ -141,11 +140,11 @@ export default function ApplicationStageModal({
       }
 
       // API call to update stage
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/leads/${leadId}/stage`, {
+      const response = await fetch(`${API_URL}/leads/${leadId}/stage`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          ...getAuthHeaders()
         },
         body: JSON.stringify(stageData)
       });

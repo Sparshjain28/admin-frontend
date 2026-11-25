@@ -46,12 +46,7 @@ export default function LoanOperationsDashboard() {
   useEffect(() => {
     const fetchTimerConfig = async () => {
       try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/config/key/login_stage_enabled`,
-          {
-            headers: { Authorization: `Bearer ${localStorage.getItem('auth_token')}` }
-          }
-        );
+        const response = await fetch(`${API_URL}/config/key/login_stage_enabled`, { headers: getAuthHeaders() });
         if (response.ok) {
           const config = await response.json();
           setTimerEnabled(config.config_value === 'true' || config.config_value === true);
@@ -67,12 +62,7 @@ export default function LoanOperationsDashboard() {
   const fetchBurstTable = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/loans/burst-table`,
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem('auth_token')}` }
-        }
-      );
+      const response = await fetch(`${API_URL}/loans/burst-table`, { headers: getAuthHeaders() });
       if (response.ok) {
         const data = await response.json();
         const grouped = {

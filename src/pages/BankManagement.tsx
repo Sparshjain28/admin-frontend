@@ -15,10 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import * as XLSX from 'xlsx';
-
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-const API_BASE = API.replace('/api', '');
-const authHeader = () => ({ 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` });
+import { API_URL, API_BASE_URL, getAuthHeaders } from '@/lib/api';
 
 interface BranchData {
   id?: number;
@@ -63,7 +60,7 @@ function BranchesListDialog({ bankId, onClose, banks }: { bankId: number; onClos
   const { data: branches = [], isLoading, refetch } = useQuery({
     queryKey: ['bank-branches', bankId],
     queryFn: async () => {
-      const res = await fetch(`${API}/banks/${bankId}/branches`, { headers: authHeader() });
+      const res = await fetch(`${API_URL}/banks/${bankId}/branches`, { headers: getAuthHeaders() });
       if (!res.ok) return [];
       return res.json();
     },
@@ -300,8 +297,8 @@ export default function BankManagement() {
   const { data: banks = [], isLoading, refetch } = useQuery({
     queryKey: ['banks'],
     queryFn: async () => {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/banks`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+      const res = await fetch(`${API_URL}/banks`, {
+        headers: getAuthHeaders(),
       });
       if (!res.ok) throw new Error('Failed to fetch banks');
       return res.json();
@@ -315,7 +312,7 @@ export default function BankManagement() {
       const allBranchesData = [];
       for (const bank of banks) {
         try {
-          const res = await fetch(`${API}/banks/${bank.id}/branches`, { headers: authHeader() });
+          const res = await fetch(`${API_URL}/banks/${bank.id}/branches`, { headers: getAuthHeaders() });
           if (res.ok) {
             const bankBranches = await res.json();
             allBranchesData.push(...bankBranches.map(branch => ({ ...branch, bank_id: bank.id, bank_name: bank.name })));
@@ -364,8 +361,8 @@ export default function BankManagement() {
   const { data: loans = [] } = useQuery({
     queryKey: ['loans-for-banks'],
     queryFn: async () => {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/loans`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+      const res = await fetch(`${API_URL}/loans`, {
+        headers: getAuthHeaders(),
       });
       if (!res.ok) throw new Error('Failed to fetch loans');
       return res.json();
@@ -402,15 +399,15 @@ export default function BankManagement() {
 
       let res;
       if (branch.id) {
-        res = await fetch(`${API}/banks/${branch.bank_id}/branches/${branch.id}`, {
+        res = await fetch(`${API_URL}/banks/${branch.bank_id}/branches/${branch.id}`, {
           method: 'PUT',
-          headers: { ...authHeader(), 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
           body: JSON.stringify(updateData)
         });
       } else {
-        res = await fetch(`${API}/banks/${branch.bank_id}/branches`, {
+        res = await fetch(`${API_URL}/banks/${branch.bank_id}/branches`, {
           method: 'POST',
-          headers: { ...authHeader(), 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
           body: JSON.stringify(updateData)
         });
       }
@@ -637,7 +634,7 @@ export default function BankManagement() {
             const disbursed = bankLoans.filter(l => l.status === 'disbursed').length;
             const branchCount = bank.branches ? bank.branches.length : 0;
             const logoUrl = bank.logo_url
-              ? (bank.logo_url.startsWith('http') ? bank.logo_url : `${API_BASE}/${bank.logo_url.replace(/^\//, '')}`)
+              ? (bank.logo_url.startsWith('http') ? bank.logo_url : `${API_BASE_URL}/${bank.logo_url.replace(/^\//, '')}`)
               : '';
             const isActive = bank.status === 'active';
 

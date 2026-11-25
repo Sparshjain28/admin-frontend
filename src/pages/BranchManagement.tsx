@@ -3,15 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Building2, MapPin, Edit, Trash2, UserPlus, X, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { RoleAssignModal } from '@/components/RoleAssignModal';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-
-function authHeaders() {
-  return {
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
-  };
-}
+import { API_URL, getAuthHeaders } from '@/lib/api';
 
 interface AddressSuggestion {
   place_id: string;
@@ -25,9 +17,9 @@ async function getAddressSuggestions(input: string): Promise<AddressSuggestion[]
   if (!trimmedInput || trimmedInput.length < 2) return [];
 
   try {
-    const response = await fetch(`${API_BASE_URL}/google-maps/autocomplete`, {
+    const response = await fetch(`${API_URL}/google-maps/autocomplete`, {
       method: 'POST',
-      headers: authHeaders(),
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
       body: JSON.stringify({ input })
     });
 
@@ -41,9 +33,9 @@ async function getAddressSuggestions(input: string): Promise<AddressSuggestion[]
 
 async function getPlaceDetails(placeId: string): Promise<{ lat: number; lng: number; address: string } | null> {
   try {
-    const response = await fetch(`${API_BASE_URL}/google-maps/place-details`, {
+    const response = await fetch(`${API_URL}/google-maps/place-details`, {
       method: 'POST',
-      headers: authHeaders(),
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
       body: JSON.stringify({ place_id: placeId })
     });
 
@@ -79,8 +71,8 @@ export default function BranchManagement() {
 
   const fetchNextCode = async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/branches/next-code`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+      const res = await fetch(`${API_URL}/branches/next-code`, {
+        headers: getAuthHeaders(),
       });
       if (res.ok) {
         const data = await res.json();
@@ -97,8 +89,8 @@ export default function BranchManagement() {
       params.append('limit', '50');
       if (searchQuery) params.append('search', searchQuery);
 
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/branches?${params.toString()}`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+      const res = await fetch(`${API_URL}/branches?${params.toString()}`, {
+        headers: getAuthHeaders(),
       });
       if (!res.ok) throw new Error('Failed to fetch branches');
       return res.json();
@@ -113,13 +105,13 @@ export default function BranchManagement() {
     mutationFn: async (data: any) => {
       const method = editingBranch ? 'PUT' : 'POST';
       const url = editingBranch
-        ? `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/branches/${editingBranch.id}`
-        : `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/branches`;
+        ? `${API_URL}/branches/${editingBranch.id}`
+        : `${API_URL}/branches`;
       const res = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+          ...getAuthHeaders(),
         },
         body: JSON.stringify(data),
       });
@@ -137,9 +129,9 @@ export default function BranchManagement() {
 
   const deleteBranch = useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/branches/${id}`, {
+      const res = await fetch(`${API_URL}/branches/${id}`, {
         method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+        headers: getAuthHeaders(),
       });
       if (!res.ok) throw new Error('Failed to delete branch');
       return res.json();

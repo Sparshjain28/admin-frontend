@@ -28,9 +28,7 @@ export default function LoanLoginDetails() {
     queryKey: ['users-list'],
     queryFn: async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/users`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
-        });
+        const response = await fetch(`${API_URL}/users`, { headers: getAuthHeaders() });
         if (!response.ok) return [];
         return await response.json();
       } catch {
@@ -42,9 +40,7 @@ export default function LoanLoginDetails() {
   const { data: configs = [] } = useQuery({
     queryKey: ['system-config'],
     queryFn: async () => {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/config`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
-      });
+      const response = await fetch(`${API_URL}/config`, { headers: getAuthHeaders() });
       return response.ok ? await response.json() : [];
     },
   });
@@ -109,11 +105,11 @@ export default function LoanLoginDetails() {
       const loanId = loanData.loanNumber || generateLoanId();
       const selectedLenderName = form.selectedLender === 'Others' ? form.otherLender : form.selectedLender;
       
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/loans`, {
+      const res = await fetch(`${API_URL}/loans`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+          ...getAuthHeaders(),
         },
         body: JSON.stringify({
           ...loanData,
@@ -141,9 +137,9 @@ export default function LoanLoginDetails() {
         pdfFormData.append('loan_id', String(data.id));
         if (loanData?.lead_id) pdfFormData.append('lead_id', String(loanData.lead_id));
 
-        const pdfUploadResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/documents`, {
+        const pdfUploadResponse = await fetch(`${API_URL}/documents`, {
           method: 'POST',
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+          headers: getAuthHeaders(),
           body: pdfFormData,
         });
 

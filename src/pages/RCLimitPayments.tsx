@@ -20,10 +20,7 @@ export default function RCLimitPayments() {
   const { data: rawWithdrawals = [], isLoading } = useQuery({
     queryKey: ['rc-limit-payout-withdrawals', user?.id],
     queryFn: async () => {
-      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-      const response = await fetch(`${baseUrl}/payouts/withdrawals`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('auth_token')}` },
-      });
+      const response = await fetch(`${API_URL}/payouts/withdrawals`, { headers: getAuthHeaders() });
       if (!response.ok) return [];
       return await response.json();
     },

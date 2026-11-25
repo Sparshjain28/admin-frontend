@@ -1,7 +1,7 @@
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
-import { api } from "./lib/api";
+import { api, getAuthToken } from "./lib/api";
 import axios from "axios";
 
 // Pages that do their own 401 handling and must not be bounced to /login.
@@ -46,6 +46,6 @@ axios.interceptors.response.use(
 );
 
 // Load persisted JWT token (if any) so every request is authenticated
-api.setToken(localStorage.getItem('auth_token'));
+api.setToken(getAuthToken());
 
 createRoot(document.getElementById("root")!).render(<App />);

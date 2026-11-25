@@ -5,13 +5,12 @@ import { toast } from 'sonner';
 import { Navigate } from 'react-router-dom';
 import { Slider } from '@/components/ui/slider';
 import ConsentModal from '@/components/ConsentModal';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+import { API_URL, getAuthHeaders } from '@/lib/api';
 
 function authHeaders() {
   return {
     'Content-Type': 'application/json',
-    Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
+    ...getAuthHeaders(),
   };
 }
 

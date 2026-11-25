@@ -4,9 +4,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { ArrowLeft, Save, Lock, RotateCcw, AlertCircle, ChevronDown, ChevronUp, Shield, LayoutDashboard, FileText, Users, Settings, Phone, CreditCard, BarChart3, Wallet, Receipt, MapPin, Database, ShieldCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { API_URL, getAuthHeaders } from '@/lib/api';
 
-const API = () => import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-const authH = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('auth_token')}` });
+const authH = () => ({ 'Content-Type': 'application/json', ...getAuthHeaders() });
 
 import { ALL_ROLES, PAGES } from '@/config/permissions';
 
@@ -67,7 +67,7 @@ export default function DashboardPermissions() {
   const { data: allPermissions, isLoading: loadingDash } = useQuery({
     queryKey: ['dashboard-permissions'],
     queryFn: async () => {
-      const res = await fetch(`${API()}/permissions/dashboard`, { headers: authH() });
+      const res = await fetch(`${API_URL}/permissions/dashboard`, { headers: authH() });
       if (!res.ok) throw new Error('Failed to fetch');
       return res.json();
     },
@@ -76,7 +76,7 @@ export default function DashboardPermissions() {
   const { data: configs = [] } = useQuery({
     queryKey: ['system-config'],
     queryFn: async () => {
-      const res = await fetch(`${API()}/config`, { headers: authH() });
+      const res = await fetch(`${API_URL}/config`, { headers: authH() });
       return res.ok ? res.json() : [];
     },
   });
@@ -130,7 +130,7 @@ export default function DashboardPermissions() {
         });
       });
       await Promise.all(pairs.map(p =>
-        fetch(`${API()}/config/key/${p.key}`, {
+        fetch(`${API_URL}/config/key/${p.key}`, {
           method: 'PATCH',
           headers: authH(),
           body: JSON.stringify({ config_value: p.value, config_type: 'page_permissions', description: `Page access: ${p.key}` }),
@@ -166,7 +166,7 @@ export default function DashboardPermissions() {
   // ── Dashboard component perms ────────────────────────────────────────────────
   const savePermissions = useMutation({
     mutationFn: async () => {
-      const res = await fetch(`${API()}/permissions/dashboard`, {
+      const res = await fetch(`${API_URL}/permissions/dashboard`, {
         method: 'PUT', headers: authH(),
         body: JSON.stringify({ role: selectedRole, permissions: permissions[selectedRole] }),
       });
@@ -183,7 +183,7 @@ export default function DashboardPermissions() {
 
   const resetPermissions = useMutation({
     mutationFn: async () => {
-      const res = await fetch(`${API()}/permissions/dashboard/reset`, {
+      const res = await fetch(`${API_URL}/permissions/dashboard/reset`, {
         method: 'POST', headers: authH(),
         body: JSON.stringify({ role: selectedRole }),
       });
@@ -203,7 +203,7 @@ export default function DashboardPermissions() {
     setIsTogglingTimer(true);
     try {
       const next = !globalTimerEnabled;
-      await fetch(`${API()}/config/key/login_stage_enabled`, {
+      await fetch(`${API_URL}/config/key/login_stage_enabled`, {
         method: 'PATCH', headers: authH(),
         body: JSON.stringify({ config_value: next ? 'true' : 'false' }),
       });
@@ -212,7 +212,7 @@ export default function DashboardPermissions() {
         updated[role] = { ...updated[role], dashboard: { ...updated[role]?.dashboard, components: { ...updated[role]?.dashboard?.components, timer: next } } };
       });
       for (const role of Object.keys(updated)) {
-        await fetch(`${API()}/permissions/dashboard`, {
+        await fetch(`${API_URL}/permissions/dashboard`, {
           method: 'PUT', headers: authH(),
           body: JSON.stringify({ role, permissions: updated[role] }),
         });

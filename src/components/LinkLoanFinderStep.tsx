@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight, ChevronDown, Info, Loader2, Megaphone, Star, Copy, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { resolveImageUrl } from '../services/api';
+import { resolveImageUrl, API_URL, getAuthHeaders, getAuthToken } from '@/lib/api';
 
 interface Props {
   onBack: () => void;
@@ -78,10 +78,9 @@ export default function LinkLoanFinderStep({ onBack, onNext, onSubmit, onApply, 
   useEffect(() => {
     if (!rcNumber) return;
     setApiIdvLoading(true);
-    const token = localStorage.getItem('auth_token');
-    fetch(`${import.meta.env.VITE_API_URL || '/api'}/find-lender/idv`, {
+    fetch(`${API_URL}/find-lender/idv`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
       body: JSON.stringify({ id_number: rcNumber })
     })
       .then(res => {
@@ -110,7 +109,7 @@ export default function LinkLoanFinderStep({ onBack, onNext, onSubmit, onApply, 
   // Use existing layout effects
   useEffect(() => {
     // Fetch find my lender
-    const token = localStorage.getItem('auth_token');
+    const token = getAuthToken();
     // On a page refresh/direct-load landing straight on this step (e.g. a
     // draft resumed via ?step=4 in the URL), `address` already has a
     // fallback default and fires immediately, but `caseType` starts out
@@ -159,10 +158,10 @@ export default function LinkLoanFinderStep({ onBack, onNext, onSubmit, onApply, 
         : undefined;
 
       const controller = new AbortController();
-      fetch(`${import.meta.env.VITE_API_URL || '/api'}/find-lender/search-by-address`, {
+      fetch(`${API_URL}/find-lender/search-by-address`, {
         signal: controller.signal,
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
         body: JSON.stringify({
           address: address,
           case_type: caseType,

@@ -1,14 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
+import { API_URL, getAuthHeaders } from '@/lib/api';
 import { toast } from 'sonner';
 import { APPLICATION_STAGES, ApplicationStage } from '@/lib/mock-data';
 import { X, Save, AlertCircle, ShieldAlert, Loader2, CheckCircle, AlertTriangle, Building2, CreditCard, RefreshCw } from 'lucide-react';
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-function authHeaders() {
-  return { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('auth_token')}` };
-}
+const API = API_URL;
+const authHeaders = () => ({ 'Content-Type': 'application/json', ...getAuthHeaders() });
 function fmt(v: any) { return v || '—'; }
 function fmtCur(v: any) {
   const n = Number(v);
@@ -160,7 +159,7 @@ const response = await fetch(`${API}/loans/${loan.id}/stage`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          ...getAuthHeaders()
         },
         body: JSON.stringify(data)
       });
@@ -214,7 +213,7 @@ toast.error(error.message || 'Failed to update application stage');
         const uploadRes = await fetch(`${API}/documents`, {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+            ...getAuthHeaders()
           },
           body: formDataUpload
         });

@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import PaymentRequestModal from '@/components/PaymentRequestModal';
+import { API_URL, getAuthHeaders } from '@/lib/api';
 
 export default function FolioAccounts() {
   const { user } = useAuth();
@@ -39,11 +40,11 @@ export default function FolioAccounts() {
   const handleManualTallySync = async () => {
     setIsSyncingTally(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/tally/sync-now`, {
+      const response = await fetch(`${API_URL}/accountant/tally/sync-now`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          ...getAuthHeaders()
         }
       });
       const data = await response.json();
@@ -74,11 +75,11 @@ export default function FolioAccounts() {
   const handleAdminApproval = async (folioId: number, action: 'approve' | 'reject', e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/folio-accounts/${folioId}/admin-approve`, {
+      const response = await fetch(`${API_URL}/accountant/folio-accounts/${folioId}/admin-approve`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          ...getAuthHeaders()
         },
         body: JSON.stringify({ action })
       });
@@ -160,8 +161,8 @@ export default function FolioAccounts() {
   const { data: rawFolios } = useQuery({
     queryKey: ['folio-accounts', user?.id],
     queryFn: async () => {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/folio-accounts`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+      const response = await fetch(`${API_URL}/accountant/folio-accounts`, {
+        headers: getAuthHeaders()
       });
       if (!response.ok) return [];
       return await response.json();
@@ -172,8 +173,8 @@ export default function FolioAccounts() {
   const { data: tallyStatusData, isLoading: isTallyStatusLoading, refetch: refetchTallyStatus } = useQuery({
     queryKey: ['tally-status'],
     queryFn: async () => {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/tally/status`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+      const response = await fetch(`${API_URL}/accountant/tally/status`, {
+        headers: getAuthHeaders()
       });
       if (!response.ok) return null;
       return await response.json();
@@ -216,8 +217,8 @@ export default function FolioAccounts() {
       setLoanSearchLoading(true);
       try {
         const res = await fetch(
-          `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/loans/search?q=${encodeURIComponent(loanSearchTerm)}`,
-          { headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` } }
+          `${API_URL}/loans/search?q=${encodeURIComponent(loanSearchTerm)}`,
+          { headers: getAuthHeaders() }
         );
         if (res.ok) {
           const data = await res.json();
@@ -232,8 +233,8 @@ export default function FolioAccounts() {
   const { data: lenders = [] } = useQuery({
     queryKey: ['lenders-for-folio'],
     queryFn: async () => {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/banks`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+      const response = await fetch(`${API_URL}/banks`, {
+        headers: getAuthHeaders()
       });
       if (!response.ok) return [];
       return await response.json();
@@ -251,11 +252,11 @@ export default function FolioAccounts() {
 
     setIsCreating(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/folio-accounts`, {
+      const response = await fetch(`${API_URL}/accountant/folio-accounts`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          ...getAuthHeaders()
         },
         body: JSON.stringify({
           loan_id: formData.loan_id ? Number(formData.loan_id) : null,
@@ -283,11 +284,9 @@ export default function FolioAccounts() {
         queryClient.invalidateQueries({ queryKey: ['folio-accounts'] });
       } else {
         const error = await response.json();
-        console.log('[FolioCreate] API error response:', error);
         toast.error(error.error || 'Failed to create folio account');
       }
     } catch (error) {
-      console.log('[FolioCreate] Network/other error:', error);
       toast.error('Failed to create folio account');
     } finally {
       setIsCreating(false);
@@ -297,11 +296,9 @@ export default function FolioAccounts() {
   const handleDeleteFolio = async (folioId: number) => {
     setIsDeleting(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/folio-accounts/${folioId}`, {
+      const response = await fetch(`${API_URL}/accountant/folio-accounts/${folioId}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
+        headers: getAuthHeaders()
       });
 
       if (response.ok) {
@@ -411,9 +408,9 @@ export default function FolioAccounts() {
     const fetchFolioByBillNumber = async () => {
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/folio-accounts/bill/${term}`,
+          `${API_URL}/accountant/folio-accounts/bill/${term}`,
           {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+            headers: getAuthHeaders()
           }
         );
         if (response.ok) {

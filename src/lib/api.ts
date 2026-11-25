@@ -1,7 +1,17 @@
-const API_URL = import.meta.env.VITE_API_URL || 'https://staging-api.finonest.org/api';
+export const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL?.replace('/api', '') || 'https://staging-api.finonest.org').replace(/\/$/, '');
+export const API_URL = import.meta.env.VITE_API_URL || `${API_BASE_URL}/api`;
 
-// Safe localStorage access
-function getStoredToken(): string | null {
+export function resolveImageUrl(url: string | null | undefined): string | undefined {
+  if (!url || url === 'null') return undefined;
+  const trimmed = url.trim();
+  if (!trimmed) return undefined;
+  if (trimmed.startsWith('http')) return trimmed;
+  const path = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+  return `${API_BASE_URL}${path}`;
+}
+
+// Safe localStorage access & auth headers helper
+export function getAuthToken(): string | null {
   try {
     return typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
   } catch {
@@ -9,7 +19,12 @@ function getStoredToken(): string | null {
   }
 }
 
-let authToken: string | null = getStoredToken();
+export function getAuthHeaders(): Record<string, string> {
+  const token = getAuthToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+let authToken: string | null = getAuthToken();
 
 export const api = {
   setToken(token: string | null) {

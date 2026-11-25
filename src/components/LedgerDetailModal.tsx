@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import FolioLedger from "@/components/FolioLedger";
 import FolioCards from "@/components/FolioCards";
+import { API_URL, API_BASE_URL, getAuthHeaders } from "@/lib/api";
 
 interface SearchResult {
   bill_number: string;
@@ -264,11 +265,9 @@ function ModalContent({
     const fetchLoanId = loanDetails?.loan_id || viewingLedger?.loan_id;
     if (fetchLoanId && !enrichedLoanDetails) {
       fetch(
-        `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/accountant/payments/case-details/${fetchLoanId}`,
+        `${API_URL}/accountant/payments/case-details/${fetchLoanId}`,
         {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
-          },
+          headers: getAuthHeaders(),
         },
       )
         .then((res) => res.json())
@@ -320,11 +319,9 @@ function ModalContent({
       queryFn: async () => {
         if (!viewingLedger?.id) return null;
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/accountant/bill-mapping/${viewingLedger.id}/with-documents`,
+          `${API_URL}/accountant/bill-mapping/${viewingLedger.id}/with-documents`,
           {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
-            },
+            headers: getAuthHeaders(),
           },
         );
         if (!response.ok) return null;
@@ -342,9 +339,9 @@ function ModalContent({
     queryFn: async () => {
       if (!loanId) return [];
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/accountant/payments?status=all&loanId=${loanId}`,
+        `${API_URL}/accountant/payments?status=all&loanId=${loanId}`,
         {
-          headers: { Authorization: `Bearer ${localStorage.getItem("auth_token")}` },
+          headers: getAuthHeaders(),
         },
       );
       if (!response.ok) return [];
@@ -401,9 +398,9 @@ function ModalContent({
     if ((loanId || custName) && isOpen) {
       setLoadingFolioByLoan(true);
       fetch(
-        `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/accountant/folio-accounts`,
+        `${API_URL}/accountant/folio-accounts`,
         {
-          headers: { Authorization: `Bearer ${localStorage.getItem("auth_token")}` },
+          headers: getAuthHeaders(),
         },
       )
         .then((res) => res.json())
@@ -480,11 +477,9 @@ function ModalContent({
           setIsLoadingBill(true);
           const loanIdParam = selectedBill.loan_id || loanId || "";
           const response = await fetch(
-            `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/accountant/folio-accounts/search?search=${encodeURIComponent(selectedBill.bill_number)}&loanId=${loanIdParam}`,
+            `${API_URL}/accountant/folio-accounts/search?search=${encodeURIComponent(selectedBill.bill_number)}&loanId=${loanIdParam}`,
             {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
-              },
+              headers: getAuthHeaders(),
             },
           );
 
@@ -533,11 +528,9 @@ function ModalContent({
     setIsSearching(true);
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/accountant/folio-accounts/search?search=${encodeURIComponent(query)}&loanId=${loanId || ""}`,
+        `${API_URL}/accountant/folio-accounts/search?search=${encodeURIComponent(query)}&loanId=${loanId || ""}`,
         {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
-          },
+          headers: getAuthHeaders(),
         },
       );
 
@@ -610,12 +603,12 @@ function ModalContent({
 
       // Always call backend mapping endpoint so folio links properly.
       const mapResponse = await fetch(
-        `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/accountant/bill-mapping/${viewingLedger.id}/map`,
+        `${API_URL}/accountant/bill-mapping/${viewingLedger.id}/map`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+            ...getAuthHeaders(),
           },
           body: JSON.stringify({
             bill_number: activeBillNumber,
@@ -947,7 +940,7 @@ function ModalContent({
                           roi={displayLoan?.roi}
                           tenure={displayLoan?.tenure}
                           hierarchy={hier as Array<{ role: string; name: string }>}
-                          documentUrl={requestWithDocument?.documents?.[0] ? `${import.meta.env.VITE_API_URL || "http://localhost:5000"}${requestWithDocument.documents[0].file_path}` : undefined}
+                          documentUrl={requestWithDocument?.documents?.[0] ? `${API_BASE_URL}${requestWithDocument.documents[0].file_path}` : undefined}
                         />
                       );
                     })()}
@@ -960,12 +953,12 @@ function ModalContent({
                 <div className="bg-card rounded-xl border border-border/50 p-2">
                   <div className="flex items-center gap-2">
                     {requestWithDocument.documents.filter((d: any) => d.field_name === 'qr_upload').map((doc: any) => (
-                      <a key={doc.id} href={`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}${doc.file_path}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-blue-600/10 hover:bg-blue-600/20 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20 transition-colors">
+                      <a key={doc.id} href={`${API_URL}${doc.file_path}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-blue-600/10 hover:bg-blue-600/20 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20 transition-colors">
                         Uploaded QR
                       </a>
                     ))}
                     {requestWithDocument.documents.filter((d: any) => d.field_name !== 'qr_upload').map((doc: any) => (
-                      <a key={doc.id} href={`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}${doc.file_path}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-blue-600/10 hover:bg-blue-600/20 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20 transition-colors">
+                      <a key={doc.id} href={`${API_URL}${doc.file_path}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-blue-600/10 hover:bg-blue-600/20 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20 transition-colors">
                         {isBillMapping ? 'View Document' : 'Payment Proof'}
                       </a>
                     ))}

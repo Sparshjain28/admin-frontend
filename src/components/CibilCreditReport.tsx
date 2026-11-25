@@ -4,21 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import ConsentModal from '@/components/ConsentModal';
-
-function getAPI() {
-  return import.meta.env.VITE_API_URL || '/api';
-}
-
-function authHeaders() {
-  const token = localStorage.getItem('auth_token');
-  if (!token) {
-    throw new Error('Authentication token not found. Please log in again.');
-  }
-  return {
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${token}`,
-  };
-}
+import { API_URL, getAuthHeaders, getAuthToken } from '@/lib/api';
 
 function fmt(v: any) { return v || '—'; }
 function fmtCur(v: any) {
@@ -534,17 +520,17 @@ export default function CibilCreditReport({ loan, isStandalone = false }: Props)
     if (!mobile) { toast.error('Mobile number required'); return; }
 
     try {
-      const token = localStorage.getItem('auth_token');
+      const token = getAuthToken();
       if (!token) {
         toast.error('Session expired. Please log in again.');
         return;
       }
-      
+
       if (!forceRefresh && !otpVerified && overrideOtp !== true) {
         setLoading(true);
-        const cacheCheckRes = await fetch(`${getAPI()}/link-loan/credit-report`, {
+        const cacheCheckRes = await fetch(`${API_URL}/link-loan/credit-report`, {
           method: 'POST',
-          headers: authHeaders(),
+          headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
           body: JSON.stringify({ name, mobile, rc_number: rcNumber, check_cache_only: true }),
         });
         if (cacheCheckRes.ok) {
@@ -557,11 +543,11 @@ export default function CibilCreditReport({ loan, isStandalone = false }: Props)
         }
         setLoading(false);
       }
-      
+
       setLoading(true);
-      const res = await fetch(`${getAPI()}/link-loan/credit-report`, {
+      const res = await fetch(`${API_URL}/link-loan/credit-report`, {
         method: 'POST',
-        headers: authHeaders(),
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
         body: JSON.stringify({ name, mobile, pan: loan?.pan_number || loan?.pan || '', rc_number: rcNumber, force_refresh: forceRefresh, standalone_report_id: isStandalone ? loan?.id : undefined }),
       });
       const text = await res.text();
@@ -602,9 +588,9 @@ export default function CibilCreditReport({ loan, isStandalone = false }: Props)
     if (!report) return;
     setDownloadingPDF(true);
     try {
-      const res = await fetch(`${getAPI()}/credit-reports/generate`, {
+      const res = await fetch(`${API_URL}/credit-reports/generate`, {
         method: 'POST',
-        headers: authHeaders(),
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
         body: JSON.stringify({
           reportData: {
             credit_score: report.credit_score,
@@ -624,8 +610,8 @@ export default function CibilCreditReport({ loan, isStandalone = false }: Props)
       const data = await res.json();
       if (!data.success || !data.pdf?.fileName) throw new Error(data.message || 'PDF generation failed');
 
-      const pdfRes = await fetch(`${getAPI()}/credit-reports/download/${data.pdf.fileName}`, {
-        headers: authHeaders(),
+      const pdfRes = await fetch(`${API_URL}/credit-reports/download/${data.pdf.fileName}`, {
+        headers: getAuthHeaders(),
       });
       if (!pdfRes.ok) throw new Error('Failed to fetch PDF file');
       const blob = await pdfRes.blob();

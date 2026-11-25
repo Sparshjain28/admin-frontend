@@ -4,10 +4,11 @@ import { Search, Plus, X, Upload, Trash2, ChevronDown, PackageSearch, CheckCircl
 import * as XLSX from 'xlsx';
 import { toast } from 'sonner';
 import { BranchFormTable } from '@/components/BranchFormTable';
+import { API_URL, API_BASE_URL, getAuthHeaders, resolveImageUrl } from '@/lib/api';
 
-const API = (import.meta.env.VITE_API_URL || 'https://staging-api.finonest.org/api').replace(/\/$/, '');
-const API_BASE = (import.meta.env.VITE_API_BASE_URL || API.replace('/api', '')).replace(/\/$/, '');
-const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem('auth_token')}` });
+const API = API_URL;
+const API_BASE = API_BASE_URL;
+const authHeader = () => getAuthHeaders();
 
 const inputClass =
   'w-full px-3 py-2 text-sm rounded-lg border border-border bg-background text-foreground focus:outline-none focus:border-accent transition-colors';
@@ -470,9 +471,7 @@ function AddProductModal({ onClose, onSuccess, initialBankId, productToEdit, ban
 
       const res = await fetch(url, {
         method,
-        headers: {
-          Authorization: authHeader().Authorization
-        },
+        headers: getAuthHeaders(),
         body: formData
       });
 

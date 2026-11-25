@@ -27,7 +27,7 @@ import {
   Coins
 } from 'lucide-react';
 
-import { resolveImageUrl } from '@/services/api';
+import { resolveImageUrl } from '@/lib/api';
 
 // Case Types supported in Finonest Auto Loans: Purchase and Refinance/BT
 export type CaseType = 'purchase' | 'refinance_bt';

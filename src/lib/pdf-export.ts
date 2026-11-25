@@ -1,6 +1,7 @@
 import { formatCurrency } from '@/lib/mock-data';
 import { jsPDF } from 'jspdf';
 import { toast } from 'sonner';
+import { api, API_URL, getAuthHeaders } from '@/lib/api';
 
 interface LoanData {
   [key: string]: any;
@@ -207,16 +208,12 @@ async function fetchLeadProfile(leadId: any): Promise<any | null> {
 
 async function fetchHierarchy(loan: LoanData): Promise<{ name: string; designation: string }[]> {
   try {
-    const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-    const headers = { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` };
-
     // If loan came from a lead, use lead's creator for hierarchy
     let creatorId = loan.created_by;
     if (loan.lead_id) {
       try {
-        const leadRes = await fetch(`${API}/leads/${loan.lead_id}`, { headers });
-        if (leadRes.ok) {
-          const lead = await leadRes.json();
+        const lead = await api.get(`/leads/${loan.lead_id}`);
+        if (lead) {
           if (lead.created_by) creatorId = lead.created_by;
           if (lead.email) loan._lead_email = lead.email;
         }
@@ -229,12 +226,15 @@ async function fetchHierarchy(loan: LoanData): Promise<{ name: string; designati
     let currentId = creatorId;
     let depth = 0;
     while (currentId && depth < 6) {
-      const res = await fetch(`${API}/users/${currentId}`, { headers });
-      if (!res.ok) break;
-      const u = await res.json();
-      hierarchy.push({ name: u.full_name || '—', designation: ROLE_LABELS_MAP[u.role] || u.role || '—' });
-      currentId = u.reporting_to;
-      depth++;
+      try {
+        const u = await api.get(`/users/${currentId}`);
+        if (!u) break;
+        hierarchy.push({ name: u.full_name || '—', designation: ROLE_LABELS_MAP[u.role] || u.role || '—' });
+        currentId = u.reporting_to;
+        depth++;
+      } catch {
+        break;
+      }
     }
     return hierarchy;
   } catch {
@@ -307,13 +307,12 @@ const PDF_DOC_LABELS: Record<string, string> = {
 };
 
 async function fetchDocumentFiles(docs: any[]): Promise<{ file: File; name: string; docType: string; docId: number; shareToken?: string }[]> {
-  const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-  // No authentication headers needed for public document access
   const files: { file: File; name: string; docType: string; docId: number; shareToken?: string }[] = [];
+  const headers = getAuthHeaders();
   for (const doc of docs) {
     try {
-      const res = await fetch(`${API}/documents/${doc.id}/download`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+      const res = await fetch(`${API_URL}/documents/${doc.id}/download`, {
+        headers,
       });
       if (!res.ok) {
         console.warn(`Failed to fetch document ${doc.id}: ${res.status}`);
@@ -659,9 +658,8 @@ export async function shareLoanPDF(loan: LoanData, docs: any[] = []) {
 // the mobile app can never drift apart the way the old client-side jsPDF
 // generation (generatePDFBlob/generatePDFBlobWithoutImages) did.
 async function fetchLoanPdfBlob(loanId: string | number): Promise<Blob> {
-  const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-  const res = await fetch(`${API}/loans/${loanId}/pdf`, {
-    headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+  const res = await fetch(`${API_URL}/loans/${loanId}/pdf`, {
+    headers: getAuthHeaders(),
   });
   if (!res.ok) {
     throw new Error(`Failed to generate loan PDF: ${res.status}`);

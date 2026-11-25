@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { Plus, Edit2, Trash2, Upload } from 'lucide-react';
 import { toast } from 'sonner';
+import { API_URL, getAuthHeaders } from '@/lib/api';
 
 export default function BankAccounts() {
   const { user } = useAuth();
@@ -12,8 +13,8 @@ export default function BankAccounts() {
   const { data: accounts, refetch } = useQuery({
     queryKey: ['bank-accounts', user?.id],
     queryFn: async () => {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/bank-accounts`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+      const response = await fetch(`${API_URL}/accountant/bank-accounts`, {
+        headers: getAuthHeaders()
       });
       if (!response.ok) return [];
       return await response.json();
@@ -24,11 +25,11 @@ export default function BankAccounts() {
   const handleAddAccount = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/bank-accounts`, {
+      const response = await fetch(`${API_URL}/accountant/bank-accounts`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          ...getAuthHeaders()
         },
         body: JSON.stringify(formData)
       });
@@ -46,9 +47,9 @@ export default function BankAccounts() {
   const handleDeleteAccount = async (id: number) => {
     if (!confirm('Are you sure?')) return;
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/bank-accounts/${id}`, {
+      const response = await fetch(`${API_URL}/accountant/bank-accounts/${id}`, {
         method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+        headers: getAuthHeaders()
       });
       if (response.ok) {
         toast.success('Bank account deleted');

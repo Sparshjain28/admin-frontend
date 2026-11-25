@@ -443,7 +443,6 @@ export default function TeamUsers() {
       u.id !== userToRemove.id &&
       (u.status === 'active' || !u.status) // Include users without status field or with active status
     );
-    console.log('Flat team:', flatTeam);
     return eligible;
   }, [flatTeam, userToRemove, viewTab]);
 

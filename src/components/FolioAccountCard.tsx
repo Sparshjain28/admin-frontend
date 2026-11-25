@@ -3,6 +3,7 @@ import { Landmark, Pencil } from 'lucide-react';
 import FolioLedger from '@/components/FolioLedger';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { API_URL, getAuthHeaders } from '@/lib/api';
 
 interface FolioAccountCardProps {
   folio: any;
@@ -31,11 +32,11 @@ export default function FolioAccountCard({ folio, extraEntries = [], customerNam
     if (!folio?.id) return;
     setSaving(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/accountant/folio-accounts/${folio.id}`, {
+      const res = await fetch(`${API_URL}/accountant/folio-accounts/${folio.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          ...getAuthHeaders()
         },
         body: JSON.stringify({
           lender_name: editData.lender_name,

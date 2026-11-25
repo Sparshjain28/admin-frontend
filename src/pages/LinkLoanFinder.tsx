@@ -6,14 +6,15 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Navigate, useSearchParams } from 'react-router-dom';
+import { API_URL, getAuthHeaders } from '@/lib/api';
 
-const API = import.meta.env.VITE_API_URL || '/api';
+const API = API_URL;
 const ALLOWED_ROLES = ['admin', 'sales_manager', 'branch_manager'];
 
 function authHeaders() {
   return {
     'Content-Type': 'application/json',
-    Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
+    ...getAuthHeaders(),
   };
 }
 
