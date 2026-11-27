@@ -5,7 +5,7 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-import { authAPI, api } from "@/lib/api";
+import { authAPI, api, clearAuthStorage, sanitizeCachedUser } from "@/lib/api";
 import { getCurrentPortal, isRoleAllowedOnCurrentPortal, PortalType } from "@/utils/portalConfig";
 
 export type UserRole =
@@ -68,11 +68,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           if (cachedUser) {
             const parsedUser = JSON.parse(cachedUser);
             if (!isRoleAllowedOnCurrentPortal(parsedUser.role)) {
-              localStorage.removeItem("auth_token");
-              localStorage.removeItem("cached_user");
-              localStorage.removeItem("cached_permissions");
-              api.setToken(null);
+              clearAuthStorage();
               setUser(null);
+              setPermissions(null);
               setIsLoading(false);
               return;
             }
@@ -92,11 +90,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           ]);
 
           if (!isRoleAllowedOnCurrentPortal(userData.role)) {
-            localStorage.removeItem("auth_token");
-            localStorage.removeItem("cached_user");
-            localStorage.removeItem("cached_permissions");
-            api.setToken(null);
+            clearAuthStorage();
             setUser(null);
+            setPermissions(null);
             setIsLoading(false);
             return;
           }
@@ -109,16 +105,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             permissions: permissionData.permissions
           });
           
-          // Update the cache with fresh data
-          localStorage.setItem("cached_user", JSON.stringify(userData));
+          // Store minimal non-PII profile fields for optimistic loading
+          localStorage.setItem("cached_user", JSON.stringify(sanitizeCachedUser(userData)));
           localStorage.setItem("cached_permissions", JSON.stringify(permissionData.permissions));
         }
       } catch (error: any) {
         if (error?.status === 401) {
-          localStorage.removeItem("auth_token");
-          localStorage.removeItem("cached_user");
-          localStorage.removeItem("cached_permissions");
-          api.setToken(null);
+          clearAuthStorage();
+          setUser(null);
+          setPermissions(null);
         } else {
           console.error("Server error during auth initialization, falling back to cached user.");
           const cachedUser = localStorage.getItem("cached_user");
@@ -165,8 +160,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           permissions: permissionData.permissions,
         });
 
-        // Store in cache for optimistic loading on next visit
-        localStorage.setItem("cached_user", JSON.stringify(data.user));
+        // Store minimal non-PII profile fields for optimistic loading on next visit
+        localStorage.setItem("cached_user", JSON.stringify(sanitizeCachedUser(data.user)));
         localStorage.setItem("cached_permissions", JSON.stringify(permissionData.permissions));
 
         return { error: null };
@@ -212,9 +207,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = async () => {
-    localStorage.removeItem("auth_token");
-    api.setToken(null);
+    try {
+      await api.post("/auth/logout", {});
+    } catch {
+      // Best-effort server logout
+    }
+    clearAuthStorage();
     setUser(null);
+    setPermissions(null);
     setSession(null);
   };
 

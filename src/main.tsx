@@ -1,7 +1,7 @@
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
-import { api, getAuthToken } from "./lib/api";
+import { api, clearAuthStorage, getAuthToken } from "./lib/api";
 import axios from "axios";
 
 // Pages that do their own 401 handling and must not be bounced to /login.
@@ -19,8 +19,7 @@ const handlesOwnAuthErrors = () =>
 
 const clearSessionAndRedirect = () => {
   if (handlesOwnAuthErrors()) return;
-  localStorage.removeItem('auth_token');
-  document.cookie = "auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+  clearAuthStorage();
   window.location.href = '/login';
 };
 

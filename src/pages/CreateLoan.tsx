@@ -49,7 +49,7 @@ const DocumentPreview = ({ file }: { file: File | null }) => {
             src={previewUrl} 
             alt="Preview" 
             className="w-10 h-10 object-cover rounded shadow-sm border border-border group-hover:scale-110 transition-transform cursor-zoom-in" 
-            onClick={() => window.open(previewUrl, '_blank')} 
+            onClick={() => window.open(previewUrl, '_blank', 'noopener,noreferrer')} 
           />
         </div>
       )}
@@ -58,7 +58,7 @@ const DocumentPreview = ({ file }: { file: File | null }) => {
           type="button"
           onClick={() => {
             const url = URL.createObjectURL(file);
-            window.open(url, '_blank');
+            window.open(url, '_blank', 'noopener,noreferrer');
             // Revoke after a delay as it opens in new tab
             setTimeout(() => URL.revokeObjectURL(url), 1000);
           }}

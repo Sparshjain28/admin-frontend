@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { FloatingLabelInput, FloatingLabelSelect } from '@/components/FloatingLabelInput';
 import { toast } from 'sonner';
+import { pickValidatedFile, pickValidatedFiles } from '@/lib/fileValidation';
 import { X } from 'lucide-react';
 import { API_URL, getAuthHeaders } from '@/lib/api';
 
@@ -360,7 +361,7 @@ export default function PaymentRequestModal({ loanId: propLoanId, folio, initial
                     <input type="file" multiple required accept=".pdf,.jpg,.jpeg,.png" onChange={async e => {
                       const files = e.target.files;
                       if (files) {
-                        const compressed = await Promise.all(Array.from(files).map(f => compressImage(f)));
+                        const validFiles = pickValidatedFiles(e); const compressed = await Promise.all(validFiles.map(f => compressImage(f)));
                         setSupportingDocs(prev => [...prev, ...compressed]);
                       }
                     }} className="w-full text-xs text-muted-foreground file:mr-2 file:py-1 file:px-3 file:border file:border-border file:rounded-lg file:text-[10px] file:bg-background file:text-foreground hover:file:bg-accent/50" />
@@ -411,7 +412,7 @@ export default function PaymentRequestModal({ loanId: propLoanId, folio, initial
                       {!bankVerifiedData && bankVerifyAttempted && (
                         <div className="mt-2 pt-2 border-t border-dashed border-gray-300">
                           <p className="text-[10px] text-gray-500 mb-1">OR upload cancelled cheque / bank statement</p>
-                          <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={async e => { const file = e.target.files?.[0] || null; setBankInfoDoc(file ? await compressImage(file) : null); }} className="w-full text-xs text-muted-foreground file:mr-2 file:py-1 file:px-3 file:border file:border-border file:rounded-lg file:text-[10px] file:bg-background file:text-foreground hover:file:bg-accent/50" />
+                          <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={async e => { const file = pickValidatedFile(e); setBankInfoDoc(file ? await compressImage(file) : null); }} className="w-full text-xs text-muted-foreground file:mr-2 file:py-1 file:px-3 file:border file:border-border file:rounded-lg file:text-[10px] file:bg-background file:text-foreground hover:file:bg-accent/50" />
                         </div>
                       )}
                       {bankVerifiedData && (
@@ -438,7 +439,7 @@ export default function PaymentRequestModal({ loanId: propLoanId, folio, initial
                   {finonestTab === 'qr' && (
                     <div>
                       <label className="block text-[11px] font-medium text-foreground/70 mb-0.5">QR Upload *</label>
-                      <input type="file" required accept=".pdf,.jpg,.jpeg,.png" onChange={async e => { const file = e.target.files?.[0] || null; setQrUpload(file ? await compressImage(file) : null); }} className="w-full text-xs text-muted-foreground file:mr-2 file:py-1 file:px-3 file:border file:border-border file:rounded-lg file:text-[10px] file:bg-background file:text-foreground hover:file:bg-accent/50" />
+                      <input type="file" required accept=".pdf,.jpg,.jpeg,.png" onChange={async e => { const file = pickValidatedFile(e); setQrUpload(file ? await compressImage(file) : null); }} className="w-full text-xs text-muted-foreground file:mr-2 file:py-1 file:px-3 file:border file:border-border file:rounded-lg file:text-[10px] file:bg-background file:text-foreground hover:file:bg-accent/50" />
                     </div>
                   )}
                   {finonestTab === 'upi' && (
@@ -459,7 +460,7 @@ export default function PaymentRequestModal({ loanId: propLoanId, folio, initial
                     <div className="space-y-3 mt-2">
                       <div>
                         <label className="block text-[11px] font-medium text-foreground/70 mb-0.5">Payment Proof *</label>
-                        <input type="file" required accept=".pdf,.jpg,.jpeg,.png" onChange={async e => { const file = e.target.files?.[0]; if (file) setPaymentProofs([await compressImage(file)]); }} className="w-full text-xs text-muted-foreground file:mr-2 file:py-1 file:px-3 file:border file:border-border file:rounded-lg file:text-[10px] file:bg-background file:text-foreground hover:file:bg-accent/50" />
+                        <input type="file" required accept=".pdf,.jpg,.jpeg,.png" onChange={async e => { const file = pickValidatedFile(e); if (file) setPaymentProofs([await compressImage(file)]); }} className="w-full text-xs text-muted-foreground file:mr-2 file:py-1 file:px-3 file:border file:border-border file:rounded-lg file:text-[10px] file:bg-background file:text-foreground hover:file:bg-accent/50" />
                         {paymentProofs.length > 0 && (
                           <div className="mt-1 flex items-center justify-between text-[10px] text-green-600">
                             <span className="truncate flex-1">{paymentProofs[0].name}</span>
@@ -499,7 +500,7 @@ export default function PaymentRequestModal({ loanId: propLoanId, folio, initial
                             {!bankVerifiedData && bankVerifyAttempted && (
                               <div className="mt-2 pt-2 border-t border-dashed border-gray-300">
                                 <p className="text-[10px] text-gray-500 mb-1">OR upload cancelled cheque / bank statement</p>
-                                <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={async e => { const file = e.target.files?.[0] || null; setBankInfoDoc(file ? await compressImage(file) : null); }} className="w-full text-xs text-muted-foreground file:mr-2 file:py-1 file:px-3 file:border file:border-border file:rounded-lg file:text-[10px] file:bg-background file:text-foreground hover:file:bg-accent/50" />
+                                <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={async e => { const file = pickValidatedFile(e); setBankInfoDoc(file ? await compressImage(file) : null); }} className="w-full text-xs text-muted-foreground file:mr-2 file:py-1 file:px-3 file:border file:border-border file:rounded-lg file:text-[10px] file:bg-background file:text-foreground hover:file:bg-accent/50" />
                               </div>
                             )}
                             {bankVerifiedData && (
@@ -526,7 +527,7 @@ export default function PaymentRequestModal({ loanId: propLoanId, folio, initial
                         {finonestTab === 'qr' && (
                           <div>
                             <label className="block text-[11px] font-medium text-foreground/70 mb-0.5">QR Upload *</label>
-                            <input type="file" required accept=".pdf,.jpg,.jpeg,.png" onChange={async e => { const file = e.target.files?.[0] || null; setQrUpload(file ? await compressImage(file) : null); }} className="w-full text-xs text-muted-foreground file:mr-2 file:py-1 file:px-3 file:border file:border-border file:rounded-lg file:text-[10px] file:bg-background file:text-foreground hover:file:bg-accent/50" />
+                            <input type="file" required accept=".pdf,.jpg,.jpeg,.png" onChange={async e => { const file = pickValidatedFile(e); setQrUpload(file ? await compressImage(file) : null); }} className="w-full text-xs text-muted-foreground file:mr-2 file:py-1 file:px-3 file:border file:border-border file:rounded-lg file:text-[10px] file:bg-background file:text-foreground hover:file:bg-accent/50" />
                           </div>
                         )}
                         {finonestTab === 'upi' && (
@@ -568,7 +569,7 @@ export default function PaymentRequestModal({ loanId: propLoanId, folio, initial
                           {!bankVerifiedData && bankVerifyAttempted && (
                             <div className="mt-2 pt-2 border-t border-dashed border-gray-300">
                               <p className="text-[10px] text-gray-500 mb-1">OR upload cancelled cheque / bank statement</p>
-                              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={async e => { const file = e.target.files?.[0] || null; setBankInfoDoc(file ? await compressImage(file) : null); }} className="w-full text-xs text-muted-foreground file:mr-2 file:py-1 file:px-3 file:border file:border-border file:rounded-lg file:text-[10px] file:bg-background file:text-foreground hover:file:bg-accent/50" />
+                              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={async e => { const file = pickValidatedFile(e); setBankInfoDoc(file ? await compressImage(file) : null); }} className="w-full text-xs text-muted-foreground file:mr-2 file:py-1 file:px-3 file:border file:border-border file:rounded-lg file:text-[10px] file:bg-background file:text-foreground hover:file:bg-accent/50" />
                             </div>
                           )}
                           {bankVerifiedData && (
@@ -595,7 +596,7 @@ export default function PaymentRequestModal({ loanId: propLoanId, folio, initial
                       {finonestTab === 'qr' && (
                         <div>
                           <label className="block text-[11px] font-medium text-foreground/70 mb-0.5">QR Upload *</label>
-                          <input type="file" required accept=".pdf,.jpg,.jpeg,.png" onChange={async e => { const file = e.target.files?.[0] || null; setQrUpload(file ? await compressImage(file) : null); }} className="w-full text-xs text-muted-foreground file:mr-2 file:py-1 file:px-3 file:border file:border-border file:rounded-lg file:text-[10px] file:bg-background file:text-foreground hover:file:bg-accent/50" />
+                          <input type="file" required accept=".pdf,.jpg,.jpeg,.png" onChange={async e => { const file = pickValidatedFile(e); setQrUpload(file ? await compressImage(file) : null); }} className="w-full text-xs text-muted-foreground file:mr-2 file:py-1 file:px-3 file:border file:border-border file:rounded-lg file:text-[10px] file:bg-background file:text-foreground hover:file:bg-accent/50" />
                         </div>
                       )}
                       {finonestTab === 'upi' && (

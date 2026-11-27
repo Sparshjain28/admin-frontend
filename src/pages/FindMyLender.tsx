@@ -214,17 +214,41 @@ function OSMMap({ customerLat, customerLng, branches }: { customerLat: number; c
       const marker = L.marker([lat, lng], { icon: branchIcon }).addTo(map);
 
       const popupContent = document.createElement('div');
-      popupContent.innerHTML = `
-        <div style="font-size: 12px; max-width: 300px;">
-          <strong style="font-size: 14px;">${branch.branch_name}</strong><br/>
-          <div style="margin-top: 8px; border-top: 1px solid #e5e7eb; padding-top: 8px;">
-            <div style="margin-bottom: 6px;"><strong>📍 Location:</strong> ${branch.location}</div>
-            <div style="margin-bottom: 6px;"><strong>📏 Distance:</strong> ${branch.distance.toFixed(2)} km</div>
-            <div style="margin-bottom: 6px;"><strong>🎯 Service Area:</strong> ${branch.geo_limit_km} km</div>
-            <button class="route-btn" style="margin-top: 8px; padding: 6px 12px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; width: 100%;">Show Route (OSRM)</button>
-          </div>
-        </div>
-      `;
+      const popupWrapper = document.createElement('div');
+      popupWrapper.style.cssText = 'font-size: 12px; max-width: 300px;';
+
+      const branchTitle = document.createElement('strong');
+      branchTitle.style.fontSize = '14px';
+      branchTitle.textContent = String(branch.branch_name || '');
+      popupWrapper.appendChild(branchTitle);
+      popupWrapper.appendChild(document.createElement('br'));
+
+      const popupDetails = document.createElement('div');
+      popupDetails.style.cssText = 'margin-top: 8px; border-top: 1px solid #e5e7eb; padding-top: 8px;';
+
+      const appendPopupRow = (label: string, value: string) => {
+        const row = document.createElement('div');
+        row.style.marginBottom = '6px';
+        const strong = document.createElement('strong');
+        strong.textContent = label;
+        row.appendChild(strong);
+        row.appendChild(document.createTextNode(` ${value}`));
+        popupDetails.appendChild(row);
+      };
+
+      appendPopupRow('📍 Location:', String(branch.location || ''));
+      appendPopupRow('📏 Distance:', `${Number(branch.distance || 0).toFixed(2)} km`);
+      appendPopupRow('🎯 Service Area:', `${branch.geo_limit_km ?? ''} km`);
+
+      const routeBtn = document.createElement('button');
+      routeBtn.type = 'button';
+      routeBtn.className = 'route-btn';
+      routeBtn.style.cssText = 'margin-top: 8px; padding: 6px 12px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; width: 100%;';
+      routeBtn.textContent = 'Show Route (OSRM)';
+      popupDetails.appendChild(routeBtn);
+
+      popupWrapper.appendChild(popupDetails);
+      popupContent.appendChild(popupWrapper);
 
       popupContent.querySelector('.route-btn')?.addEventListener('click', () => {
         if (routingControlRef.current) {

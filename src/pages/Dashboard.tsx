@@ -224,7 +224,7 @@ export default function Dashboard() {
         user: user
       });
       const url = URL.createObjectURL(pdfBlob);
-      window.open(url, '_blank');
+      window.open(url, '_blank', 'noopener,noreferrer');
     } catch (error) {
       alert('Failed to view PDF. Please try again.');
     } finally {

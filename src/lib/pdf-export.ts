@@ -12,16 +12,25 @@ function formatDate(val: string | null | undefined): string {
   try { return new Date(val).toLocaleDateString('en-IN'); } catch { return '—'; }
 }
 
+export function escapeHtml(val: unknown): string {
+  return String(val)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function fmt(val: any): string {
   if (val === null || val === undefined || val === '') return '—';
-  return String(val);
+  return escapeHtml(val);
 }
 
 function fmtCur(val: any): string {
   if (val === null || val === undefined || val === '') return '—';
   const n = Number(val);
   if (isNaN(n)) return '—';
-  return formatCurrency(n).replace('₹', 'Rs. ');
+  return escapeHtml(formatCurrency(n).replace('₹', 'Rs. '));
 }
 
 function row4(l1: string, v1: string, l2: string, v2: string, l3: string, v3: string, l4: string, v4: string): string {
@@ -39,7 +48,7 @@ function sectionTitle(icon: string, title: string): string {
 
 function buildLoanHTML(loan: LoanData): string {
   return `<!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>Loan Application - ${loan.loan_number || loan.id}</title>
+<html><head><meta charset="utf-8"><title>Loan Application - ${fmt(loan.loan_number || loan.id)}</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: Arial, Helvetica, sans-serif; color: #1a1a2e; font-size: 10px; line-height: 1.4; padding: 10px; }
@@ -83,7 +92,7 @@ function buildLoanHTML(loan: LoanData): string {
     </td>
     <td class="hdr-right">
       <span class="hdr-lbl">Application ID</span><br/>
-      <span class="hdr-val">${loan.loan_number || loan.id}</span><br/>
+      <span class="hdr-val">${fmt(loan.loan_number || loan.id)}</span><br/>
       <span class="hdr-lbl">Date</span><br/>
       <span class="hdr-val" style="font-size:11px">${new Date().toLocaleDateString('en-IN')}</span>
     </td>
@@ -174,8 +183,8 @@ function buildLoanHTML(loan: LoanData): string {
       const w = Math.floor(100 / refs.length);
       return refs.map((ref: any) => `
         <td style="padding-top:20px;width:${w}%;text-align:center;border-top:1px solid #333;font-size:9px;color:#555;">
-          <div style="font-size:10px;font-weight:bold;color:#1a1a2e;margin-bottom:5px;">${ref.name}</div>
-          <div style="margin-top:5px;">${ref.designation}</div>
+          <div style="font-size:10px;font-weight:bold;color:#1a1a2e;margin-bottom:5px;">${fmt(ref.name)}</div>
+          <div style="margin-top:5px;">${fmt(ref.designation)}</div>
         </td>`).join('');
     })()}
   </tr>
@@ -245,6 +254,7 @@ async function fetchHierarchy(loan: LoanData): Promise<{ name: string; designati
 export function exportLoanPDF(loan: LoanData, docs: any[] = []) {
   const win = window.open('', '_blank');
   if (!win) return;
+  win.opener = null;
   const leadId = loan.lead_id || loan.id;
   Promise.all([fetchHierarchy(loan), fetchDocumentFiles(docs), fetchLeadProfile(leadId)]).then(async ([hierarchy, docFileObjs, profile]) => {
     const loanWithHierarchy = { ...loan, _hierarchy: hierarchy.length > 0 ? hierarchy : undefined, _profile: profile };

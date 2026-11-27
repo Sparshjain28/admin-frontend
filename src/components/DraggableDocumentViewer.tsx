@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { X, ZoomIn, ZoomOut } from 'lucide-react';
+import { useProtectedUploadUrl } from '@/lib/protectedUpload';
 
 interface DraggableDocumentViewerProps {
   url: string;
@@ -128,8 +129,13 @@ export default function DraggableDocumentViewer({ url, fileName, onClose }: Drag
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const isImage = /\.(jpg|jpeg|png|gif|webp|bmp|svg)($|\?)/i.test(url) || url.startsWith('data:image/') || url.startsWith('blob:');
-  const isPdf = /\.pdf($|\?)/i.test(url);
+  const { url: resolvedUrl, isLoading: isFetchingProtected, error: fetchError, mimeType } = useProtectedUploadUrl(url);
+  const isPdf = /\.pdf($|\?)/i.test(url) || mimeType === 'application/pdf';
+  const isImage =
+    !isPdf &&
+    (/\.(jpg|jpeg|png|gif|webp|bmp|svg)($|\?)/i.test(url) ||
+      url.startsWith('data:image/') ||
+      (!!resolvedUrl && resolvedUrl.startsWith('blob:') && (!mimeType || mimeType.startsWith('image/'))));
 
   const resizeHandle = (dir: ResizeDir, className: string) => (
     <div
@@ -193,20 +199,24 @@ export default function DraggableDocumentViewer({ url, fileName, onClose }: Drag
         </div>
       </div>
       <div className="overflow-auto flex items-center justify-center bg-black/5 flex-1 w-full">
-        <div style={{ transform: `scale(${scale})`, transformOrigin: 'center center' }} className="flex items-center justify-center w-full h-full">
-          {isImage ? (
-            <img
-              src={url}
-              alt="Document"
-              onLoad={handleImageLoad}
-              className="max-w-full max-h-full object-contain block"
-            />
-          ) : isPdf ? (
-            <iframe src={url} className="w-full h-full min-w-[600px] min-h-[400px]" title="PDF Viewer" />
-          ) : (
-            <iframe src={url} className="w-full h-full min-w-[600px] min-h-[400px]" title="Document Viewer" />
-          )}
-        </div>
+        {isFetchingProtected ? (
+          <div className="text-xs text-muted-foreground font-medium">Loading document...</div>
+        ) : fetchError || !resolvedUrl ? (
+          <div className="text-xs text-red-600 font-medium">Failed to load document</div>
+        ) : (
+          <div style={{ transform: `scale(${scale})`, transformOrigin: 'center center' }} className="flex items-center justify-center w-full h-full">
+            {isImage ? (
+              <img
+                src={resolvedUrl}
+                alt="Document"
+                onLoad={handleImageLoad}
+                className="max-w-full max-h-full object-contain block"
+              />
+            ) : (
+              <iframe src={resolvedUrl} className="w-full h-full min-w-[600px] min-h-[400px]" title={isPdf ? 'PDF Viewer' : 'Document Viewer'} />
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -2390,7 +2390,7 @@ toast.error("Failed to export data to Excel.");
     }, [calcBank, calcProduct, calcLoanAmount, calcRaccRate, calcTenure]);
 
     // Handle reward form submission (save/add/edit)
-    const handleSaveDummyReward = (e: React.FormEvent) => {
+    const handleSaveRewardScheme = (e: React.FormEvent) => {
         e.preventDefault();
         
         if (!rewardLenderName) {
@@ -6527,7 +6527,7 @@ toast.error("Failed to export data to Excel.");
                         </div>
 
                         {/* Modal Form - Wide 2-column layout */}
-                        <form onSubmit={handleSaveDummyReward} className="p-6 space-y-4 text-xs">
+                        <form onSubmit={handleSaveRewardScheme} className="p-6 space-y-4 text-xs">
                             
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 

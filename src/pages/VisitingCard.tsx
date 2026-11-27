@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Download, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
+import { useProtectedUploadUrl } from '@/lib/protectedUpload';
 import { CardFront, CardBack } from '@/components/IDCard';
 import html2canvas from 'html2canvas';
 
@@ -15,6 +16,7 @@ export default function VisitingCard() {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [working, setWorking] = useState<'download' | 'share' | null>(null);
+  const { url: resolvedPhotoUrl } = useProtectedUploadUrl(profile?.photo_path);
 
   useEffect(() => {
     api.get('/auth/profile?t=' + Date.now())
@@ -120,7 +122,7 @@ export default function VisitingCard() {
     company: 'Finonest',
     mobile: profile.phone || '',
     address,
-    photo: profile.photo_path ? (profile.photo_path.startsWith('http') ? profile.photo_path : `/${profile.photo_path}`) : null,
+    photo: resolvedPhotoUrl,
   };
 
   return (

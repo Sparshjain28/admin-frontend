@@ -1,5 +1,32 @@
-export const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL?.replace('/api', '') || 'https://staging-api.finonest.org').replace(/\/$/, '');
-export const API_URL = import.meta.env.VITE_API_URL || `${API_BASE_URL}/api`;
+function enforceHttpsApiUrl(rawUrl: string): string {
+  const cleaned = rawUrl.trim().replace(/\/$/, '');
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname;
+    const isLocalHost = host === 'localhost' || host === '127.0.0.1';
+    if (!isLocalHost && /^http:\/\//i.test(cleaned)) {
+      return cleaned.replace(/^http:\/\//i, 'https://');
+    }
+  }
+  return cleaned;
+}
+
+const explicitBase = import.meta.env.VITE_API_BASE_URL?.trim();
+const configuredApiUrl = import.meta.env.VITE_API_URL?.trim();
+const isRelativeApiPath = Boolean(configuredApiUrl && configuredApiUrl.startsWith('/'));
+
+export const API_BASE_URL = enforceHttpsApiUrl(
+  explicitBase ||
+    (isRelativeApiPath
+      ? ''
+      : configuredApiUrl?.replace(/\/api\/?$/, '') ||
+        (typeof window !== 'undefined' &&
+        (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+          ? 'http://localhost:5000'
+          : 'https://staging-api.finonest.org'))
+);
+export const API_URL = enforceHttpsApiUrl(
+  configuredApiUrl || `${API_BASE_URL}/api`
+);
 
 export function resolveImageUrl(url: string | null | undefined): string | undefined {
   if (!url || url === 'null') return undefined;
@@ -22,6 +49,47 @@ export function getAuthToken(): string | null {
 export function getAuthHeaders(): Record<string, string> {
   const token = getAuthToken();
   return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+const SESSION_DRAFT_KEYS = [
+  'loan_draft_data',
+  'reapply_loan_data',
+  'current_draft_id',
+];
+
+export function sanitizeCachedUser<T extends Record<string, any> | null | undefined>(user: T) {
+  if (!user) return null;
+  return {
+    id: user.id,
+    user_id: user.user_id,
+    name: user.name || user.full_name,
+    full_name: user.full_name || user.name,
+    role: user.role,
+    status: user.status,
+    branch_id: user.branch_id,
+    reporting_to: user.reporting_to,
+    dsa_id: user.dsa_id,
+    photo_path: user.photo_path ?? null,
+    must_change_mpin: user.must_change_mpin === true,
+  };
+}
+
+export function clearAuthStorage() {
+  authToken = null;
+  try {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('cached_user');
+      localStorage.removeItem('cached_permissions');
+      localStorage.removeItem('customer_token');
+      document.cookie = 'auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      for (const key of SESSION_DRAFT_KEYS) {
+        sessionStorage.removeItem(key);
+      }
+    }
+  } catch {
+    // Ignore storage errors
+  }
 }
 
 let authToken: string | null = getAuthToken();
@@ -65,7 +133,7 @@ export const api = {
         // the spinner and would clear a token that is still valid.
         const exempt = ['/login', '/signup', '/sso'];
         if (typeof window !== 'undefined' && !exempt.some((p) => window.location.pathname.includes(p))) {
-          localStorage.removeItem('auth_token');
+          clearAuthStorage();
           window.location.href = '/login';
           // Prevent the calling component from showing an error toast while the page redirects
           return new Promise(() => {}) as any;
@@ -147,7 +215,7 @@ export const supabase = {
       }
     },
     signOut: async () => {
-      api.setToken(null);
+      clearAuthStorage();
       return {};
     },
     getSession: async () => {

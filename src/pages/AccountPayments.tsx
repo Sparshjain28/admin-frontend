@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import LedgerDetailModal from '@/components/LedgerDetailModal';
 import PaymentRequestModal from '@/components/PaymentRequestModal';
 import { API_URL, getAuthHeaders } from '@/lib/api';
+import { openProtectedUpload } from '@/lib/protectedUpload';
 
 const ENTRY_PURPOSES = [
   'LOAN CLOSURE',
@@ -595,6 +596,10 @@ export default function AccountPayments() {
     }).catch(() => { });
   };
 
+  const handleOpenDoc = (filePath: string) => {
+    openProtectedUpload(`${API_URL}${filePath}`).catch(() => toast.error('Failed to open document'));
+  };
+
   const getApproveStatus = (payment: any) => {
     const isBillMapping = payment?.txn_type === 'BILL_MAPPING_REQUEST' || payment?.purpose === 'REQUEST RAISED FOR BILL MAPPING' || payment?.txn_type === 'FOLIO_CREATION_REQUEST' || (typeof payment?.purpose === 'string' && payment.purpose.startsWith('FOLIO:'));
     if (isBillMapping) {
@@ -923,10 +928,10 @@ export default function AccountPayments() {
                             {payment.ifsc_code && <span className="text-[10px] font-semibold text-foreground truncate">IFSC:- {payment.ifsc_code}</span>}
                             {payment.upi_link && <button onClick={() => navigator.clipboard.writeText(payment.upi_link)} className="px-1.5 py-0.5 bg-blue-600/10 hover:bg-blue-600/20 text-blue-600 dark:text-blue-400 text-[8px] font-semibold rounded border border-blue-600/20">Copy UPI</button>}
                             {payment.documents?.filter((d: any) => d.field_name === 'qr_upload').map((doc: any) => (
-                              <a key={doc.id} href={`${API_URL}${doc.file_path}`} target="_blank" className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[8px] font-semibold rounded border border-blue-600/20">QR Upload</a>
+                              <button type="button" key={doc.id} onClick={() => handleOpenDoc(doc.file_path)} className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[8px] font-semibold rounded border border-blue-600/20">QR Upload</button>
                             ))}
                             {payment.documents?.filter((d: any) => d.field_name !== 'qr_upload').map((doc: any) => (
-                              <a key={doc.id} href={`${API_URL}${doc.file_path}`} target="_blank" className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[8px] font-semibold rounded border border-blue-600/20">{payment.purpose === 'LOAN CLOSURE' ? 'Docs' : 'Proof'}</a>
+                              <button type="button" key={doc.id} onClick={() => handleOpenDoc(doc.file_path)} className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[8px] font-semibold rounded border border-blue-600/20">{payment.purpose === 'LOAN CLOSURE' ? 'Docs' : 'Proof'}</button>
                             ))}
                           </div>
                           <div className="flex items-center gap-2 shrink-0">
@@ -994,10 +999,10 @@ export default function AccountPayments() {
                                 <span>{payment.ifsc_code || '-'}</span>
                                 {payment.upi_link && <button onClick={() => navigator.clipboard.writeText(payment.upi_link)} className="px-1.5 py-0.5 bg-blue-600/10 hover:bg-blue-600/20 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20">Copy UPI</button>}
                                 {payment.documents?.filter((d: any) => d.field_name === 'qr_upload').map((doc: any) => (
-                                  <a key={doc.id} href={`${API_URL}${doc.file_path}`} target="_blank" className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20">QR</a>
+                                  <button type="button" key={doc.id} onClick={() => handleOpenDoc(doc.file_path)} className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20">QR</button>
                                 ))}
                                 {payment.documents?.filter((d: any) => d.field_name !== 'qr_upload').map((doc: any) => (
-                                  <a key={doc.id} href={`${API_URL}${doc.file_path}`} target="_blank" className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20">{payment.purpose === 'LOAN CLOSURE' ? 'Docs' : 'Proof'}</a>
+                                  <button type="button" key={doc.id} onClick={() => handleOpenDoc(doc.file_path)} className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20">{payment.purpose === 'LOAN CLOSURE' ? 'Docs' : 'Proof'}</button>
                                 ))}
                               </div>
                             </td>
@@ -1073,10 +1078,10 @@ export default function AccountPayments() {
                             {payment.ifsc_code && <span className="text-[10px] font-semibold text-foreground truncate">IFSC:- {payment.ifsc_code}</span>}
                             {payment.upi_link && <button onClick={() => navigator.clipboard.writeText(payment.upi_link)} className="px-1.5 py-0.5 bg-blue-600/10 hover:bg-blue-600/20 text-blue-600 dark:text-blue-400 text-[8px] font-semibold rounded border border-blue-600/20">Copy UPI</button>}
                             {payment.documents?.filter((d: any) => d.field_name === 'qr_upload').map((doc: any) => (
-                              <a key={doc.id} href={`${API_URL}${doc.file_path}`} target="_blank" className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[8px] font-semibold rounded border border-blue-600/20">QR Upload</a>
+                              <button type="button" key={doc.id} onClick={() => handleOpenDoc(doc.file_path)} className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[8px] font-semibold rounded border border-blue-600/20">QR Upload</button>
                             ))}
                             {payment.documents?.filter((d: any) => d.field_name !== 'qr_upload').map((doc: any) => (
-                              <a key={doc.id} href={`${API_URL}${doc.file_path}`} target="_blank" className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[8px] font-semibold rounded border border-blue-600/20">{payment.purpose === 'LOAN CLOSURE' ? 'Docs' : 'Proof'}</a>
+                              <button type="button" key={doc.id} onClick={() => handleOpenDoc(doc.file_path)} className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[8px] font-semibold rounded border border-blue-600/20">{payment.purpose === 'LOAN CLOSURE' ? 'Docs' : 'Proof'}</button>
                             ))}
                           </div>
                           <div className="  flex items-center gap-2 shrink-0">
@@ -1133,10 +1138,10 @@ export default function AccountPayments() {
                                 <span>{payment.ifsc_code || '-'}</span>
                                 {payment.upi_link && <button onClick={() => navigator.clipboard.writeText(payment.upi_link)} className="px-1.5 py-0.5 bg-blue-600/10 hover:bg-blue-600/20 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20">Copy UPI</button>}
                                 {payment.documents?.filter((d: any) => d.field_name === 'qr_upload').map((doc: any) => (
-                                  <a key={doc.id} href={`${API_URL}${doc.file_path}`} target="_blank" className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20">QR</a>
+                                  <button type="button" key={doc.id} onClick={() => handleOpenDoc(doc.file_path)} className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20">QR</button>
                                 ))}
                                 {payment.documents?.filter((d: any) => d.field_name !== 'qr_upload').map((doc: any) => (
-                                  <a key={doc.id} href={`${API_URL}${doc.file_path}`} target="_blank" className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20">{payment.purpose === 'LOAN CLOSURE' ? 'Docs' : 'Proof'}</a>
+                                  <button type="button" key={doc.id} onClick={() => handleOpenDoc(doc.file_path)} className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20">{payment.purpose === 'LOAN CLOSURE' ? 'Docs' : 'Proof'}</button>
                                 ))}
                               </div>
                             </td>
@@ -1202,10 +1207,10 @@ export default function AccountPayments() {
                             {payment.ifsc_code && <span className="text-[10px] font-semibold text-foreground truncate">IFSC:- {payment.ifsc_code}</span>}
                             {payment.upi_link && <button onClick={() => navigator.clipboard.writeText(payment.upi_link)} className="px-1.5 py-0.5 bg-blue-600/10 hover:bg-blue-600/20 text-blue-600 dark:text-blue-400 text-[8px] font-semibold rounded border border-blue-600/20">Copy UPI</button>}
                             {payment.documents?.filter((d: any) => d.field_name === 'qr_upload').map((doc: any) => (
-                              <a key={doc.id} href={`${API_URL}${doc.file_path}`} target="_blank" className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[8px] font-semibold rounded border border-blue-600/20">QR Upload</a>
+                              <button type="button" key={doc.id} onClick={() => handleOpenDoc(doc.file_path)} className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[8px] font-semibold rounded border border-blue-600/20">QR Upload</button>
                             ))}
                             {payment.documents?.filter((d: any) => d.field_name !== 'qr_upload').map((doc: any) => (
-                              <a key={doc.id} href={`${API_URL}${doc.file_path}`} target="_blank" className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[8px] font-semibold rounded border border-blue-600/20">{payment.purpose === 'LOAN CLOSURE' ? 'Docs' : 'Proof'}</a>
+                              <button type="button" key={doc.id} onClick={() => handleOpenDoc(doc.file_path)} className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[8px] font-semibold rounded border border-blue-600/20">{payment.purpose === 'LOAN CLOSURE' ? 'Docs' : 'Proof'}</button>
                             ))}
                           </div>
                           <div className="  flex items-center gap-2 shrink-0">
@@ -1259,10 +1264,10 @@ export default function AccountPayments() {
                                 <span>{payment.ifsc_code || '-'}</span>
                                 {payment.upi_link && <button onClick={() => navigator.clipboard.writeText(payment.upi_link)} className="px-1.5 py-0.5 bg-blue-600/10 hover:bg-blue-600/20 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20">Copy UPI</button>}
                                 {payment.documents?.filter((d: any) => d.field_name === 'qr_upload').map((doc: any) => (
-                                  <a key={doc.id} href={`${API_URL}${doc.file_path}`} target="_blank" className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20">QR</a>
+                                  <button type="button" key={doc.id} onClick={() => handleOpenDoc(doc.file_path)} className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20">QR</button>
                                 ))}
                                 {payment.documents?.filter((d: any) => d.field_name !== 'qr_upload').map((doc: any) => (
-                                  <a key={doc.id} href={`${API_URL}${doc.file_path}`} target="_blank" className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20">{payment.purpose === 'LOAN CLOSURE' ? 'Docs' : 'Proof'}</a>
+                                  <button type="button" key={doc.id} onClick={() => handleOpenDoc(doc.file_path)} className="px-1.5 py-0.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20">{payment.purpose === 'LOAN CLOSURE' ? 'Docs' : 'Proof'}</button>
                                 ))}
                               </div>
                             </td>

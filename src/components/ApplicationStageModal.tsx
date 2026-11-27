@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { X, Save, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { pickValidatedFile } from '@/lib/fileValidation';
 import { API_URL, getAuthHeaders } from '@/lib/api';
 import { 
   ApplicationStage, 
@@ -333,7 +334,7 @@ export default function ApplicationStageModal({
                   type="file"
                   accept=".pdf,.jpg,.jpeg,.png"
                   onChange={e => {
-                    const file = e.target.files?.[0] || null;
+                    const file = pickValidatedFile(e);
                     setMemoUpload(file);
                   }}
                   className="w-full text-xs text-muted-foreground file:mr-2 file:py-1 file:px-3 file:border file:border-border file:rounded-lg file:text-[10px] file:bg-background file:text-foreground hover:file:bg-accent/50"

@@ -308,16 +308,16 @@ function AppRoutes() {
           </RoleProtectedRoute>
         } />
 
-        <Route path="/users" element={<ProtectedRoute><UserManagement /></ProtectedRoute>} />
-        <Route path="/banks" element={<ProtectedRoute><BankManagement /></ProtectedRoute>} />
-        <Route path="/brokers" element={<ProtectedRoute><BrokerManagement /></ProtectedRoute>} />
-        <Route path="/brokers/:id/performance" element={<ProtectedRoute><DsaPerformance /></ProtectedRoute>} />
-        <Route path="/brokers/:id/profile" element={<ProtectedRoute><DsaProfile /></ProtectedRoute>} />
-        <Route path="/branches" element={<ProtectedRoute><BranchManagement /></ProtectedRoute>} />
-        <Route path="/commission" element={<ProtectedRoute><Commission /></ProtectedRoute>} />
+        <Route path="/users" element={<RoleProtectedRoute allowedRoles={['admin', 'manager', 'sales_manager']}><UserManagement /></RoleProtectedRoute>} />
+        <Route path="/banks" element={<RoleProtectedRoute allowedRoles={['admin']}><BankManagement /></RoleProtectedRoute>} />
+        <Route path="/brokers" element={<RoleProtectedRoute allowedRoles={['admin']}><BrokerManagement /></RoleProtectedRoute>} />
+        <Route path="/brokers/:id/performance" element={<RoleProtectedRoute allowedRoles={['admin', 'manager', 'sales_manager']}><DsaPerformance /></RoleProtectedRoute>} />
+        <Route path="/brokers/:id/profile" element={<RoleProtectedRoute allowedRoles={['admin', 'manager', 'sales_manager']}><DsaProfile /></RoleProtectedRoute>} />
+        <Route path="/branches" element={<RoleProtectedRoute allowedRoles={['admin', 'manager', 'sales_manager']}><BranchManagement /></RoleProtectedRoute>} />
+        <Route path="/commission" element={<RoleProtectedRoute allowedRoles={['admin']}><Commission /></RoleProtectedRoute>} />
         <Route path="/reports" element={<RoleProtectedRoute allowedRoles={['admin', 'manager', 'sales_manager']}><Reports /></RoleProtectedRoute>} />
-        <Route path="/permissions" element={<ProtectedRoute><FieldPermissions /></ProtectedRoute>} />
-        <Route path="/dashboard-permissions" element={<ProtectedRoute><DashboardPermissions /></ProtectedRoute>} />
+        <Route path="/permissions" element={<RoleProtectedRoute allowedRoles={['admin']}><FieldPermissions /></RoleProtectedRoute>} />
+        <Route path="/dashboard-permissions" element={<RoleProtectedRoute allowedRoles={['admin']}><DashboardPermissions /></RoleProtectedRoute>} />
 
         <Route path="/payouts" element={
           <RoleProtectedRoute allowedRoles={['admin', 'accountant']}>
@@ -343,28 +343,28 @@ function AppRoutes() {
           </RoleProtectedRoute>
         } />
 
-        <Route path="/admin/api-management" element={<ProtectedRoute><LoansApiIntegration /></ProtectedRoute>} />
-        <Route path="/find-car-value" element={<ProtectedRoute><FindMyCarValue /></ProtectedRoute>} />
-        <Route path="/link-loan-finder" element={<ProtectedRoute><LinkLoanFinder /></ProtectedRoute>} />
+        <Route path="/admin/api-management" element={<RoleProtectedRoute allowedRoles={['admin']}><LoansApiIntegration /></RoleProtectedRoute>} />
+        <Route path="/find-car-value" element={<RoleProtectedRoute allowedRoles={['admin', 'manager', 'sales_manager']}><FindMyCarValue /></RoleProtectedRoute>} />
+        <Route path="/link-loan-finder" element={<RoleProtectedRoute allowedRoles={['admin', 'sales_manager']}><LinkLoanFinder /></RoleProtectedRoute>} />
         <Route path="/find-lender" element={<ProtectedRoute><FindMyLender /></ProtectedRoute>} />
         <Route path="/find-eligibility" element={
           <RoleProtectedRoute allowedRoles={['admin']}>
             <FindMyEligibility />
           </RoleProtectedRoute>
         } />
-        <Route path="/admin/nearby-branches" element={<ProtectedRoute><AdminNearbyBranches /></ProtectedRoute>} />
-        <Route path="/admin/lender-analysis" element={<ProtectedRoute><LenderAnalysis /></ProtectedRoute>} />
-        <Route path="/settings/loan-comparison-charges" element={<ProtectedRoute><LoanComparisonChargesPage /></ProtectedRoute>} />
-        <Route path="/admin/loan-comparison-charges" element={<ProtectedRoute><LoanComparisonChargesPage /></ProtectedRoute>} />
+        <Route path="/admin/nearby-branches" element={<RoleProtectedRoute allowedRoles={['admin']}><AdminNearbyBranches /></RoleProtectedRoute>} />
+        <Route path="/admin/lender-analysis" element={<RoleProtectedRoute allowedRoles={['admin']}><LenderAnalysis /></RoleProtectedRoute>} />
+        <Route path="/settings/loan-comparison-charges" element={<RoleProtectedRoute allowedRoles={['admin']}><LoanComparisonChargesPage /></RoleProtectedRoute>} />
+        <Route path="/admin/loan-comparison-charges" element={<RoleProtectedRoute allowedRoles={['admin']}><LoanComparisonChargesPage /></RoleProtectedRoute>} />
 
-        <Route path="/audit-logs" element={<ProtectedRoute><AuditLogPage /></ProtectedRoute>} />
+        <Route path="/audit-logs" element={<RoleProtectedRoute allowedRoles={['admin']}><AuditLogPage /></RoleProtectedRoute>} />
         <Route path="/team" element={
           <RoleProtectedRoute allowedRoles={['admin', 'manager', 'sales_manager', 'operation_team', 'loan_operations']}>
             <TeamUsers />
           </RoleProtectedRoute>
         } />
         <Route path="/rc-template/:loanId" element={<ProtectedRoute><RCTemplatePage /></ProtectedRoute>} />
-        <Route path="/rc-template-viewer" element={<RCTemplateViewer />} />
+        <Route path="/rc-template-viewer" element={<ProtectedRoute><RCTemplateViewer /></ProtectedRoute>} />
         <Route path="/profile" element={
           <RoleProtectedRoute allowedRoles={['admin', 'manager', 'sales_manager', 'operation_team', 'loan_operations', 'accountant']}>
             <UserProfile />

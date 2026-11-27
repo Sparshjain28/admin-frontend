@@ -13,7 +13,7 @@ export async function openDsaFile(fileId: number | string): Promise<void> {
   }
   const blob = await res.blob();
   const url = URL.createObjectURL(blob);
-  window.open(url, '_blank', 'noopener');
+  window.open(url, '_blank', 'noopener,noreferrer');
   setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 

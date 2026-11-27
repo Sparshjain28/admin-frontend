@@ -3,6 +3,7 @@ import { TrendingDown } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { API_URL, getAuthHeaders } from '@/lib/api';
+import { openProtectedUpload } from '@/lib/protectedUpload';
 
 interface FolioLedgerProps {
   folioId?: string | null;
@@ -49,7 +50,7 @@ export default function FolioLedger({
     if (onOpenViewer) {
       onOpenViewer(url, docId);
     } else {
-      window.open(url, '_blank');
+      openProtectedUpload(url).catch(() => toast.error('Failed to open document'));
     }
   };
 

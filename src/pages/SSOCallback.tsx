@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { authAPI, api } from '@/lib/api';
+import { authAPI, api, sanitizeCachedUser } from '@/lib/api';
 import { AlertCircle, ArrowRight } from 'lucide-react';
 
 /// Reduces the `redirect` query param to a safe same-origin path.
@@ -53,7 +53,7 @@ export default function SSOCallback() {
           api.setToken(res.token);
 
           if (res.user) {
-            localStorage.setItem('cached_user', JSON.stringify(res.user));
+            localStorage.setItem('cached_user', JSON.stringify(sanitizeCachedUser(res.user)));
           }
           if (res.permissions) {
             localStorage.setItem('cached_permissions', JSON.stringify(res.permissions));

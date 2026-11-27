@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api, API_URL, getAuthHeaders } from '@/lib/api';
+import { useProtectedUploadUrl } from '@/lib/protectedUpload';
 import { useAuth } from '@/contexts/AuthContext';
 import { User, CreditCard, FileText, MapPin, CheckCircle, XCircle, Eye, EyeOff, Calendar, Users, Pencil, Check, X, Camera, Upload, Shield, ArrowLeft, Phone, Mail, Building, Home, Code, Landmark, Wallet, Activity, Lock } from 'lucide-react';
 import { toast } from 'sonner';
@@ -73,12 +74,13 @@ export default function UserProfile() {
   // without removing the manual paths.
   const [digilockerStatus, setDigilockerStatus] = useState<string>('Initializing DigiLocker...');
   const [digilockerVerified, setDigilockerVerified] = useState(false);
+  const { url: resolvedPhotoUrl } = useProtectedUploadUrl(profile?.photo_path);
 
   useEffect(() => {
     api.get('/auth/profile?t=' + Date.now())
-      .then((data) => { 
-        setProfile(data); 
-        setPhoneValue(data.phone || ''); 
+      .then((data) => {
+        setProfile(data);
+        setPhoneValue(data.phone || '');
         setPanNumber(data.kyc?.pan_number || '');
         setAadhaarNumber(data.kyc?.aadhaar_number || '');
       })
@@ -280,18 +282,18 @@ export default function UserProfile() {
     setVerifyingPan(true);
     try {
       const response = await api.post('/kyc/verify-pan', { pan_number: panToVerify, save_to_profile: true });
-if (response.success) {
+      if (response.success) {
         setShowPanForm(false);
         toast.success('PAN verified successfully! Name updated from PAN.');
 
         setTimeout(() => {
           api.get('/auth/profile?t=' + Date.now())
             .then((data) => {
-setProfile(data);
+              setProfile(data);
               setPanNumber(data.kyc?.pan_number || '');
             })
             .catch((err) => {
-toast.error('Failed to refresh profile');
+              toast.error('Failed to refresh profile');
             });
         }, 1000);
         return true;
@@ -299,7 +301,7 @@ toast.error('Failed to refresh profile');
         toast.error(response.message || response.error || 'PAN verification failed');
       }
     } catch (error: any) {
-toast.error(error.message || 'Failed to verify PAN');
+      toast.error(error.message || 'Failed to verify PAN');
     } finally {
       setVerifyingPan(false);
     }
@@ -314,8 +316,8 @@ toast.error(error.message || 'Failed to verify PAN');
     setVerifyingAadhaar(true);
     try {
       const response = await api.post('/kyc/verify-aadhaar', { aadhaar_number: aadhaarNumber });
-if (response.success && response.requiresOtp) {
-setAadhaarSessionId(response.sessionId || '');
+      if (response.success && response.requiresOtp) {
+        setAadhaarSessionId(response.sessionId || '');
         setShowAadhaarForm(false);
         setShowAadhaarOtpForm(true);
         toast.success('OTP sent to your Aadhaar linked mobile number');
@@ -324,8 +326,8 @@ setAadhaarSessionId(response.sessionId || '');
         toast.success('Aadhaar verified successfully!');
         setTimeout(() => {
           api.get('/auth/profile?t=' + Date.now())
-            .then((data) => { 
-              setProfile(data); 
+            .then((data) => {
+              setProfile(data);
               setAadhaarNumber(data.kyc?.aadhaar_number || '');
             })
             .catch(console.error);
@@ -334,7 +336,7 @@ setAadhaarSessionId(response.sessionId || '');
         toast.error(response.message || 'Aadhaar verification failed');
       }
     } catch (error: any) {
-toast.error(error.message || 'Failed to verify Aadhaar');
+      toast.error(error.message || 'Failed to verify Aadhaar');
     } finally {
       setVerifyingAadhaar(false);
     }
@@ -353,7 +355,7 @@ toast.error(error.message || 'Failed to verify Aadhaar');
       });
       if (response.success && response.data) {
         toast.success('Bank account verified successfully!');
-        
+
         // Update user profile with verified bank details
         await api.put('/auth/profile', {
           bank_account_number: bankAccountNumber,
@@ -363,9 +365,9 @@ toast.error(error.message || 'Failed to verify Aadhaar');
           bank_verified: true,
           bank_data: response.data
         });
-        
+
         setShowBankForm(false);
-        
+
         // Refresh profile
         setTimeout(() => {
           api.get('/auth/profile?t=' + Date.now())
@@ -387,12 +389,12 @@ toast.error(error.message || 'Failed to verify Aadhaar');
       toast.error('Please enter a valid 6-digit OTP');
       return;
     }
-    
+
     if (!aadhaarSessionId) {
       toast.error('Session ID missing. Please request OTP again.');
-return;
+      return;
     }
-    
+
     setVerifyingAadhaarOtp(true);
     try {
       const payload = {
@@ -401,17 +403,17 @@ return;
         aadhaar_number: aadhaarNumber,
         save_to_profile: true
       };
-const response = await api.post('/kyc/verify-aadhaar-otp', payload);
-if (response.success) {
+      const response = await api.post('/kyc/verify-aadhaar-otp', payload);
+      if (response.success) {
         setShowAadhaarOtpForm(false);
         setAadhaarOtp('');
         setAadhaarSessionId('');
         toast.success('Aadhaar verified successfully!');
-        
+
         setTimeout(() => {
           api.get('/auth/profile?t=' + Date.now())
-            .then((data) => { 
-              setProfile(data); 
+            .then((data) => {
+              setProfile(data);
               setAadhaarNumber(data.kyc?.aadhaar_number || '');
             })
             .catch(console.error);
@@ -420,7 +422,7 @@ if (response.success) {
         toast.error(response.error || 'OTP verification failed');
       }
     } catch (error: any) {
-toast.error(error.message || 'Failed to verify OTP');
+      toast.error(error.message || 'Failed to verify OTP');
     } finally {
       setVerifyingAadhaarOtp(false);
     }
@@ -464,9 +466,9 @@ toast.error(error.message || 'Failed to verify OTP');
         <div className="flex flex-col items-center">
           <div className="relative">
             <div className="w-[100px] h-[100px] rounded-full bg-[#F97316] flex items-center justify-center text-white border-[5px] border-white shadow-sm overflow-hidden">
-              {profile.photo_path ? (
+              {resolvedPhotoUrl ? (
                 <img
-                  src={profile.photo_path.startsWith('http') ? profile.photo_path : `/${profile.photo_path}`}
+                  src={resolvedPhotoUrl}
                   alt={profile.name}
                   className="w-full h-full object-cover"
                   onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
@@ -494,7 +496,7 @@ toast.error(error.message || 'Failed to verify OTP');
               onChange={handlePhotoChange}
             />
           </div>
-          
+
           <h2 className="text-xl font-bold mt-3 text-slate-800">{profile.name}</h2>
           {/* The name came from the verified PAN. The server also refuses to change it. */}
           {profile.name_locked && (
@@ -509,21 +511,21 @@ toast.error(error.message || 'Failed to verify OTP');
 
         {/* Tabs */}
         <div className="w-full mt-10 flex">
-          <button 
+          <button
             onClick={() => setActiveTab('personal')}
             className={`flex-1 py-3 text-[13px] font-bold transition-all relative rounded-t-[14px] flex items-center justify-center gap-2 ${activeTab === 'personal' ? 'text-[#3B82F6] bg-[#EFF6FF]' : 'text-slate-400 bg-transparent'}`}
           >
             {activeTab === 'personal' && <div className="w-1.5 h-1.5 rounded-full bg-[#3B82F6]" />}
             Personal Information
           </button>
-          <button 
+          <button
             onClick={() => setActiveTab('bank')}
             className={`flex-1 py-3 text-[13px] font-bold transition-all relative rounded-t-[14px] flex items-center justify-center gap-2 ${activeTab === 'bank' ? 'text-[#3B82F6] bg-[#EFF6FF]' : 'text-slate-400 bg-transparent'}`}
           >
             {activeTab === 'bank' && <div className="w-1.5 h-1.5 rounded-full bg-[#3B82F6]" />}
             Bank Information
           </button>
-          <button 
+          <button
             onClick={() => setActiveTab('idcard')}
             className={`flex-1 py-3 text-[13px] font-bold transition-all relative rounded-t-[14px] flex items-center justify-center gap-2 ${activeTab === 'idcard' ? 'text-[#3B82F6] bg-[#EFF6FF]' : 'text-slate-400 bg-transparent'}`}
           >
@@ -554,16 +556,16 @@ toast.error(error.message || 'Failed to verify OTP');
 
               <ProfileField icon={Phone} label="MOBILE" value={profile.phone || '—'} />
               <ProfileField icon={Mail} label="EMAIL" value={profile.email || '—'} />
-              
+
               <div className="flex flex-col">
-                <ProfileField icon={CreditCard} label="PAN NUMBER" value={kyc.pan_number || '—'} 
+                <ProfileField icon={CreditCard} label="PAN NUMBER" value={kyc.pan_number || '—'}
                   action={!kyc.pan_verified && (
                     <button onClick={() => setShowPanForm(!showPanForm)} className="text-[11px] font-bold bg-[#EFF6FF] text-[#3B82F6] px-3 py-1 rounded-full">
                       Verify
                     </button>
                   )}
                 />
-                
+
                 {showPanForm && !kyc.pan_verified && (
                   <div className="pl-14 pr-2 pb-4 mt-2">
                     <div className="flex gap-2">
@@ -595,7 +597,7 @@ toast.error(error.message || 'Failed to verify OTP');
                     </button>
                   )}
                 />
-                
+
                 {showAadhaarForm && !kyc.aadhaar_verified && !showAadhaarOtpForm && (
                   <div className="pl-14 pr-2 pb-4 mt-2">
                     <div className="flex gap-2">
@@ -678,17 +680,17 @@ toast.error(error.message || 'Failed to verify OTP');
           {activeTab === 'bank' && (
             <div className="p-4 sm:p-6 space-y-4">
               <div className="flex flex-col">
-                <ProfileField 
-                  icon={Landmark} 
-                  label="BANK ACCOUNT" 
-                  value={kyc.bank_details?.bank_name || '—'} 
+                <ProfileField
+                  icon={Landmark}
+                  label="BANK ACCOUNT"
+                  value={kyc.bank_details?.bank_name || '—'}
                   action={!kyc.bank_details?.verified && (
                     <button onClick={() => setShowBankForm(!showBankForm)} className="text-[11px] font-bold bg-[#EFF6FF] text-[#3B82F6] px-3 py-1 rounded-full">
                       Verify
                     </button>
                   )}
                 />
-                
+
                 {showBankForm && !kyc.bank_details?.verified && (
                   <div className="pl-14 pr-2 pb-4 mt-2 border-b border-slate-100">
                     <div className="flex flex-col gap-3">
@@ -723,7 +725,7 @@ toast.error(error.message || 'Failed to verify OTP');
                   </div>
                 )}
               </div>
-              
+
               <ProfileField icon={User} label="ACCOUNT HOLDER NAME" value={kyc.bank_details?.account_holder_name || profile.name || '—'} />
               <ProfileField icon={Wallet} label="ACCOUNT NUMBER" value={kyc.bank_details?.account_number || '—'} />
               <ProfileField icon={Code} label="IFSC CODE" value={kyc.bank_details?.ifsc_code || '—'} />
@@ -735,7 +737,7 @@ toast.error(error.message || 'Failed to verify OTP');
             <div className="p-4 sm:p-6 space-y-6">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="font-bold text-slate-800">Your Business Card</h3>
-                <button 
+                <button
                   onClick={async () => {
                     const front = document.getElementById('card-front');
                     const back = document.getElementById('card-back');
@@ -773,7 +775,7 @@ toast.error(error.message || 'Failed to verify OTP');
                   <Upload size={16} className="rotate-180" /> Download Business Card
                 </button>
               </div>
-              
+
               <div className="space-y-6 bg-slate-50 p-6 rounded-xl border border-slate-200 flex flex-col items-center overflow-x-auto">
                 <div className="shadow-lg rounded-lg overflow-hidden border border-gray-200">
                   <CardFront cardData={{
@@ -783,10 +785,10 @@ toast.error(error.message || 'Failed to verify OTP');
                     company: 'Finonest',
                     mobile: profile.phone || '',
                     address: kyc.address ? [kyc.address.line1, kyc.address.city, kyc.address.state, kyc.address.pincode].filter(Boolean).join(', ') : 'Finonest House, 3rd Floor, BL Tower 1, Mahaveer Nagar, Tonk Road, Jaipur',
-                    photo: profile.photo_path ? (profile.photo_path.startsWith('http') ? profile.photo_path : `/${profile.photo_path}`) : null
+                    photo: resolvedPhotoUrl
                   }} />
                 </div>
-                
+
                 <div className="shadow-lg rounded-lg overflow-hidden border border-gray-200">
                   <CardBack cardData={{
                     userId: profile.user_id || profile.id?.toString() || 'PENDING',
@@ -795,7 +797,7 @@ toast.error(error.message || 'Failed to verify OTP');
                     company: 'Finonest',
                     mobile: profile.phone || '',
                     address: kyc.address ? [kyc.address.line1, kyc.address.city, kyc.address.state, kyc.address.pincode].filter(Boolean).join(', ') : 'Finonest House, 3rd Floor, BL Tower 1, Mahaveer Nagar, Tonk Road, Jaipur',
-                    photo: profile.photo_path ? (profile.photo_path.startsWith('http') ? profile.photo_path : `/${profile.photo_path}`) : null
+                    photo: resolvedPhotoUrl
                   }} />
                 </div>
               </div>

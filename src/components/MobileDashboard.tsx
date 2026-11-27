@@ -3,6 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { API_URL, getAuthHeaders } from '@/lib/api';
+import { useProtectedUploadUrl } from '@/lib/protectedUpload';
 import {
   Wallet,
   CreditCard,
@@ -48,6 +49,7 @@ export default function MobileDashboard() {
 
   const [activeSlide, setActiveSlide] = useState(0);
   const [photoLoadFailed, setPhotoLoadFailed] = useState(false);
+  const { url: resolvedPhotoUrl } = useProtectedUploadUrl(user?.photo_path?.trim());
   const carouselRef = useRef<HTMLDivElement>(null);
 
   // ─── Fetch System Configuration & Page Permissions ───────────────────────
@@ -160,13 +162,8 @@ export default function MobileDashboard() {
       .toUpperCase()
     : "FN";
 
-  const rawPhotoPath = user?.photo_path?.trim();
   const photoUrl =
-    rawPhotoPath && !photoLoadFailed
-      ? rawPhotoPath.startsWith("http")
-        ? rawPhotoPath
-        : `/${rawPhotoPath}`
-      : null;
+    !photoLoadFailed ? resolvedPhotoUrl : null;
 
   // 4 Carousel Cards mirroring Flutter main branch home_screen.dart
   const carouselCards = [

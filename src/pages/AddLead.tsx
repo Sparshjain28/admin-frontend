@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { ArrowLeft, ChevronLeft, ChevronDown, Loader2, Link as LinkIcon, Car, CreditCard, User, Info, AlertTriangle, CheckCircle, Tag, RefreshCw, X } from 'lucide-react';
 import { toast } from 'sonner';
+import { pickValidatedFile, pickValidatedFiles } from '@/lib/fileValidation';
 import CreditReportSummary from '@/components/CreditReportSummary';
 import LinkLoanFinderStep from '@/components/LinkLoanFinderStep';
 import ConsentModal from '@/components/ConsentModal';
@@ -1744,7 +1745,7 @@ export default function AddLeadWizard() {
                               type="file"
                               accept="image/*,application/pdf"
                               className="text-[9px] file:mr-1 file:py-0.5 file:px-1 file:rounded file:border-0 file:text-[9px] file:font-semibold file:bg-[#E2E8F0] file:text-[#0F172A] hover:file:bg-[#CBD5E1]"
-                              onChange={e => setRcOcrFront(e.target.files?.[0] || null)}
+                              onChange={e => setRcOcrFront(pickValidatedFile(e))}
                             />
                           </div>
                           <div>
@@ -1753,7 +1754,7 @@ export default function AddLeadWizard() {
                               type="file"
                               accept="image/*,application/pdf"
                               className="text-[9px] file:mr-1 file:py-0.5 file:px-1 file:rounded file:border-0 file:text-[9px] file:font-semibold file:bg-[#E2E8F0] file:text-[#0F172A] hover:file:bg-[#CBD5E1]"
-                              onChange={e => setRcOcrBack(e.target.files?.[0] || null)}
+                              onChange={e => setRcOcrBack(pickValidatedFile(e))}
                             />
                           </div>
                         </div>
@@ -1814,7 +1815,7 @@ export default function AddLeadWizard() {
                             }
                           })
                           .catch(err => {
-                            console.error("PAN Fetch Error:", err);
+                            console.error("PAN Fetch Error:", err?.message || 'Verification failed');
                             toast.error('Failed to verify PAN.');
                           });
                         }
@@ -2511,7 +2512,7 @@ export default function AddLeadWizard() {
                             <div className="flex justify-end mt-2">
                               <button
                                 type="button"
-                                onClick={() => window.open(`/link-loan-finder?rc=${rcData?.rc_number || rcData?.full_rc_data?.rc_number || form.vehicle_number}`, '_blank')}
+                                onClick={() => window.open(`/link-loan-finder?rc=${encodeURIComponent(rcData?.rc_number || rcData?.full_rc_data?.rc_number || form.vehicle_number || '')}`, '_blank', 'noopener,noreferrer')}
                                 className="flex items-center gap-1.5 text-[11px] font-semibold text-blue-600 hover:underline px-2 py-1"
                               >
                                 Open Link Loan Finder Tool <ArrowLeft size={12} className="rotate-135" />
@@ -2747,31 +2748,31 @@ export default function AddLeadWizard() {
                 <FormSection title="KYC Uploads (Mandatory)" icon={User}>
                   <div>
                     <label className={labelClass}>Aadhar Card Front *</label>
-                    {!form.aadharFront && <input type="file" className={inputClass} onChange={e => update('aadharFront', e.target.files?.[0] || null)} accept="image/*,.pdf" />}
+                    {!form.aadharFront && <input type="file" className={inputClass} onChange={e => update('aadharFront', pickValidatedFile(e))} accept="image/*,.pdf" />}
                     <DocumentPreview file={form.aadharFront as File | null} onRemove={() => update('aadharFront', null)} />
                     {!form.aadharFront && existingDocs.find(d => d.document_type === 'aadhar_front') && <div className="text-xs text-green-600 font-medium mt-1 flex items-center gap-1"><CheckCircle size={12} /> Existing document attached</div>}
                   </div>
                   <div>
                     <label className={labelClass}>Aadhar Card Back *</label>
-                    {!form.aadharBack && <input type="file" className={inputClass} onChange={e => update('aadharBack', e.target.files?.[0] || null)} accept="image/*,.pdf" />}
+                    {!form.aadharBack && <input type="file" className={inputClass} onChange={e => update('aadharBack', pickValidatedFile(e))} accept="image/*,.pdf" />}
                     <DocumentPreview file={form.aadharBack as File | null} onRemove={() => update('aadharBack', null)} />
                     {!form.aadharBack && existingDocs.find(d => d.document_type === 'aadhar_back') && <div className="text-xs text-green-600 font-medium mt-1 flex items-center gap-1"><CheckCircle size={12} /> Existing document attached</div>}
                   </div>
                   <div>
                     <label className={labelClass}>Pan Card *</label>
-                    {!form.panCard && <input type="file" className={inputClass} onChange={e => update('panCard', e.target.files?.[0] || null)} accept="image/*,.pdf" />}
+                    {!form.panCard && <input type="file" className={inputClass} onChange={e => update('panCard', pickValidatedFile(e))} accept="image/*,.pdf" />}
                     <DocumentPreview file={form.panCard as File | null} onRemove={() => update('panCard', null)} />
                     {!form.panCard && existingDocs.find(d => d.document_type === 'pan_card') && <div className="text-xs text-green-600 font-medium mt-1 flex items-center gap-1"><CheckCircle size={12} /> Existing document attached</div>}
                   </div>
                   <div>
                     <label className={labelClass}>RC (Front) *</label>
-                    {!form.rcFront && <input type="file" className={inputClass} onChange={e => update('rcFront', e.target.files?.[0] || null)} accept="image/*,.pdf" />}
+                    {!form.rcFront && <input type="file" className={inputClass} onChange={e => update('rcFront', pickValidatedFile(e))} accept="image/*,.pdf" />}
                     <DocumentPreview file={form.rcFront as File | null} onRemove={() => update('rcFront', null)} />
                     {!form.rcFront && existingDocs.find(d => d.document_type === 'rc_front') && <div className="text-xs text-green-600 font-medium mt-1 flex items-center gap-1"><CheckCircle size={12} /> Existing document attached</div>}
                   </div>
                   <div>
                     <label className={labelClass}>RC (Back) *</label>
-                    {!form.rcBack && <input type="file" className={inputClass} onChange={e => update('rcBack', e.target.files?.[0] || null)} accept="image/*,.pdf" />}
+                    {!form.rcBack && <input type="file" className={inputClass} onChange={e => update('rcBack', pickValidatedFile(e))} accept="image/*,.pdf" />}
                     <DocumentPreview file={form.rcBack as File | null} onRemove={() => update('rcBack', null)} />
                     {!form.rcBack && existingDocs.find(d => d.document_type === 'rc_back') && <div className="text-xs text-green-600 font-medium mt-1 flex items-center gap-1"><CheckCircle size={12} /> Existing document attached</div>}
                   </div>
@@ -2803,7 +2804,7 @@ export default function AddLeadWizard() {
                           className={inputClass} 
                           onChange={e => {
                             if (e.target.files && e.target.files.length > 0) {
-                              update(doc.key, [...files, ...Array.from(e.target.files)]);
+                              const validFiles = pickValidatedFiles(e); if (validFiles.length > 0) update(doc.key, [...files, ...validFiles]);
                             }
                             e.target.value = ''; // Reset so same file can be selected again
                           }} 

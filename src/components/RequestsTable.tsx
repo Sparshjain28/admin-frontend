@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import { Eye, XCircle } from 'lucide-react';
+import { toast } from 'sonner';
 import { API_BASE_URL, resolveImageUrl } from '@/lib/api';
+import { openProtectedUpload } from '@/lib/protectedUpload';
 
 const getStatusBadge = (status: string, txnType?: string, purpose?: string) => {
   const isBillMapping = txnType === 'BILL_MAPPING_REQUEST' || purpose === 'REQUEST RAISED FOR BILL MAPPING';
@@ -68,7 +70,7 @@ export default function RequestsTable({ requests, showActions, onViewLedger, onR
     if (onOpenViewer) {
       onOpenViewer(url, docId);
     } else {
-      window.open(url, '_blank');
+      openProtectedUpload(url).catch(() => toast.error('Failed to open document'));
     }
   };
 

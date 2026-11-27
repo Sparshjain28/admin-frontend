@@ -529,6 +529,7 @@ export async function exportRCTemplatePDF(loan: LoanData) {
       toast.error('Could not open preview window');
       return;
     }
+    win.opener = null;
     const url = URL.createObjectURL(blob);
     win.location.href = url;
     toast.success('RC Template opened for preview');
@@ -564,6 +565,7 @@ export async function exportRCTemplateFullPage(loan: LoanData) {
       toast.error('Could not open preview window');
       return;
     }
+    win.opener = null;
     const url = URL.createObjectURL(blob);
     win.location.href = url;
     toast.success('RC Template (Full Page) opened for preview');

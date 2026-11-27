@@ -20,6 +20,7 @@ import {
   extractAllLenders
 } from '@/utils/creditReportFilters';
 import { API_URL, getAuthHeaders } from '@/lib/api';
+import { downloadProtectedUpload } from '@/lib/protectedUpload';
 
 interface CreditReport {
   id: number;
@@ -402,14 +403,12 @@ export default function StandaloneCreditReports() {
             
             queryClient.invalidateQueries({ queryKey: ['standalone-credit-reports'] });
             
-            // Download the file
+            // Download the file with authentication headers
             if (statusData.result && statusData.result.fileUrl) {
-              const a = document.createElement('a');
-              a.href = statusData.result.fileUrl; // This will use the proxy to hit backend /uploads
-              a.download = `Bulk_CIBIL_Scores_${new Date().getTime()}.xlsx`;
-              document.body.appendChild(a);
-              a.click();
-              document.body.removeChild(a);
+              await downloadProtectedUpload(
+                statusData.result.fileUrl,
+                `Bulk_CIBIL_Scores_${new Date().getTime()}.xlsx`
+              );
             }
           } else if (statusData.state === 'failed') {
             clearInterval(pollInterval);

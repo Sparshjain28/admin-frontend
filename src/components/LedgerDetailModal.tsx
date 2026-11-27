@@ -5,6 +5,8 @@ import { useQuery } from "@tanstack/react-query";
 import FolioLedger from "@/components/FolioLedger";
 import FolioCards from "@/components/FolioCards";
 import { API_URL, API_BASE_URL, getAuthHeaders } from "@/lib/api";
+import { openProtectedUpload } from "@/lib/protectedUpload";
+import { toast } from "sonner";
 
 interface SearchResult {
   bill_number: string;
@@ -953,14 +955,14 @@ function ModalContent({
                 <div className="bg-card rounded-xl border border-border/50 p-2">
                   <div className="flex items-center gap-2">
                     {requestWithDocument.documents.filter((d: any) => d.field_name === 'qr_upload').map((doc: any) => (
-                      <a key={doc.id} href={`${API_URL}${doc.file_path}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-blue-600/10 hover:bg-blue-600/20 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20 transition-colors">
+                      <button type="button" key={doc.id} onClick={() => openProtectedUpload(`${API_URL}${doc.file_path}`).catch(() => toast.error('Failed to open document'))} className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-blue-600/10 hover:bg-blue-600/20 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20 transition-colors">
                         Uploaded QR
-                      </a>
+                      </button>
                     ))}
                     {requestWithDocument.documents.filter((d: any) => d.field_name !== 'qr_upload').map((doc: any) => (
-                      <a key={doc.id} href={`${API_URL}${doc.file_path}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-blue-600/10 hover:bg-blue-600/20 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20 transition-colors">
+                      <button type="button" key={doc.id} onClick={() => openProtectedUpload(`${API_URL}${doc.file_path}`).catch(() => toast.error('Failed to open document'))} className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-blue-600/10 hover:bg-blue-600/20 text-blue-600 dark:text-blue-400 text-[9px] font-semibold rounded border border-blue-600/20 transition-colors">
                         {isBillMapping ? 'View Document' : 'Payment Proof'}
-                      </a>
+                      </button>
                     ))}
                   </div>
                 </div>
