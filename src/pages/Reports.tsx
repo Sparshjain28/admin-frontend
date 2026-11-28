@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { formatCurrency } from '@/lib/mock-data';
 import { exportToExcel } from '@/lib/export-utils';
+import { API_URL, getAuthHeaders } from '@/lib/api';
 import { BarChart3, Download, FileText, IndianRupee, TrendingUp, Calendar, Users, Filter } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend } from 'recharts';
 import { toast } from 'sonner';

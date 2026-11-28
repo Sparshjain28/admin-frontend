@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { API_URL, getAuthHeaders } from '@/lib/api';
 import { useNavigate } from 'react-router-dom';
 import {
   FileText, Search, RefreshCw, Layers, Clock, AlertCircle,

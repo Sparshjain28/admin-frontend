@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
+import { API_URL, getAuthHeaders } from "@/lib/api";
 import {
   ArrowLeft,
   Plus,
@@ -39,30 +40,6 @@ export default function MobileLoansWorkflow() {
   });
 
   const categories = [
-    {
-      id: "personal",
-      name: "Personal Loan",
-      icon: <User size={20} className="text-teal-600" />,
-      bg: "bg-teal-50",
-    },
-    {
-      id: "business",
-      name: "Business Loan",
-      icon: <HandCoins size={20} className="text-emerald-600" />,
-      bg: "bg-emerald-50",
-    },
-    {
-      id: "home",
-      name: "Home",
-      icon: <Home size={20} className="text-blue-600" />,
-      bg: "bg-blue-50",
-    },
-    {
-      id: "property",
-      name: "Loan Against Property",
-      icon: <Building2 size={20} className="text-orange-600" />,
-      bg: "bg-orange-50",
-    },
     {
       id: "used_car",
       name: "Used Car Loan",

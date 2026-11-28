@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Phone, Lock, Shield, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { API_URL } from '@/lib/api';
 
 export default function ForgotMpin() {
   const navigate = useNavigate();

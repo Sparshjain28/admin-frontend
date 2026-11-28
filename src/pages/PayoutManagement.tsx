@@ -371,6 +371,8 @@ export default function PayoutManagement() {
     const isIndependentAdvisor = false;
     const isPartnerPayoutRole = false;
     const isPartnerWalletRole = false;
+    const [loadingPayouts, setLoadingPayouts] = useState(false);
+    const [payouts, setPayouts] = useState<PayoutRecord[]>([]);
     
     // States for Payout request form
     const [requestAmount, setRequestAmount] = useState('');

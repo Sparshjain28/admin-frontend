@@ -1,4 +1,4 @@
-import { getAuthToken } from '@/lib/api';
+import { getAuthToken, API_BASE_URL } from '@/lib/api';
 
 export interface LenderCharges {
   stamp_duty: number;       // default: 0.35 (%)

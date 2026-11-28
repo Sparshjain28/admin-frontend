@@ -5,6 +5,7 @@ import RequestsTable from '@/components/RequestsTable';
 import DraggableDocumentViewer from '@/components/DraggableDocumentViewer';
 import { createPortal } from 'react-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { API_URL, getAuthHeaders } from '@/lib/api';
 
 export default function RCLimitPayments() {
   const { user } = useAuth();

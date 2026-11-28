@@ -18,7 +18,7 @@ export default function LoanSelection() {
             id: 15,
             name: "Used Car Loan",
             description:
-              "Financing for pre-owned passenger and commercial vehicles.",
+              "Secure the funds you need with flexible and reliable loan options.",
             image: "/loan-card-images/subcategories/tax 1 (2).png",
             bgColor: "bg-[#E1F8EA]",
           },
@@ -26,41 +26,9 @@ export default function LoanSelection() {
             id: 16,
             name: "New Car Loan",
             description:
-              "Low interest loans for brand new showroom vehicles.",
+              "Secure the funds you need with flexible and reliable loan options.",
             image: "/loan-card-images/subcategories/life-insurance 1 (2).png",
             bgColor: "bg-[#FAF8EB]",
-          },
-          {
-            id: 11,
-            name: "Personal Loan",
-            description:
-              "Quick personal loans with minimal documentation.",
-            image: "/loan-card-images/subcategories/Personal Loan.png",
-            bgColor: "bg-[#FAF8EB]",
-          },
-          {
-            id: 12,
-            name: "Business Loan",
-            description:
-              "Working capital and term loans for business growth.",
-            image: "/loan-card-images/subcategories/tax 1 (1).png",
-            bgColor: "bg-[#F0E7FA]",
-          },
-          {
-            id: 13,
-            name: "Home Loan",
-            description:
-              "Affordable home loans with flexible repayment tenure.",
-            image: "/loan-card-images/subcategories/life-insurance 1 (1).png",
-            bgColor: "bg-[#FAE8E8]",
-          },
-          {
-            id: 14,
-            name: "Loan Against Property",
-            description:
-              "Leverage your commercial or residential property value.",
-            image: "/loan-card-images/subcategories/credit-card 1 (1).png",
-            bgColor: "bg-[#E8EAF9]",
           },
         ],
       },
@@ -72,7 +40,7 @@ export default function LoanSelection() {
   const [selectedSubCategory, setSelectedSubCategory] = useState(
     categories[0].subCategories[0].id,
   );
-  
+
   const navigate = useNavigate();
 
   const handleCategory = (category: typeof categories[0]) => {
@@ -81,20 +49,55 @@ export default function LoanSelection() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 pt-2">
-      {/* Category Header */}
+    <div className="mx-auto max-w-7xl space-y-4 pt-2">
+      {/* Category */}
       <div>
-        <h2 className="mb-2 text-xl font-bold text-slate-800">
-          Loan Products
+        <h2 className="mb-4 text-lg font-semibold text-slate-700">
+          Category Selection
         </h2>
-        <p className="text-sm text-slate-500">
-          Select a loan product category to initiate a new lead or application.
-        </p>
+
+        <div className="grid gap-5 md:grid-cols-3">
+          {categories.map((category) => (
+            <button
+              key={category.id}
+              onClick={() => handleCategory(category)}
+              className={`rounded-xl border-2 p-5 text-left transition-all duration-300 ${
+                selectedCategory.id === category.id
+                  ? `${category.activeBorder} shadow-md`
+                  : "border-gray-200 hover:border-blue-300"
+              } ${category.bgColor}`}
+            >
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-slate-800">
+                    {category.name}
+                  </h3>
+
+                  <p className="mt-2 text-xs leading-5 text-slate-500">
+                    {category.description}
+                  </p>
+                </div>
+
+                <div className="flex h-20 w-20 shrink-0 items-center justify-center">
+                  <img
+                    src={category.image}
+                    alt={category.name}
+                    className="h-full w-full object-contain"
+                  />
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Sub Category Grid */}
+      {/* Sub Category */}
       <div>
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <h2 className="mb-4 text-lg font-semibold text-slate-700">
+          Sub Category Selection
+        </h2>
+
+        <div className="grid gap-5 md:grid-cols-3">
           {selectedCategory.subCategories.map((item) => (
             <button
               key={item.id}
@@ -102,20 +105,24 @@ export default function LoanSelection() {
                 setSelectedSubCategory(item.id);
                 navigate(`/add-lead?case_type=${encodeURIComponent(item.name)}`);
               }}
-              className="rounded-2xl border-2 border-slate-200/80 p-5 text-left transition-all duration-300 hover:border-blue-500 hover:shadow-lg bg-white group cursor-pointer"
+              className={`rounded-xl border-2 p-5 text-left transition-all duration-300 ${
+                selectedSubCategory === item.id
+                  ? "border-green-500 shadow-md"
+                  : "border-transparent hover:border-green-300"
+              } ${item.bgColor}`}
             >
               <div className="flex items-center justify-between gap-4">
                 <div className="flex-1">
-                  <h3 className="text-base font-bold text-slate-800 group-hover:text-blue-600 transition-colors">
+                  <h3 className="text-lg font-semibold text-slate-800">
                     {item.name}
                   </h3>
 
-                  <p className="mt-1.5 text-xs leading-5 text-slate-500 font-medium">
+                  <p className="mt-2 text-xs leading-5 text-slate-500">
                     {item.description}
                   </p>
                 </div>
 
-                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl p-2 bg-slate-50 group-hover:bg-blue-50/50 transition-colors">
+                <div className="flex h-20 w-20 shrink-0 items-center justify-center">
                   <img
                     src={item.image}
                     alt={item.name}

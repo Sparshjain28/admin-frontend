@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth, UserRole } from '@/contexts/AuthContext';
+import { API_URL, getAuthHeaders } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { Users, Clock, CheckCircle2, IndianRupee, PieChart as PieChartIcon, Building2, TrendingUp, Calendar, ArrowUpRight, BarChart3, Target, Download, FileText, Eye, Share2 } from 'lucide-react';
 import {
